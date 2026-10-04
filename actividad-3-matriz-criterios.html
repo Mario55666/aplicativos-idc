@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matriz de Criterios · IDC</title>
+<meta name="description" content="Actividad 3: completa la matriz de criterios mensaje-impacto y viabilidad para tres piezas, resuelve un mini-caso de 4 preguntas y construye un prompt con nomenclatura formal de marketing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="img/logo-b64.js"></script>
+<style>
+:root{
+  --bg:#f5f7fa; --surface:#ffffff; --surface-2:#eef2f6; --ink:#1b1f24; --muted:#5f6b78;
+  --line:#dde3ea; --accent:#0071bc; --accent-soft:#e1effa; --sun:#f2a100; --sun-soft:#fdf1d6;
+  --ok:#2b8a3e; --ok-soft:#e1f3e4; --warn:#c77700; --bad:#c92a2a; --bad-soft:#fbe1e1;
+  --imp:#d6336c; --imp-soft:#fde4ec; --via:#0c8599; --via-soft:#dcf3f6;
+  --radius:16px; --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1318; --surface:#171c22; --surface-2:#1f262e; --ink:#eef2f6; --muted:#9aa7b4;
+    --line:#2c3540; --accent:#4da3e8; --accent-soft:#132a3e; --sun:#ffb829; --sun-soft:#33280f;
+    --ok:#51cf66; --ok-soft:#173022; --warn:#ffb829; --bad:#ff6b6b; --bad-soft:#3a1d1d;
+    --imp:#f06595; --imp-soft:#3a1a27; --via:#3bc9db; --via-soft:#122f35;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#171c22; --surface-2:#1f262e; --ink:#eef2f6; --muted:#9aa7b4;
+  --line:#2c3540; --accent:#4da3e8; --accent-soft:#132a3e; --sun:#ffb829; --sun-soft:#33280f;
+  --ok:#51cf66; --ok-soft:#173022; --warn:#ffb829; --bad:#ff6b6b; --bad-soft:#3a1d1d;
+  --imp:#f06595; --imp-soft:#3a1a27; --via:#3bc9db; --via-soft:#122f35;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.55;font-size:16px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;margin:0 0 .5em}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+header.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:14px;min-height:68px}
+.logo{background:#fff;border-radius:10px;padding:4px 8px;display:flex;align-items:center;flex-shrink:0}
+.logo img{height:40px;width:auto;display:block}
+.unit{border-left:2px solid var(--line);padding-left:14px;line-height:1.25;min-width:0}
+.unit small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.unit b{font-size:.95rem}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.timer{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px 6px 10px;font-variant-numeric:tabular-nums;font-weight:700;font-size:1.05rem;transition:.3s}
+.timer .ic{width:22px;height:22px}
+.timer.run{border-color:var(--accent);color:var(--accent)}
+.timer.low{border-color:var(--sun);color:var(--warn);background:var(--sun-soft)}
+.timer.crit{border-color:var(--bad);color:var(--bad);background:var(--bad-soft);animation:pulse 1s infinite}
+.timer.end{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.toggle{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:38px;height:38px;flex-shrink:0}
+.time-bar{height:4px;background:var(--line)}
+.time-bar div{height:100%;width:100%;background:linear-gradient(90deg,var(--imp),var(--via));transform-origin:left;transition:transform 1s linear}
+
+.hero{padding:48px 0 40px}
+.hero-grid{display:grid;grid-template-columns:7fr 5fr;gap:32px;align-items:start}
+.eyebrow{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--imp);background:var(--imp-soft);padding:5px 11px;border-radius:999px;margin-bottom:16px}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);max-width:17ch}
+.hero h1 .i{color:var(--imp)} .hero h1 .v{color:var(--via)}
+.lead{font-size:1.1rem;color:var(--muted);max-width:60ch}
+.consigna{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--imp);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+.consigna strong{display:block;font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.consigna ol{margin:6px 0 0;padding-left:20px}
+.register{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:relative;overflow:hidden}
+.register::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,var(--imp),var(--accent),var(--via))}
+.register h2{font-size:1.35rem;margin-bottom:4px}
+.register p{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-weight:600;font-size:.88rem;margin-bottom:4px}
+.field label span{font-weight:400;color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink)}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);outline:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big-timer{display:flex;align-items:center;gap:14px;background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:6px 0 14px}
+.big-timer b{font-family:Fraunces,serif;font-size:2rem;font-variant-numeric:tabular-nums}
+.big-timer span{font-size:.85rem;color:var(--muted)}
+.student-chip{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--imp);color:#fff;display:grid;place-items:center;font-weight:700;flex-shrink:0}
+.student-chip b{display:block;font-size:1.05rem}
+.student-chip span{color:var(--muted);font-size:.85rem}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sun{background:var(--sun);color:#1b1f24}
+.btn.imp{background:var(--imp);color:#fff}
+.btn.via{background:var(--via);color:#fff}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.small{padding:8px 14px;font-size:.86rem}
+.btn.full{width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{font-family:Fraunces,serif;font-size:1.6rem;display:block}
+.stat span{color:var(--muted);font-size:.8rem}
+
+section{padding:48px 0;border-top:1px solid var(--line)}
+section > .wrap > h2{font-size:clamp(1.5rem,3.4vw,2.2rem)}
+.sub{color:var(--muted);max-width:70ch;margin-top:-4px}
+.step-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--accent);border-radius:6px;padding:3px 8px;margin-bottom:10px}
+
+/* Instrucciones */
+.instr{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.ins{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;position:relative}
+.ins .n{width:34px;height:34px;border-radius:50%;background:var(--imp);color:#fff;display:grid;place-items:center;font-weight:700;margin-bottom:10px}
+.ins:nth-child(2) .n{background:var(--sun);color:#1b1f24} .ins:nth-child(3) .n{background:var(--via)}
+.ins h3{font-family:Inter,sans-serif;font-size:1rem;margin-bottom:6px}
+.ins ol{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem}
+.ins ol li{margin-bottom:3px}
+.ins .t{position:absolute;top:16px;right:16px;font-size:.75rem;font-weight:700;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:2px 8px}
+.blocks{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+.cblock{border-radius:var(--radius);padding:18px;border:1px solid var(--line);background:var(--surface)}
+.cblock.i{border-top:4px solid var(--imp)} .cblock.v{border-top:4px solid var(--via)}
+.cblock h3{font-family:Inter,sans-serif;font-size:1.05rem;margin-bottom:8px}
+.cblock.i h3{color:var(--imp)} .cblock.v h3{color:var(--via)}
+.cblock dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.88rem}
+.cblock dt{font-weight:700}
+.cblock dd{margin:0;color:var(--muted)}
+.scale-note{margin-top:12px;font-size:.86rem;background:var(--surface-2);border-radius:10px;padding:10px 12px}
+
+/* Bloqueo */
+.lockable{position:relative}
+.lock-msg{display:none;position:absolute;inset:0;z-index:5;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(3px);border-radius:var(--radius);place-items:start center;padding:60px 20px;text-align:center}
+.lockable.locked .lock-msg{display:grid}
+.lock-msg div{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow);max-width:420px;position:sticky;top:120px}
+.lock-msg b{display:block;font-size:1.1rem;margin-bottom:4px}
+.lock-msg p{margin:0 0 14px;color:var(--muted)}
+
+/* Piezas */
+.pieces{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.piece-img{display:block;width:100%;padding:0;border:0;background:#000;position:relative;aspect-ratio:16/10;cursor:zoom-in}
+.piece-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.piece-img:hover img{transform:scale(1.03)}
+.piece-img .badge{position:absolute;top:10px;left:10px;color:#fff;font-size:.74rem;padding:4px 10px;border-radius:999px;font-weight:700}
+.piece-img .zoom{position:absolute;bottom:10px;right:10px;background:rgba(255,255,255,.92);color:#1b1f24;font-size:.78rem;padding:5px 11px;border-radius:999px;font-weight:600}
+.piece-body{padding:16px}
+.piece-body h3{font-size:1.2rem;margin-bottom:2px}
+.piece-body .meta{color:var(--muted);font-size:.84rem;margin-bottom:10px}
+.medio{display:inline-block;background:var(--sun-soft);color:var(--warn);font-weight:700;padding:3px 10px;border-radius:8px;font-size:.86rem}
+.brief{list-style:none;padding:0;margin:10px 0 0;font-size:.84rem}
+.brief li{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:6px 0;border-top:1px solid var(--line)}
+.brief li b{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.04em}
+
+/* Matriz */
+.matrix-wrap{margin-top:22px;overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+table.matrix{width:100%;border-collapse:collapse;min-width:820px}
+.matrix th,.matrix td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.matrix thead th{background:var(--surface-2);font-size:.8rem}
+.matrix thead th .ph{display:flex;align-items:center;gap:8px}
+.matrix thead th img{width:54px;height:34px;object-fit:cover;border-radius:6px;cursor:zoom-in}
+.matrix thead th small{display:block;color:var(--muted);font-weight:500}
+.matrix .grp td{font-weight:800;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;padding:8px 12px}
+.matrix .grp.i td{background:var(--imp-soft);color:var(--imp)} .matrix .grp.v td{background:var(--via-soft);color:var(--via)}
+.matrix .crit b{display:block;font-size:.9rem}
+.matrix .crit span{font-size:.76rem;color:var(--muted)}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:var(--surface);color:var(--ink);width:32px;height:32px;font-weight:700;font-size:.85rem;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button:hover{background:var(--surface-2)}
+.seg.i button[aria-pressed="true"]{background:var(--imp);color:#fff}
+.seg.v button[aria-pressed="true"]{background:var(--via);color:#fff}
+.matrix .tot td{font-weight:700;background:var(--surface-2)}
+.qchip{display:inline-block;font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 10px}
+.q-ejecutar{background:var(--ok-soft);color:var(--ok)} .q-optimizar{background:var(--via-soft);color:var(--via)}
+.q-reforzar{background:var(--imp-soft);color:var(--imp)} .q-replantear{background:var(--sun-soft);color:var(--warn)} .q-pend{background:var(--surface-2);color:var(--muted)}
+.justs{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.just{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.just label{font-weight:700;font-size:.9rem;display:block;margin-bottom:6px}
+textarea{width:100%;min-height:80px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink);resize:vertical}
+.just .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;flex-wrap:wrap}
+.just .prog{font-size:.78rem;color:var(--muted)}
+
+/* Feedback piezas */
+.fb{margin-top:20px;display:none}
+.fb.show{display:block;animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fb-head{padding:16px 20px;background:linear-gradient(90deg,var(--imp-soft),var(--via-soft));font-weight:600;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.fb-head .emoji{font-size:1.5rem}
+.fb-tabs{display:flex;gap:6px;margin-left:auto}
+.fb-tabs button{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:.82rem}
+.fb-tabs button[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+.fb-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px}
+.chart-wrap{position:relative;height:300px}
+.idx{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.idx div{border-radius:12px;padding:12px}
+.idx .a{background:var(--imp-soft)} .idx .b{background:var(--via-soft)}
+.idx small{display:block;font-size:.72rem;text-transform:uppercase;font-weight:700;letter-spacing:.05em;opacity:.85}
+.idx b{font-family:Fraunces,serif;font-size:1.6rem}
+.idx em{font-style:normal;font-size:.8rem;color:var(--muted);display:block}
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:9px 12px;border-radius:10px;margin-bottom:8px;font-size:.9rem}
+.list.good li{background:var(--ok-soft)}
+.list.grow li{background:var(--surface-2)}
+.keyidea{background:var(--accent-soft);padding:10px 12px;border-radius:10px;margin:8px 0 0;font-size:.9rem}
+
+/* Mini-caso */
+.mini{display:grid;grid-template-columns:5fr 7fr;gap:20px;margin-top:22px;align-items:start}
+.casefile{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:90px}
+.casefile .ch{background:linear-gradient(135deg,#5c3a21,#a0612b);color:#fff;padding:20px}
+.casefile .ch small{opacity:.85;font-size:.74rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.casefile .ch h3{font-size:1.5rem;margin:4px 0 0;color:#fff}
+.casefile ul{list-style:none;margin:0;padding:6px 18px 16px}
+.casefile li{display:grid;grid-template-columns:118px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.88rem}
+.casefile li:last-child{border-bottom:0}
+.casefile li b{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.04em}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.qcard .qh{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.qcard .qn{width:30px;height:30px;border-radius:50%;background:var(--sun);color:#1b1f24;display:grid;place-items:center;font-weight:800;flex-shrink:0}
+.qcard .qh b{display:block}
+.qcard .tags{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+.qcard .tags span{font-size:.72rem;font-weight:700;border-radius:999px;padding:2px 8px}
+.tag-i{background:var(--imp-soft);color:var(--imp)} .tag-v{background:var(--via-soft);color:var(--via)}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:11px 14px;display:flex;gap:10px;align-items:flex-start}
+.opt .l{font-weight:800;color:var(--muted)}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.chosen-wrong{border-color:var(--sun);background:var(--sun-soft)}
+.qfb{display:none;margin-top:10px;border-radius:12px;padding:12px 14px;font-size:.9rem}
+.qfb.show{display:block;animation:rise .3s}
+.qfb.ok{background:var(--ok-soft)} .qfb.try{background:var(--sun-soft)}
+.mini-score{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:6px}
+.mini-score b{font-family:Fraunces,serif;font-size:2rem}
+
+/* Constructor de prompts */
+.pb{display:grid;grid-template-columns:6fr 6fr;gap:20px;margin-top:22px;align-items:start}
+.pb-form{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.pb-sec{border-bottom:1px dashed var(--line);padding-bottom:14px;margin-bottom:14px}
+.pb-sec:last-child{border-bottom:0;margin-bottom:0}
+.pb-sec h4{margin:0 0 8px;display:flex;align-items:center;gap:8px;font-size:.95rem}
+.pb-sec h4 .k{font-family:"JetBrains Mono",monospace;font-size:.7rem;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:2px 6px}
+.pb-sec h4 .done{margin-left:auto;font-size:.75rem;color:var(--ok);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 11px;font-size:.82rem}
+.chip[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.chip.i[aria-pressed="true"]{background:var(--imp);border-color:var(--imp)}
+.chip.v[aria-pressed="true"]{background:var(--via);border-color:var(--via)}
+.pb-out{position:sticky;top:90px}
+.out-card{background:#0f1720;color:#e6edf3;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.out-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#16202b;border-bottom:1px solid #26323f}
+.out-bar span{font-family:"JetBrains Mono",monospace;font-size:.78rem;color:#9fb0c2}
+.out-bar .btn{margin-left:auto}
+pre.prompt{margin:0;padding:16px;font-family:"JetBrains Mono",monospace;font-size:.78rem;line-height:1.6;white-space:pre-wrap;word-break:break-word;max-height:520px;overflow:auto}
+pre.prompt .h{color:#ffb829;font-weight:600}
+pre.prompt .t{color:#4da3e8;font-weight:600}
+.quality{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-top:14px}
+.qbar{height:10px;border-radius:99px;background:var(--line);overflow:hidden;margin:8px 0}
+.qbar div{height:100%;width:0;background:linear-gradient(90deg,var(--sun),var(--ok));transition:width .4s}
+.terms{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.terms span{font-size:.74rem;border-radius:999px;padding:2px 8px;background:var(--surface-2);color:var(--muted)}
+.terms span.on{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.gloss{margin-top:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.gloss button{text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 12px;font-size:.82rem}
+.gloss button b{display:block;font-size:.88rem;margin-bottom:2px}
+.gloss button span{color:var(--muted)}
+.gloss button:hover{border-color:var(--accent)}
+.apply{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.apply h4{margin:0 0 6px}
+
+/* Tablero */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.kpi small{color:var(--muted);font-size:.8rem;font-weight:600}
+.kpi b{display:block;font-family:Fraunces,serif;font-size:2rem;margin-top:4px;font-variant-numeric:tabular-nums}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.chart-card h3{font-family:Inter,sans-serif;font-size:1rem;margin-bottom:12px}
+.empty{color:var(--muted);text-align:center;padding:30px}
+.report-box{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.report-box p{margin:0;color:var(--muted);flex:1 1 260px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+footer{padding:28px 0 40px;border-top:4px solid var(--accent);background:var(--surface)}
+footer .wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+footer .doc b{display:block;font-size:1.05rem}
+footer .doc span{color:var(--muted);font-size:.88rem}
+footer .week{margin-left:auto;background:var(--sun);color:#1b1f24;font-weight:700;border-radius:999px;padding:8px 16px}
+footer .legal{flex-basis:100%;color:var(--muted);font-size:.78rem;margin-top:6px}
+footer .legal a{color:var(--accent)}
+
+dialog.lightbox{border:0;padding:0;background:transparent;max-width:96vw;max-height:94vh;overflow:visible}
+dialog.lightbox::backdrop{background:rgba(5,8,12,.88)}
+.lb-scroll{max-width:96vw;max-height:84vh;overflow:auto;border-radius:12px;background:#000}
+.lb-scroll img{display:block;max-width:96vw;max-height:84vh;cursor:zoom-in}
+.lb-scroll.zoomed img{max-width:none;max-height:none;width:200%;cursor:zoom-out}
+.lb-bar{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:10px;color:#fff;flex-wrap:wrap}
+.lb-bar button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 14px}
+dialog.modal{border:0;border-radius:20px;padding:0;max-width:480px;width:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+dialog.modal::backdrop{background:rgba(5,8,12,.6)}
+.modal-body{padding:28px;text-align:center}
+.modal-body .big{font-size:3rem}
+.modal-body h3{font-size:1.6rem}
+.modal-body p{color:var(--muted)}
+.modal-body .actions{justify-content:center;margin-top:16px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:500;transition:transform .3s;z-index:60;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:8px;height:14px;border-radius:2px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.6}}
+
+/* Ruta (archify) */
+.route-frame{margin-top:18px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.route-frame iframe{display:block;width:100%;height:860px;border:0;background:#fff}
+.route-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:.86rem;color:var(--muted)}
+
+/* Mapa mental de progreso */
+.mm-wrap{display:grid;grid-template-columns:1fr;gap:16px;margin-top:22px}
+.mm-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:10px}
+.mm-card svg{width:100%;height:auto;display:block}
+.mm-card .edge{fill:none;stroke-width:3;transition:stroke .4s}
+.mm-card .ledge{fill:none;stroke-width:2;stroke-dasharray:4 4}
+.mm-card text{font-family:Inter,system-ui,sans-serif}
+.mm-side{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.mm-side .mm-legend{grid-column:1/-1}
+.mm-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--muted)}
+.mm-legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-2px}
+.mm-next{background:linear-gradient(135deg,var(--accent-soft),var(--ok-soft));border-radius:14px;padding:16px}
+.mm-next b{display:block;font-size:1.05rem;margin-bottom:4px}
+.hdr-map{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;height:38px;padding:0 12px;font-weight:600;font-size:.85rem;display:flex;align-items:center;gap:6px;text-decoration:none}
+
+/* Paso 4 · Infografía y LinkedIn */
+.pub-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:22px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.panel h3{font-family:Inter,sans-serif;font-size:1.05rem;margin-bottom:6px}
+.upload{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;cursor:pointer;display:block;transition:.2s}
+.upload:hover{border-color:var(--accent);background:var(--accent-soft)}
+.upload input{display:none}
+.info-prev{margin-top:12px;max-height:420px;overflow:auto;border-radius:12px;display:none}
+.info-prev img{width:100%;display:block;border-radius:12px}
+.card-prev{width:100%;height:auto;border-radius:12px;border:1px solid var(--line);display:block;background:#0f1720}
+.li-steps{margin:10px 0 0;padding-left:20px;font-size:.88rem;color:var(--muted)}
+.li-steps li{margin-bottom:4px}
+.btn.li{background:#0a66c2;color:#fff}
+.check-row{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:.9rem;font-weight:600}
+.check-row input{width:18px;height:18px;accent-color:var(--ok)}
+
+@media (max-width:980px){
+  .hero-grid,.mini,.pb,.fb-grid,.charts,.blocks,.mm-wrap,.pub-grid{grid-template-columns:1fr}
+  .route-frame iframe{height:640px}
+  .pieces,.justs{grid-template-columns:1fr}
+  .instr,.dash-grid{grid-template-columns:1fr 1fr}
+  .gloss{grid-template-columns:1fr 1fr}
+  .casefile,.pb-out{position:static}
+}
+@media (max-width:620px){
+  .mm-side{grid-template-columns:1fr}
+  .unit{display:none}
+  .logo img{height:32px}
+  .instr,.row2{grid-template-columns:1fr}
+  .timer{font-size:.95rem;padding:5px 10px 5px 8px}
+  .gloss{grid-template-columns:1fr}
+  .casefile li{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="IDC Diseño & Comunicación – inicio"><img src="img/idc-logo.jpg" alt="IDC Diseño & Comunicación – Instituto de Educación Superior Público"></a>
+    <div class="unit"><small>Unidad didáctica</small><b>Producción y publicación de piezas gráficas</b></div>
+    <div class="top-right">
+      <div class="timer" id="timer" role="timer" title="Tiempo restante de la actividad">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+        <span id="timerTxt">30:00</span>
+      </div>
+      <a class="hdr-map" href="#mapa" title="Ver mi mapa de proceso">🧠 <span id="hdrPct">0%</span></a>
+      <button class="toggle" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐</button>
+    </div>
+  </div>
+  <div class="time-bar"><div id="timeBar"></div></div>
+</header>
+
+<main id="inicio">
+<section class="hero" style="border-top:0">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Semana 5 · Actividad 3 · Matriz de decisión</span>
+      <h1>Del <span class="i">impacto</span> a la <span class="v">viabilidad</span>: decide el medio con criterios</h1>
+      <p class="lead">Ya sabes que un juicio sobre medios necesita datos. Ahora vas a usar una matriz profesional para evaluar tres piezas, aplicarla a un caso nuevo y redactar un prompt con lenguaje formal de marketing.</p>
+      <div class="consigna">
+        <strong>Consigna</strong>
+        <ol>
+          <li>Completa la matriz de criterios para las tres piezas: <b>mensaje-impacto</b> (atención, retención, resonancia emocional, complejidad del mensaje frente a la capacidad del medio) y <b>viabilidad</b> (presupuesto, plazo de producción, alcance de distribución, factibilidad técnica, restricción del cliente).</li>
+          <li>Resuelve un mini-caso de 4 preguntas cerradas aplicando ambos bloques de criterios a un caso nuevo.</li>
+          <li>Construye un prompt con nomenclatura formal de marketing para resolver el mini-caso con IA y compara la respuesta con la tuya.</li>
+          <li>Genera con un prompt una infografía que explique cómo funciona el marketing en la producción de una campaña y publica tus resultados en LinkedIn.</li>
+        </ol>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="sMat">0/3</b><span>piezas evaluadas</span></div>
+        <div class="stat"><b id="sMini">0/4</b><span>mini-caso</span></div>
+        <div class="stat"><b id="sPrompt">0%</b><span>calidad del prompt</span></div>
+      </div>
+    </div>
+    <aside class="register" id="registerCard" aria-live="polite"></aside>
+  </div>
+</section>
+
+<section id="instrucciones">
+  <div class="wrap">
+    <h2>Instrucciones</h2>
+    <p class="sub">Tienes <b>30 minutos</b> para los pasos 1 a 3. El <b>paso 4</b> (infografía y LinkedIn) puedes terminarlo incluso después de que acabe el tiempo. Cada respuesta recibe retroalimentación inmediata y tu <b>mapa de proceso</b> 🧠 se ilumina a medida que avanzas.</p>
+    <div class="instr" style="grid-template-columns:repeat(4,1fr)">
+      <div class="ins"><span class="t">≈ 14 min</span><div class="n">1</div><h3>Completa la matriz</h3><ol><li>Lee el brief de cada pieza (medio, público, presupuesto, plazo, restricción).</li><li>Califica cada criterio de 1 a 5.</li><li>Escribe una justificación y presiona <b>Evaluar pieza</b>.</li></ol></div>
+      <div class="ins"><span class="t">≈ 6 min</span><div class="n">2</div><h3>Resuelve el mini-caso</h3><ol><li>Lee la ficha del caso nuevo.</li><li>Responde las 4 preguntas cerradas (una opción cada una).</li><li>Lee la explicación de cada respuesta.</li></ol></div>
+      <div class="ins"><span class="t">≈ 10 min</span><div class="n">3</div><h3>Construye el prompt</h3><ol><li>Completa los 9 componentes con términos formales de marketing.</li><li>Copia el prompt y úsalo en una IA (ChatGPT, Claude, Gemini).</li><li>Compara la respuesta de la IA con la tuya.</li></ol></div>
+      <div class="ins"><span class="t">Sin límite</span><div class="n" style="background:#0a66c2">4</div><h3>Infografía y LinkedIn</h3><ol><li>Arma el prompt de la infografía y genérala con IA.</li><li>Súbela y genera tu tarjeta de logros.</li><li>Publica en LinkedIn y descarga tu informe.</li></ol></div>
+    </div>
+    <div class="route-frame">
+      <div class="route-bar"><span>🗺️ <b style="color:var(--ink)">Ruta de trabajo</b> · diagrama interactivo (sus botones están en inglés)</span><a class="btn ghost small" href="proceso-actividad-3.html" target="_blank" rel="noopener">⤢ Pantalla completa</a></div>
+      <iframe src="proceso-actividad-3.html" title="Ruta de trabajo de la Actividad 3" loading="lazy"></iframe>
+    </div>
+    <div class="blocks">
+      <div class="cblock i"><h3>Bloque A · Mensaje-impacto</h3>
+        <dl>
+          <dt>Atención</dt><dd>¿La pieza detiene la mirada en ese medio y contexto?</dd>
+          <dt>Retención</dt><dd>¿El mensaje se recuerda después de la exposición?</dd>
+          <dt>Resonancia emocional</dt><dd>¿Conecta con las motivaciones del público objetivo?</dd>
+          <dt>Complejidad vs. medio</dt><dd>¿El medio tiene capacidad para transmitir la cantidad de información de la pieza?</dd>
+        </dl></div>
+      <div class="cblock v"><h3>Bloque B · Viabilidad</h3>
+        <dl>
+          <dt>Presupuesto</dt><dd>¿El costo del medio y de la producción cabe en lo asignado?</dd>
+          <dt>Plazo de producción</dt><dd>¿Se puede producir y publicar a tiempo?</dd>
+          <dt>Alcance de distribución</dt><dd>¿El medio llega a suficiente público objetivo?</dd>
+          <dt>Factibilidad técnica</dt><dd>¿El formato de la pieza funciona en ese soporte sin adaptaciones complejas?</dd>
+          <dt>Restricción del cliente</dt><dd>¿Cumple los mandatorios del cliente (marca, legales, tono)?</dd>
+        </dl></div>
+    </div>
+    <p class="scale-note">📏 <b>Escala:</b> 1 = muy desfavorable · 3 = aceptable · 5 = muy favorable. En todos los criterios, <b>5 siempre es lo mejor</b> (por ejemplo, presupuesto 5 = cabe holgadamente; complejidad 5 = el medio transmite bien toda la información).</p>
+  </div>
+</section>
+
+<section id="matriz">
+  <div class="wrap">
+    <span class="step-tag" style="background:var(--imp)">Paso 1</span>
+    <h2>Matriz de criterios: tres piezas</h2>
+    <p class="sub">Cada pieza tiene un <b>medio propuesto</b> y un brief. Evalúa si esa combinación pieza-medio funciona. Haz clic en las imágenes para ampliarlas.</p>
+    <div class="lockable" id="matLock">
+      <div class="lock-msg"><div><b>🔒 Regístrate para comenzar</b><p>El cronómetro de 30 minutos inicia al registrarte.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="pieces" id="pieces"></div>
+      <div class="matrix-wrap"><table class="matrix" id="matrix"></table></div>
+      <div class="justs" id="justs"></div>
+      <div class="card fb" id="pieceFb"></div>
+    </div>
+  </div>
+</section>
+
+<section id="minicaso">
+  <div class="wrap">
+    <span class="step-tag" style="background:var(--sun);color:#1b1f24">Paso 2</span>
+    <h2>Mini-caso: un caso nuevo</h2>
+    <p class="sub">Aplica los dos bloques de criterios. Cada pregunta tiene <b>una</b> respuesta más fundamentada; al elegir verás la explicación de todas las opciones.</p>
+    <div class="lockable" id="miniLock">
+      <div class="lock-msg"><div><b>🔒 Regístrate para comenzar</b><p>Puedes resolver el mini-caso en cualquier momento después de registrarte.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="mini">
+        <aside class="casefile" id="caseFile"></aside>
+        <div><div id="questions"></div><div class="mini-score" id="miniScore"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="prompt">
+  <div class="wrap">
+    <span class="step-tag" style="background:var(--via)">Paso 3</span>
+    <h2>Constructor de prompts con nomenclatura de marketing</h2>
+    <p class="sub">Un buen prompt funciona como un <b>brief creativo</b>: rol, contexto, target, objetivo y KPI, insight, mix de medios, criterios, mandatorios y formato de entrega. Completa cada componente; el prompt se arma a la derecha.</p>
+    <div class="lockable" id="pbLock">
+      <div class="lock-msg"><div><b>🔒 Regístrate para comenzar</b><p>El constructor se habilita al iniciar la actividad.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="pb">
+        <div class="pb-form" id="pbForm"></div>
+        <div class="pb-out">
+          <div class="out-card">
+            <div class="out-bar"><span>prompt-minicaso.md</span><button class="btn sun small" id="copyBtn">⧉ Copiar prompt</button></div>
+            <pre class="prompt" id="promptOut"></pre>
+          </div>
+          <div class="quality" id="quality"></div>
+          <div class="apply" id="applyBox"></div>
+        </div>
+      </div>
+      <h3 style="margin-top:28px;font-size:1.25rem">Glosario de nomenclatura formal <span style="font-family:Inter;font-size:.85rem;color:var(--muted);font-weight:400">(haz clic para insertar el término en el campo activo)</span></h3>
+      <div class="gloss" id="gloss"></div>
+    </div>
+  </div>
+</section>
+
+<section id="publicar">
+  <div class="wrap">
+    <span class="step-tag" style="background:#0a66c2">Paso 4</span>
+    <h2>Infografía con IA y publicación en LinkedIn</h2>
+    <p class="sub">Cierra tu proceso como lo haría un profesional: <b>genera una infografía</b> que explique cómo trabaja el marketing en la producción de una campaña y <b>comparte tus resultados</b> en LinkedIn. Este paso sigue disponible aunque termine el tiempo.</p>
+    <div class="lockable" id="pubLock">
+      <div class="lock-msg"><div><b>🔒 Regístrate para comenzar</b><p>Este paso se habilita al iniciar la actividad.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="pb">
+        <div class="pb-form" id="infoForm"></div>
+        <div class="pb-out">
+          <div class="out-card">
+            <div class="out-bar"><span>prompt-infografia.md</span><button class="btn sun small" id="copyInfoBtn">⧉ Copiar prompt</button></div>
+            <pre class="prompt" id="infoOut"></pre>
+          </div>
+          <div class="panel" style="margin-top:14px">
+            <h3>Sube la infografía que generaste</h3>
+            <label class="upload" id="upLabel"><input type="file" id="infoFile" accept="image/png,image/jpeg,image/webp"><b>📤 Elegir imagen</b><br><span style="font-size:.85rem;color:var(--muted)">PNG, JPG o WEBP · se usa solo en tu navegador y en tu informe</span></label>
+            <div class="info-prev" id="infoPrev"><img id="infoImg" alt="Infografía generada por el estudiante"></div>
+          </div>
+        </div>
+      </div>
+      <div class="pub-grid">
+        <div class="panel">
+          <h3>🏅 Tu tarjeta de logros</h3>
+          <p style="margin:0 0 10px;color:var(--muted);font-size:.88rem">Se genera con tus resultados. Descárgala para adjuntarla a tu publicación junto con tu infografía.</p>
+          <canvas id="cardCanvas" class="card-prev" width="1200" height="627"></canvas>
+          <div class="actions" style="margin-top:12px"><button class="btn primary small" id="cardBtn">⬇ Descargar tarjeta (PNG)</button><button class="btn ghost small" id="cardRefresh">↻ Actualizar</button></div>
+        </div>
+        <div class="panel">
+          <h3>in Publica en LinkedIn</h3>
+          <div class="field"><label for="postText">Texto de tu publicación <span>(edítalo a tu estilo)</span></label><textarea id="postText" rows="8"></textarea></div>
+          <div class="actions"><button class="btn ghost small" id="copyPost">⧉ Copiar texto</button><button class="btn li small" id="openLi">in Abrir LinkedIn</button></div>
+          <ol class="li-steps">
+            <li>Descarga tu tarjeta de logros (y ten a mano tu infografía).</li>
+            <li>Presiona <b>Abrir LinkedIn</b>: se abrirá una publicación nueva con tu texto.</li>
+            <li>Adjunta las imágenes con el botón 🖼️ de LinkedIn y publica.</li>
+          </ol>
+          <p style="font-size:.8rem;color:var(--muted);margin:8px 0 0">🔒 Tu correo no se incluye en la publicación. Tú decides qué compartir.</p>
+          <label class="check-row"><input type="checkbox" id="pubDone"> Ya publiqué mis resultados en LinkedIn</label>
+          <div class="field" style="margin-top:8px"><label for="pubUrl">Enlace de tu publicación <span>(opcional, para tu informe)</span></label><input id="pubUrl" placeholder="https://www.linkedin.com/posts/..."></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mapa">
+  <div class="wrap">
+    <span class="step-tag" style="background:var(--ok)">Retroalimentación</span>
+    <h2>🧠 Tu mapa de proceso</h2>
+    <p class="sub">Este mapa mental muestra el proceso que <b>estás desarrollando</b> para cumplir el objetivo. Cada rama se ilumina cuando avanzas: verde = completado, naranja = en progreso, gris = pendiente.</p>
+    <div class="mm-wrap">
+      <div class="mm-card"><svg id="mindmap" viewBox="0 0 1100 700" role="img" aria-label="Mapa mental del progreso de la actividad"></svg></div>
+      <div class="mm-side">
+        <div class="mm-legend"><span><i style="background:var(--ok)"></i>Completado</span><span><i style="background:var(--sun)"></i>En progreso</span><span><i style="background:var(--line)"></i>Pendiente</span></div>
+        <div class="mm-next" id="mmNext"></div>
+        <ul class="list good" id="mmDone"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resultados">
+  <div class="wrap">
+    <h2>Tablero de resultados</h2>
+    <p class="sub">Tu matriz de decisión en un solo vistazo: dónde se ubica cada pieza entre impacto y viabilidad, cómo te fue en el mini-caso y la calidad de tu prompt.</p>
+    <div class="dash-grid">
+      <div class="kpi"><small>Concordancia de la matriz</small><b id="kMat">—</b></div>
+      <div class="kpi"><small>Mini-caso</small><b id="kMini">—</b></div>
+      <div class="kpi"><small>Calidad del prompt</small><b id="kPrompt">—</b></div>
+      <div class="kpi"><small>Tiempo utilizado</small><b id="kTime">00:00</b></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h3>Mapa de decisión: impacto vs. viabilidad</h3><div class="chart-wrap"><canvas id="cQuad"></canvas></div></div>
+      <div class="chart-card"><h3>Índices por pieza: tú vs. referencia</h3><div class="chart-wrap"><canvas id="cIdx"></canvas></div></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h3>Tiempo por actividad (min)</h3><div class="chart-wrap" style="height:240px"><canvas id="cTime"></canvas></div></div>
+      <div class="chart-card"><h3>Retroalimentación global</h3><div id="globalFb"><p class="empty">Evalúa al menos una pieza para ver tu retroalimentación.</p></div></div>
+    </div>
+    <div class="report-box">
+      <p><b style="color:var(--ink)">Informe del estudiante.</b> Incluye tu matriz completa, los índices y cuadrantes, las respuestas del mini-caso, tu prompt y el tiempo de cada actividad.</p>
+      <div class="actions">
+        <button class="btn primary" id="pdfBtn">📄 Informe PDF</button>
+        <button class="btn sun" id="mdBtn">⬇ Informe Markdown</button>
+        <button class="btn ghost" id="finishBtn2">Finalizar actividad</button>
+        <button class="btn ghost" id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="logo"><img src="img/idc-logo.jpg" alt="IDC" style="height:34px"></div>
+    <div class="doc"><b>Mg. Mario Quiroz Martínez</b><span>Docente · Unidad didáctica: Producción y publicación de piezas gráficas</span></div>
+    <div class="week">Semana 5</div>
+    <div class="legal">Actividad 3 de la Semana 5 · <a href="evaluacion-medios-publicitarios.html">Actividad 1</a> · <a href="contraste-equipo-medios.html">Actividad 2</a> · Las piezas son imágenes referenciales; “Frontline” se usa aquí como marca ficticia de camionetas. Los briefs, el mini-caso “Killa” y las valoraciones de referencia son material pedagógico, no datos oficiales de las marcas.</div>
+  </div>
+</footer>
+
+<dialog class="lightbox" id="lightbox" aria-label="Imagen ampliada">
+  <div class="lb-scroll" id="lbScroll"><img id="lbImg" alt=""></div>
+  <div class="lb-bar"><span id="lbCap"></span><span><button id="lbZoom">🔍 Zoom 2×</button> <button id="lbClose">✕ Cerrar</button></span></div>
+</dialog>
+<dialog class="modal" id="endModal"><div class="modal-body" id="endBody"></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   DATOS
+   ========================================================= */
+const DURATION = 30*60;
+const UNIDAD = "Producción y publicación de piezas gráficas";
+const DOCENTE = "Mg. Mario Quiroz Martínez";
+const SEMANA = "Semana 5";
+const PREV_KEYS = ["juicio-equipo-idc-v1","medio-mensaje-idc-v2"];
+
+const CRIT = [
+  {id:"atencion",   b:"i", name:"Atención",               hint:"¿Detiene la mirada?"},
+  {id:"retencion",  b:"i", name:"Retención",              hint:"¿Se recuerda después?"},
+  {id:"resonancia", b:"i", name:"Resonancia emocional",   hint:"¿Conecta con el público?"},
+  {id:"complejidad",b:"i", name:"Complejidad vs. medio",  hint:"¿El medio soporta la información?"},
+  {id:"presupuesto",b:"v", name:"Presupuesto",            hint:"¿Cabe en lo asignado?"},
+  {id:"plazo",      b:"v", name:"Plazo de producción",    hint:"¿Llega a tiempo?"},
+  {id:"alcance",    b:"v", name:"Alcance de distribución",hint:"¿Llega a suficiente target?"},
+  {id:"tecnica",    b:"v", name:"Factibilidad técnica",   hint:"¿El formato funciona en el soporte?"},
+  {id:"cliente",    b:"v", name:"Restricción del cliente",hint:"¿Cumple los mandatorios?"}
+];
+const IMP = CRIT.filter(c=>c.b==="i"), VIA = CRIT.filter(c=>c.b==="v");
+
+const PIECES = [
+  { id:"frontline", short:"A", color:"#d6336c", marca:"Frontline", producto:"Camioneta pickup 4×4 (marca ficticia)", img:"img/act3-frontline-pickup.webp",
+    medio:"Panel exterior de gran formato en carretera",
+    brief:{ publico:"Hombres y mujeres de 30 a 55 años: agricultores, empresarios de minería y viajeros de aventura en el sur del país.",
+            objetivo:"Lanzamiento: notoriedad (awareness) del nuevo modelo.",
+            presupuesto:"Medio-alto (S/ 60 000 para 2 meses).", plazo:"4 semanas hasta la salida al mercado.",
+            restriccion:"Mostrar el vehículo en terreno real y el logo legible a 200 m." },
+    ref:{ atencion:5, retencion:3, resonancia:4, complejidad:4, presupuesto:3, plazo:4, alcance:3, tecnica:4, cliente:5 },
+    nota:"La imagen heroica funciona muy bien en exterior y cumple el mandatorio del cliente. El eslogan es genérico (retención media) y los tres atributos pequeños son difíciles de leer a velocidad de carretera; el alcance se limita a las rutas elegidas.",
+    clave:"En exterior, la pieza ideal se entiende en 3 segundos: una imagen, una idea y el logo." },
+  { id:"spotify", short:"B", color:"#1db954", marca:"Spotify", producto:"Suscripción Premium", img:"img/act3-spotify.webp",
+    medio:"Anuncio en el feed de redes sociales (Instagram) con pauta segmentada",
+    brief:{ publico:"Jóvenes urbanos de 16 a 30 años que escuchan música en el celular.",
+            objetivo:"Conversión: descargas y pruebas de Premium (CTA “Escucha ahora”).",
+            presupuesto:"Medio (S/ 20 000 por mes, escalable).", plazo:"1 semana.",
+            restriccion:"Usar el verde corporativo y un CTA visible." },
+    ref:{ atencion:4, retencion:4, resonancia:5, complejidad:2, presupuesto:5, plazo:5, alcance:5, tecnica:3, cliente:5 },
+    nota:"Excelente resonancia y viabilidad: pauta segmentada, barata y rápida. Pero la pieza tiene demasiados elementos (4 íconos, 4 playlists, texto y CTA) para un feed que se mira 1–2 segundos, y su formato horizontal 16:9 debe adaptarse al vertical 9:16.",
+    clave:"Un medio viable no compensa una pieza sobrecargada: simplifica antes de pautar." },
+  { id:"vw", short:"C", color:"#0071bc", marca:"Volkswagen", producto:"SUV Tiguan", img:"img/act3-volkswagen-tiguan.webp",
+    medio:"Aviso a página completa en revista impresa de negocios",
+    brief:{ publico:"Profesionales y familias de 30 a 50 años, NSE A/B, que evalúan cambiar de auto.",
+            objetivo:"Consideración: que incluyan el Tiguan en su lista de opciones.",
+            presupuesto:"Medio (S/ 25 000 por 2 ediciones).", plazo:"Cierre de edición en 6 semanas.",
+            restriccion:"Mostrar el modelo Tiguan y la leyenda legal de seguridad." },
+    ref:{ atencion:4, retencion:4, resonancia:3, complejidad:5, presupuesto:3, plazo:3, alcance:2, tecnica:5, cliente:4 },
+    nota:"La revista permite una lectura pausada y una impresión de alta calidad, ideal para un mensaje sobrio de consideración. Su punto débil es el alcance (tiraje limitado y en descenso) y el cierre anticipado de edición; además falta la leyenda legal visible.",
+    clave:"Medio coherente con el mensaje, pero hay que complementar el alcance con digital." }
+];
+
+const MINI = {
+  marca:"Killa Café", titulo:"Lanzamiento de café frío en lata",
+  ficha:[
+    ["Marca","Killa Café: café de especialidad de Cusco (marca local ficticia)."],
+    ["Producto","Nueva línea de café frío en lata, listo para tomar."],
+    ["Target","Universitarios de 18 a 25 años de Lima que estudian de noche y siguen a creadores de contenido."],
+    ["Objetivo","Awareness + prueba de producto (sampling) en el primer mes."],
+    ["Presupuesto","S/ 15 000 en total (medios + producción)."],
+    ["Plazo","3 semanas hasta el lanzamiento."],
+    ["Mandatorios","Incluir el sello “Origen Cusco”; no promover el consumo excesivo de cafeína."],
+    ["Insight","“En época de exámenes necesito energía, pero también algo que se sienta auténtico y no de laboratorio.”"]
+  ],
+  q:[
+    { t:"¿Qué medio tiene mejor relación entre la complejidad del mensaje (origen + beneficio) y la atención del target?", tags:["i:Atención","i:Complejidad vs. medio"],
+      o:["Spot de 30 s en TV nacional","Video corto vertical (Reels/TikTok) con microinfluencers + sampling en campus","Aviso de media página en un diario impreso","Cuña de radio AM en horario matutino"], c:1,
+      e:["Alcanza mucho, pero dispersa el mensaje en un público amplio que no es el target.","Combina la plataforma donde está el target con la prueba física del producto: el video cuenta el origen y el sampling demuestra el beneficio.","El diario casi no llega a universitarios y no permite probar el producto.","La radio AM tiene baja afinidad con este target y no muestra el sello de origen."] },
+    { t:"Con S/ 15 000 y 3 semanas, ¿qué opción NO es viable?", tags:["v:Presupuesto","v:Plazo de producción"],
+      o:["Pauta segmentada en Instagram y TikTok","Microinfluencers universitarios (canje + pago)","Spot en TV abierta en horario estelar","Stands de degustación en 3 universidades"], c:2,
+      e:["Es viable: se ajusta a cualquier monto y se activa en días.","Es viable: los microinfluencers cobran poco o aceptan canje.","Correcto: la TV estelar supera ampliamente el presupuesto y exige semanas de producción del spot.","Es viable: el costo es moderado (stand + producto) y se organiza en 1–2 semanas."] },
+    { t:"¿Qué ejecución maximiza la retención y la resonancia emocional en el target?", tags:["i:Retención","i:Resonancia emocional"],
+      o:["Lista de especificaciones técnicas del café","Historia breve de la caficultora cusqueña + reto #KillaParaLaTesis","Logo grande con el precio de lanzamiento","Comparativo de precios con la competencia"], c:1,
+      e:["Informa, pero no emociona ni se recuerda.","Une el insight (autenticidad + energía para estudiar) con una dinámica participativa que se comparte y se recuerda.","Llama la atención, pero no genera vínculo con la marca.","Racional y fácil de olvidar; además posiciona por precio, no por origen."] },
+    { t:"¿Qué pieza cumple la restricción del cliente y es técnicamente factible en redes?", tags:["v:Restricción del cliente","v:Factibilidad técnica"],
+      o:["“Toma 5 latas y no duermas en exámenes”","“Energía con origen: café de Cusco para tus horas de estudio” + sello Origen Cusco, en formato vertical 9:16","Meme viral sin logo ni sello","Spot horizontal de 60 s sin mención del origen"], c:1,
+      e:["Incumple el mandatorio: promueve el consumo excesivo.","Cumple los mandatorios (sello y consumo responsable) y usa el formato nativo de la plataforma.","Puede viralizar, pero no cumple el sello obligatorio ni construye marca.","Formato poco nativo para el feed y omite el origen exigido por el cliente."] }
+  ]
+};
+
+const GLOSS = [
+  ["Brief","Documento que resume el encargo: marca, objetivo, target, presupuesto y plazos."],
+  ["Target","Público objetivo al que se dirige la comunicación."],
+  ["Buyer persona","Perfil semificticio del cliente ideal (datos, hábitos y motivaciones)."],
+  ["Insight","Verdad humana del consumidor que inspira el mensaje."],
+  ["USP","Unique Selling Proposition: propuesta única de valor."],
+  ["Reason why","Razón que sustenta y hace creíble la promesa."],
+  ["Awareness","Notoriedad: que el target conozca la marca o el producto."],
+  ["Top of mind","Primera marca que el consumidor recuerda en una categoría."],
+  ["Embudo AIDA","Atención, Interés, Deseo y Acción: etapas del proceso de compra."],
+  ["KPI","Indicador clave de desempeño para medir el objetivo."],
+  ["Alcance (reach)","Número de personas distintas expuestas al mensaje."],
+  ["Frecuencia","Veces promedio que cada persona ve el mensaje."],
+  ["CPM","Costo por mil impresiones."],
+  ["CTR","Click-through rate: porcentaje de clics sobre impresiones."],
+  ["Engagement rate","Interacciones divididas entre el alcance o los seguidores."],
+  ["Share of voice","Participación de la marca en la conversación o la inversión de su categoría."],
+  ["Mix de medios","Combinación de medios elegida para la campaña."],
+  ["ATL / BTL / TTL","Above, Below y Through the line: medios masivos, directos o integrados."],
+  ["Medios POEM","Paid, Owned, Earned Media: medios pagados, propios y ganados."],
+  ["Sampling","Entrega de muestras para generar prueba del producto."],
+  ["CTA","Call to action: llamada a la acción."],
+  ["Mandatorios","Elementos obligatorios definidos por el cliente (logo, legales, sellos)."],
+  ["Key visual","Imagen principal que unifica la campaña."],
+  ["Flowchart de medios","Calendario de pauta por medio y semana."]
+];
+const TERMS = ["brief","target","buyer persona","insight","usp","reason why","awareness","top of mind","aida","kpi","alcance","frecuencia","cpm","ctr","engagement","share of voice","mix de medios","btl","atl","poem","owned","earned","paid","sampling","cta","mandatorio","key visual","flowchart","consideración","conversión","microinfluencer"];
+
+const PB = {
+  roles:["Planificador/a de medios (media planner)","Director/a de cuentas","Estratega de comunicación","Director/a creativo/a"],
+  etapas:["Awareness (notoriedad)","Consideración","Conversión","Fidelización"],
+  kpis:["Alcance (reach)","Frecuencia","CPM","CTR","Engagement rate","Recordación de marca","N.º de muestras entregadas (sampling)","Share of voice"],
+  medios:["Redes sociales pagadas (paid)","Microinfluencers (earned)","Activación BTL / sampling","Cuentas propias de la marca (owned)","OOH en campus","Radio","TV abierta","Prensa"],
+  formatos:["Responde las 4 preguntas con la letra elegida y una justificación de 2 líneas por pregunta","Matriz en tabla: criterios × opciones con puntaje de 1 a 5","Recomendación de mix de medios con flowchart de 3 semanas y distribución del presupuesto","Respuesta a las 4 preguntas + guion de una infografía que explique cómo funciona el marketing en la producción de esta campaña"]
+};
+
+const CHEERS = {
+  cell:["¡Buen inicio! Cada criterio suma a tu decisión.","¡Eso es! Ya estás pensando como planificador/a de medios."],
+  piece:["¡Excelente análisis!","¡Gran trabajo con la matriz!","¡Muy bien fundamentado!"],
+  ok:["¡Exacto!","¡Muy bien aplicado!","¡Lo tienes!","¡Criterio impecable!"],
+  try:["¡Buen intento!","¡Casi!","¡Buena reflexión, sigamos!"]
+};
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const KEY = "matriz-criterios-idc-v1";
+function freshState(){ return { student:null, startTs:null, endTs:null, endReason:null, mat:{}, just:{}, evalP:{}, evalAt:{}, mini:{}, miniAt:{}, pb:defaultPB(), pbCopied:false, ai:{texto:"",coincide:null,reflexion:""}, times:{matriz:0,minicaso:0,prompt:0,publicar:0}, milestones:[], fbView:null,
+  info:defaultInfo(), infoCopied:false, infoUploaded:false, cardDone:false, postCopied:false, liOpened:false, pubDone:false, pubUrl:"", postText:null, reportDone:false, branchDone:[] }; }
+function defaultInfo(){ return { herramienta:null, formato:null, estilo:null, etapas:[0,1,2,3,4,5,6,7], titulo:"¿Cómo trabaja el marketing en la producción de una campaña?", paleta:"Azul IDC #0071BC y naranja #F2A100 sobre fondo claro", caso:true, resultados:true }; }
+const INFO = {
+  herramientas:["ChatGPT (imagen)","Gemini","Canva (Magic Design)","Adobe Firefly","Claude (HTML/SVG)"],
+  formatos:["Vertical 1080×1350 px (feed de LinkedIn)","Cuadrado 1080×1080 px","Horizontal 1200×627 px (LinkedIn)"],
+  estilos:["Flat minimalista","Isométrico","Editorial","Ilustración 3D"],
+  etapas:[
+    ["Brief","el cliente define objetivo, presupuesto, plazo y mandatorios"],
+    ["Target e insight","investigación del público y de su verdad humana"],
+    ["Estrategia y mensaje","propuesta de valor (USP), reason why y tono"],
+    ["Selección de medios","matriz de mensaje-impacto y viabilidad; mix POEM y ATL/BTL"],
+    ["Presupuesto","distribución entre medios, producción y reserva"],
+    ["Producción de piezas","key visual, adaptaciones por formato y aprobaciones"],
+    ["Difusión y pauta","flowchart de medios, alcance y frecuencia"],
+    ["Medición","KPI: alcance, CTR, engagement, ventas y aprendizaje"]
+  ]
+};
+function defaultPB(){ return { rol:null, contexto:"Killa Café, marca local de café de especialidad de Cusco, lanza una línea de café frío en lata lista para tomar. Presupuesto total: S/ 15 000. Plazo: 3 semanas.", target:"Universitarios de 18 a 25 años de Lima que estudian de noche y siguen a creadores de contenido en redes.", etapa:null, kpis:[], insight:"", usp:"", medios:[], criterios:[], mandatorios:"", formato:null, incluirQ:true, tono:"" }; }
+let state = freshState();
+try { const s=JSON.parse(localStorage.getItem(KEY)); if(s && s.mat) state=Object.assign(state,s); } catch(e){}
+state.times=Object.assign({matriz:0,minicaso:0,prompt:0,publicar:0},state.times); state.info=Object.assign(defaultInfo(),state.info||{}); state.branchDone=state.branchDone||[];
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function prevStudent(){ for(const k of PREV_KEYS){ try{ const s=JSON.parse(localStorage.getItem(k)); if(s&&s.student) return s.student; }catch(e){} } return null; }
+
+const $ = s => document.querySelector(s);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function fmt(s){ s=Math.max(0,Math.round(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function esc(s){ return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+function cap(s){ return s.trim().replace(/\s+/g," ").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" "); }
+const started=()=>!!state.startTs, finished=()=>!!state.endTs, active=()=>started()&&!finished();
+function elapsed(){ if(!started()) return 0; return Math.min(DURATION, ((state.endTs||Date.now())-state.startTs)/1000); }
+let toastLock=0;
+function toast(msg,force){ const now=Date.now(); if(!force&&now<toastLock) return; toastLock=now+2200; const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2800); }
+function confetti(){ if(matchMedia("(prefers-reduced-motion: reduce)").matches) return; const box=document.createElement("div"); box.className="confetti"; const cols=["#d6336c","#0c8599","#0071bc","#f2a100","#2b8a3e"];
+  for(let i=0;i<60;i++){ const p=document.createElement("i"); p.style.left=Math.random()*100+"vw"; p.style.background=pick(cols); p.style.animationDelay=Math.random()*.4+"s"; p.style.animationDuration=1.2+Math.random()+"s"; box.appendChild(p); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(),2800); }
+$("#themeBtn").onclick=()=>{ const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme=dark?"light":"dark"; if(state.fbView) showPieceFb(state.fbView,true); renderDashboard(); };
+
+/* =========================================================
+   CÁLCULOS
+   ========================================================= */
+function vals(pid){ return state.mat[pid]||{}; }
+function complete(pid){ return CRIT.every(c=>vals(pid)[c.id]); }
+function avg(obj,list){ const v=list.map(c=>obj[c.id]).filter(Boolean); return v.length===list.length? v.reduce((a,b)=>a+b,0)/v.length : null; }
+function quadrant(i,v){
+  if(i==null||v==null) return {k:"pend",t:"Pendiente"};
+  if(i>=3.5&&v>=3.5) return {k:"ejecutar",t:"Ejecutar"};
+  if(i>=3.5) return {k:"optimizar",t:"Optimizar viabilidad"};
+  if(v>=3.5) return {k:"reforzar",t:"Reforzar el mensaje"};
+  return {k:"replantear",t:"Replantear"};
+}
+function concord(p){ const v=vals(p.id); const d=CRIT.reduce((s,c)=>s+Math.abs(v[c.id]-p.ref[c.id]),0)/CRIT.length; return Math.round((1-d/4)*100); }
+function levelOf(t){
+  if(t>=80) return {txt:"¡Excelente lectura de la pieza y su medio!",emoji:"🌟"};
+  if(t>=65) return {txt:"¡Muy bien, tu matriz está muy alineada!",emoji:"👏"};
+  if(t>=50) return {txt:"¡Buen análisis, vas construyendo criterio!",emoji:"💪"};
+  return {txt:"¡Gracias por arriesgarte a evaluar! Cada matriz suma.",emoji:"🌱"};
+}
+function miniScore(){ return MINI.q.filter((q,i)=>state.mini[i]===q.c).length; }
+function miniDone(){ return Object.keys(state.mini).length; }
+
+/* =========================================================
+   REGISTRO + CRONÓMETRO
+   ========================================================= */
+function renderRegister(){
+  const box=$("#registerCard");
+  if(!started()){
+    const pre=prevStudent();
+    box.innerHTML=`<h2>Registro</h2><p>Al presionar <b>Iniciar</b> comienza el cronómetro de <b>30 minutos</b>.</p>
+      ${pre?`<p style="background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:8px 12px;font-size:.84rem">✔ Te reconocimos de las actividades anteriores. ¡Bienvenido/a de nuevo!</p>`:""}
+      <div class="row2"><div class="field"><label for="fNom">Nombres</label><input id="fNom" value="${pre?esc(pre.nombres):""}"></div>
+      <div class="field"><label for="fApe">Apellidos</label><input id="fApe" value="${pre?esc(pre.apellidos):""}"></div></div>
+      <div class="field"><label for="fMail">Correo electrónico <span>(para tu informe)</span></label><input id="fMail" type="email" autocomplete="email" placeholder="nombre@correo.com" value="${pre&&pre.email?esc(pre.email):""}"><small id="mailHint" style="font-size:.78rem;color:var(--muted)"></small></div>
+      <div class="big-timer"><b>30:00</b><span>Matriz de 3 piezas, mini-caso de 4 preguntas y constructor de prompts. El paso 4 no tiene límite.</span></div>
+      <button class="btn primary full" id="startBtn" disabled>▶ Iniciar actividad</button>`;
+    const n=$("#fNom"), a=$("#fApe"), m=$("#fMail"), b=$("#startBtn");
+    const v=()=>{ const okM=EMAIL_RE.test(m.value.trim()); $("#mailHint").textContent=m.value.trim()&&!okM?"Revisa el formato del correo (ej.: nombre@correo.com)":okM?"✔ Correo válido":""; $("#mailHint").style.color=okM?"var(--ok)":"var(--muted)";
+      b.disabled=n.value.trim().length<2||a.value.trim().length<2||!okM; }; n.oninput=v; a.oninput=v; m.oninput=v; v();
+    b.onclick=()=>{ state.student={nombres:cap(n.value),apellidos:cap(a.value),email:m.value.trim().toLowerCase()}; state.startTs=Date.now(); save(); renderAll();
+      toast(`¡Hola, ${state.student.nombres}! Tu tiempo comenzó. ¡A construir criterio!`,true);
+      setTimeout(()=>document.getElementById("matriz").scrollIntoView({behavior:"smooth"}),600); };
+  } else {
+    const ini=new Date(state.startTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"});
+    box.innerHTML=`<h2>${finished()?"Actividad finalizada":"¡En marcha!"}</h2>
+      <div class="student-chip"><div class="avatar">${esc((state.student.nombres[0]+state.student.apellidos[0]).toUpperCase())}</div><div><b>${esc(state.student.nombres+" "+state.student.apellidos)}</b><span>${esc(state.student.email||"")}<br>Inició a las ${ini}</span></div></div>
+      <div class="big-timer"><b id="bigTimer">${finished()?fmt(elapsed()):fmt(DURATION-elapsed())}</b><span>${finished()?"tiempo utilizado":"tiempo restante"}</span></div>
+      ${finished()?`<button class="btn primary full" onclick="downloadPDF()">📄 Descargar informe PDF</button><div style="height:8px"></div><button class="btn sun full" onclick="downloadMD()">⬇ Descargar informe Markdown</button>`
+      :`<a class="btn primary full" href="#matriz">Ir a la matriz →</a><div style="height:8px"></div><button class="btn ghost full" id="finishBtn">Finalizar y generar informe</button>`}`;
+    const f=$("#finishBtn"); if(f) f.onclick=askFinish;
+  }
+}
+const MILESTONES=[
+  {at:DURATION/2,msg:"⏱ ¡Mitad del tiempo! Excelente avance; si ya tienes la matriz, pasa al mini-caso."},
+  {at:600,msg:"⏱ Quedan 10 minutos. ¡Buen ritmo! Es momento del constructor de prompts."},
+  {at:300,msg:"⏱ Quedan 5 minutos. ¡Ya casi! Copia tu prompt y revisa tu tablero."},
+  {at:60,msg:"⏱ ¡Último minuto! Guarda lo que tengas; todo cuenta."}
+];
+function updateTimerUI(){
+  const rem=DURATION-elapsed(), t=$("#timer");
+  $("#timerTxt").textContent=finished()?"✔ "+fmt(elapsed()):fmt(rem);
+  t.className="timer"+(!started()?"":finished()?" end":rem<=60?" crit":rem<=300?" low":" run");
+  $("#timeBar").style.transform=`scaleX(${started()?rem/DURATION:1})`;
+  const bt=$("#bigTimer"); if(bt&&!finished()) bt.textContent=fmt(rem);
+  $("#kTime").textContent=fmt(elapsed());
+}
+function activeSection(){ const el=document.elementFromPoint(innerWidth/2,innerHeight*.45); const s=el&&el.closest("section"); return s?s.id:null; }
+function tick(){
+  if(active()){
+    const sec=activeSection(); const map={matriz:"matriz",minicaso:"minicaso",prompt:"prompt",publicar:"publicar"};
+    if(map[sec]) state.times[map[sec]]=(state.times[map[sec]]||0)+1;
+    const rem=DURATION-elapsed();
+    MILESTONES.forEach(m=>{ if(rem<=m.at&&!state.milestones.includes(m.at)){ state.milestones.push(m.at); toast(m.msg,true); } });
+    if(rem<=0) finish("tiempo");
+    if(Math.round(elapsed())%5===0) save();
+  }
+  updateTimerUI();
+}
+function askFinish(){
+  const p=PIECES.filter(x=>state.evalP[x.id]).length;
+  $("#endBody").innerHTML=`<div class="big">🏁</div><h3>¿Finalizar la actividad?</h3><p>Evaluaste <b>${p} de 3</b> piezas, respondiste <b>${miniDone()} de 4</b> preguntas y tu prompt tiene <b>${promptQuality().pct}%</b> de calidad. ${p<3||miniDone()<4?"Aún tienes tiempo para completar lo pendiente, ¡pero tú decides!":"¡Completaste todo, excelente trabajo!"}</p>
+    <div class="actions"><button class="btn ghost" id="mCancel">Seguir trabajando</button><button class="btn primary" id="mOk">Sí, finalizar</button></div>`;
+  $("#endModal").showModal(); $("#mCancel").onclick=()=>$("#endModal").close(); $("#mOk").onclick=()=>{ $("#endModal").close(); finish("manual"); };
+}
+function finish(reason){
+  if(finished()) return;
+  state.endTs=reason==="tiempo"?state.startTs+DURATION*1000:Date.now(); state.endReason=reason; save(); renderAll();
+  $("#endBody").innerHTML=`<div class="big">${reason==="tiempo"?"⏰":"🎉"}</div><h3>${reason==="tiempo"?"¡Tiempo cumplido!":"¡Actividad completada!"}</h3>
+    <p><b>${esc(state.student.nombres)}</b>, ${closing()}</p>
+    <div class="actions"><button class="btn primary" onclick="downloadPDF()">📄 Informe PDF</button><button class="btn sun" onclick="downloadMD()">⬇ Markdown</button></div>
+    <div class="actions" style="margin-top:8px"><button class="btn ghost" id="mClose">Ver mis resultados</button></div>`;
+  if(!$("#endModal").open) $("#endModal").showModal();
+  $("#mClose").onclick=()=>{ $("#endModal").close(); document.getElementById("resultados").scrollIntoView({behavior:"smooth"}); };
+  confetti();
+}
+function closing(){
+  const p=PIECES.filter(x=>state.evalP[x.id]).length, m=miniDone(), q=promptQuality().pct;
+  if(p===3&&m===4&&q>=70) return "¡recorrido completo! Ya aplicas una matriz profesional de impacto y viabilidad y sabes redactar un brief para la IA con lenguaje de marketing.";
+  if(p>=2||m>=3) return "¡gran avance! Ya distingues entre lo que una pieza logra comunicar y lo que es posible ejecutar.";
+  if(p>=1||m>=1) return "¡buen comienzo! Cada criterio que aplicaste te acerca a decidir como un planificador de medios.";
+  return "esta fue tu primera aproximación: en la próxima sesión retomaremos la matriz juntos.";
+}
+
+/* =========================================================
+   PASO 1 · MATRIZ
+   ========================================================= */
+function renderPieces(){
+  $("#pieces").innerHTML=PIECES.map(p=>`
+    <article class="card">
+      <button class="piece-img" data-zoom="${p.id}" aria-label="Ampliar pieza ${p.short}"><img src="${p.img}" alt="Pieza ${p.short}: ${p.marca}"><span class="badge" style="background:${p.color}">Pieza ${p.short}</span><span class="zoom">🔍 Ampliar</span></button>
+      <div class="piece-body"><h3>${p.marca}</h3><div class="meta">${p.producto}</div>
+        <small style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700">Medio propuesto</small><br><span class="medio">${p.medio}</span>
+        <ul class="brief"><li><b>Target</b><span>${p.brief.publico}</span></li><li><b>Objetivo</b><span>${p.brief.objetivo}</span></li><li><b>Presupuesto</b><span>${p.brief.presupuesto}</span></li><li><b>Plazo</b><span>${p.brief.plazo}</span></li><li><b>Mandatorios</b><span>${p.brief.restriccion}</span></li></ul>
+      </div></article>`).join("");
+  document.querySelectorAll("[data-zoom]").forEach(b=>b.onclick=()=>{ const p=PIECES.find(x=>x.id===b.dataset.zoom); openLightbox(p.img,`Pieza ${p.short} · ${p.marca} — ${p.medio}`); });
+}
+function renderMatrix(){
+  const head=`<thead><tr><th style="width:26%">Criterio</th>${PIECES.map(p=>`<th><div class="ph"><img src="${p.img}" alt="" data-z="${p.id}"><div>Pieza ${p.short} · ${p.marca}<small>${p.medio}</small></div></div></th>`).join("")}</tr></thead>`;
+  const row=c=>`<tr><td class="crit"><b>${c.name}</b><span>${c.hint}</span></td>${PIECES.map(p=>`<td><div class="seg ${c.b}" role="group" aria-label="${c.name} – Pieza ${p.short}">${[1,2,3,4,5].map(n=>`<button data-p="${p.id}" data-c="${c.id}" data-n="${n}" aria-pressed="${vals(p.id)[c.id]===n}">${n}</button>`).join("")}</div></td>`).join("")}</tr>`;
+  const tot=(label,list,cls)=>`<tr class="tot"><td>${label}</td>${PIECES.map(p=>{ const a=avg(vals(p.id),list); return `<td><span style="color:var(--${cls})">${a==null?"—":a.toFixed(2)}</span></td>`; }).join("")}</tr>`;
+  $("#matrix").innerHTML=head+"<tbody>"+
+    `<tr class="grp i"><td colspan="4">Bloque A · Mensaje-impacto</td></tr>`+IMP.map(row).join("")+tot("Índice de impacto",IMP,"imp")+
+    `<tr class="grp v"><td colspan="4">Bloque B · Viabilidad</td></tr>`+VIA.map(row).join("")+tot("Índice de viabilidad",VIA,"via")+
+    `<tr class="tot"><td>Decisión (cuadrante)</td>${PIECES.map(p=>{ const q=quadrant(avg(vals(p.id),IMP),avg(vals(p.id),VIA)); return `<td><span class="qchip q-${q.k}">${q.t}</span></td>`; }).join("")}</tr></tbody>`;
+  document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+    if(!active()) return;
+    const p=b.dataset.p, c=b.dataset.c; state.mat[p]=state.mat[p]||{}; state.mat[p][c]=+b.dataset.n; save();
+    const filled=Object.values(state.mat).reduce((s,o)=>s+Object.keys(o).length,0);
+    if(filled===1) toast(pick(CHEERS.cell));
+    if(complete(p)&&!state["cheerFull_"+p]){ state["cheerFull_"+p]=1; save(); toast(`✔ ¡Pieza ${PIECES.find(x=>x.id===p).short} completa! Escribe tu justificación y evalúala.`,true); }
+    renderMatrix(); renderJusts();
+  });
+  document.querySelectorAll("[data-z]").forEach(i=>i.onclick=()=>{ const p=PIECES.find(x=>x.id===i.dataset.z); openLightbox(p.img,`Pieza ${p.short} · ${p.marca}`); });
+}
+function renderJusts(){
+  const host=$("#justs"); const focused=document.activeElement&&document.activeElement.dataset.j;
+  host.innerHTML=PIECES.map(p=>{ const n=CRIT.filter(c=>vals(p.id)[c.id]).length, j=state.just[p.id]||"";
+    const ok=n===9&&j.trim().length>=15;
+    return `<div class="just"><label for="j_${p.id}">Justificación · Pieza ${p.short} (${p.marca})</label>
+      <textarea id="j_${p.id}" data-j="${p.id}" placeholder="¿Recomendarías este medio para esta pieza? Menciona al menos un criterio de cada bloque.">${esc(j)}</textarea>
+      <div class="row"><span class="prog">${n}/9 criterios · ${j.trim().length>=15?"✔ justificación lista":"justificación: mín. 15 caracteres"}</span>
+      <button class="btn ${state.evalP[p.id]?"ghost":"imp"} small" data-ev="${p.id}" ${ok&&active()?"":"disabled"}>${state.evalP[p.id]?"Volver a evaluar":"Evaluar pieza"}</button></div></div>`; }).join("");
+  host.querySelectorAll("textarea").forEach(t=>t.oninput=e=>{ state.just[t.dataset.j]=e.target.value; save();
+    const p=t.dataset.j, n=CRIT.filter(c=>vals(p)[c.id]).length, b=host.querySelector(`[data-ev="${p}"]`), ok=n===9&&e.target.value.trim().length>=15;
+    b.disabled=!(ok&&active()); t.parentElement.querySelector(".prog").textContent=`${n}/9 criterios · ${e.target.value.trim().length>=15?"✔ justificación lista":"justificación: mín. 15 caracteres"}`; });
+  host.querySelectorAll("[data-ev]").forEach(b=>b.onclick=()=>{ const p=b.dataset.ev; if(!state.evalP[p]) state.evalAt[p]=Math.round(elapsed()); state.evalP[p]=true; state.fbView=p; save(); showPieceFb(p); renderJusts(); renderDashboard(); updateStats();
+    if(PIECES.every(x=>state.evalP[x.id])) setTimeout(()=>{ toast("🏆 ¡Matriz completa! Ahora aplica los criterios al mini-caso.",true); confetti(); },1200); });
+  host.querySelectorAll("textarea").forEach(t=>t.disabled=!active());
+  if(focused){ const t=$("#j_"+focused); if(t){ t.focus(); t.setSelectionRange(t.value.length,t.value.length); } }
+}
+let radarP=null;
+function showPieceFb(pid,silent){
+  const p=PIECES.find(x=>x.id===pid), v=vals(pid), c=concord(p), lvl=levelOf(c);
+  const ui=avg(v,IMP), uv=avg(v,VIA), ri=avg(p.ref,IMP), rv=avg(p.ref,VIA), uq=quadrant(ui,uv), rq=quadrant(ri,rv);
+  const near=CRIT.filter(k=>Math.abs(v[k.id]-p.ref[k.id])<=1), exact=CRIT.filter(k=>v[k.id]===p.ref[k.id]);
+  const good=[]; if(uq.k===rq.k) good.push(`Tu decisión coincide con la referencia: <b>${uq.t}</b>.`);
+  good.push(`Coincidiste (±1 punto) en <b>${near.length} de 9</b> criterios.`);
+  if(exact.length) good.push(`Calificación exacta en: <b>${exact.map(k=>k.name).join(", ")}</b>.`);
+  if((state.just[pid]||"").trim().length>=60) good.push("Tu justificación está <b>bien argumentada</b>.");
+  const grow=CRIT.map(k=>({k,d:v[k.id]-p.ref[k.id]})).filter(x=>Math.abs(x.d)>=2).sort((a,b)=>Math.abs(b.d)-Math.abs(a.d)).slice(0,2)
+    .map(x=>`En <b>${x.k.name.toLowerCase()}</b> la referencia da ${p.ref[x.k.id]} (tú ${v[x.k.id]}). Pregúntate: ${x.k.hint.toLowerCase()}`);
+  if(!grow.length) grow.push("¡Ninguna diferencia grande! Reto extra: ¿qué cambiarías en la pieza para subir su criterio más bajo?");
+  $("#pieceFb").innerHTML=`
+    <div class="fb-head"><span class="emoji">${lvl.emoji}</span><span>Pieza ${p.short} · ${lvl.txt} (${c}% de concordancia)</span>
+      <div class="fb-tabs">${PIECES.filter(x=>state.evalP[x.id]).map(x=>`<button data-fv="${x.id}" aria-pressed="${x.id===pid}">Pieza ${x.short}</button>`).join("")}</div></div>
+    <div class="fb-grid">
+      <div class="chart-wrap"><canvas id="radarP"></canvas></div>
+      <div>
+        <div class="idx"><div class="a"><small>Índice de impacto</small><b>${ui.toFixed(2)}</b><em>Referencia: ${ri.toFixed(2)}</em></div><div class="b"><small>Índice de viabilidad</small><b>${uv.toFixed(2)}</b><em>Referencia: ${rv.toFixed(2)}</em></div></div>
+        <p style="margin:0 0 10px">Tu decisión: <span class="qchip q-${uq.k}">${uq.t}</span> · Referencia: <span class="qchip q-${rq.k}">${rq.t}</span></p>
+        <h4 style="margin:0 0 6px">🌟 Lo que hiciste bien</h4><ul class="list good">${good.map(x=>`<li>${x}</li>`).join("")}</ul>
+        <h4 style="margin:12px 0 6px">🌱 Para seguir creciendo</h4><ul class="list grow">${grow.map(x=>`<li>${x}</li>`).join("")}</ul>
+      </div>
+    </div>
+    <div style="padding:0 20px 20px"><p style="margin:0"><b>Análisis de referencia:</b> ${p.nota}</p><p class="keyidea"><b>Idea clave:</b> ${p.clave}</p></div>`;
+  $("#pieceFb").classList.add("show");
+  $("#pieceFb").querySelectorAll("[data-fv]").forEach(b=>b.onclick=()=>{ state.fbView=b.dataset.fv; save(); showPieceFb(b.dataset.fv,true); });
+  if(radarP) radarP.destroy();
+  const ink=css("--ink"),muted=css("--muted"),line=css("--line"),acc=css("--accent"),imp=css("--imp");
+  radarP=new Chart($("#radarP"),{type:"radar",data:{labels:CRIT.map(k=>k.name.replace("Complejidad vs. medio","Complejidad").replace("Alcance de distribución","Alcance").replace("Restricción del cliente","Cliente").replace("Plazo de producción","Plazo").replace("Factibilidad técnica","Factibilidad").replace("Resonancia emocional","Resonancia")),
+    datasets:[{label:"Tú",data:CRIT.map(k=>v[k.id]),borderColor:imp,backgroundColor:imp+"33",pointBackgroundColor:imp,borderWidth:2},{label:"Referencia",data:CRIT.map(k=>p.ref[k.id]),borderColor:acc,backgroundColor:acc+"1f",pointBackgroundColor:acc,borderDash:[5,4],borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:5,ticks:{stepSize:1,color:muted,backdropColor:"transparent"},grid:{color:line},angleLines:{color:line},pointLabels:{color:ink,font:{size:11,weight:"600"}}}},plugins:{legend:{labels:{color:ink,usePointStyle:true}}}}});
+  if(!silent){ $("#pieceFb").scrollIntoView({behavior:"smooth",block:"start"}); toast(`${lvl.emoji} ${pick(CHEERS.piece)} Pieza ${p.short}: ${uq.t}`,true); if(c>=80) confetti(); }
+}
+
+/* =========================================================
+   PASO 2 · MINI-CASO
+   ========================================================= */
+function renderMini(){
+  $("#caseFile").innerHTML=`<div class="ch"><small>Caso nuevo · Brief</small><h3>${MINI.marca}</h3><div style="opacity:.9">${MINI.titulo}</div></div><ul>${MINI.ficha.map(([k,v])=>`<li><b>${k}</b><span>${v}</span></li>`).join("")}</ul>`;
+  $("#questions").innerHTML=MINI.q.map((q,i)=>{ const ans=state.mini[i];
+    return `<div class="qcard"><div class="qh"><span class="qn">${i+1}</span><div><b>${q.t}</b><div class="tags">${q.tags.map(t=>{ const [b,n]=t.split(":"); return `<span class="tag-${b}">${b==="i"?"Impacto":"Viabilidad"} · ${n}</span>`; }).join("")}</div></div></div>
+      <div class="opts">${q.o.map((o,k)=>{ let cls=""; if(ans!=null){ if(k===q.c) cls="correct"; else if(k===ans) cls="chosen-wrong"; }
+        return `<button class="opt ${cls}" data-q="${i}" data-k="${k}" ${ans!=null||!active()?"disabled":""}><span class="l">${"ABCD"[k]}</span><span>${o}</span></button>`; }).join("")}</div>
+      <div class="qfb ${ans!=null?"show "+(ans===q.c?"ok":"try"):""}">${ans!=null?qFeedback(q,ans):""}</div></div>`; }).join("");
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ const i=+b.dataset.q, k=+b.dataset.k; if(state.mini[i]!=null||!active()) return;
+    state.mini[i]=k; state.miniAt[i]=Math.round(elapsed()); save(); renderMini(); renderDashboard(); updateStats(); renderPB();
+    toast(k===MINI.q[i].c?`✔ ${pick(CHEERS.ok)} Pregunta ${i+1}`:`💡 ${pick(CHEERS.try)} Lee la explicación de la pregunta ${i+1}`,true);
+    if(miniDone()===4){ setTimeout(()=>{ toast(`🎯 ¡Mini-caso resuelto: ${miniScore()}/4! Ahora construye tu prompt.`,true); if(miniScore()>=3) confetti(); },1100); } });
+  const d=miniDone(), s=miniScore();
+  $("#miniScore").innerHTML = d? `<b>${s}/4</b><div><strong>${d<4?`Llevas ${d} de 4 respondidas.`:s===4?"¡Perfecto! Aplicaste ambos bloques con precisión.":s>=2?"¡Muy bien! Ya integras impacto y viabilidad en tus decisiones.":"¡Buen esfuerzo! Las explicaciones te dan las claves para el siguiente caso."}</strong><div style="color:var(--muted);font-size:.88rem">Tu primera respuesta es la que se registra en el informe.</div></div>`
+    : `<div style="color:var(--muted)">Responde las 4 preguntas para ver tu resultado. ¡Confía en tu matriz!</div>`;
+}
+function qFeedback(q,ans){
+  const ok=ans===q.c;
+  return `${ok?"<b>✔ "+pick(CHEERS.ok)+"</b> ":"<b>💡 "+pick(CHEERS.try)+"</b> La opción más fundamentada es la <b>"+"ABCD"[q.c]+"</b>. "}${q.e[q.c]}
+    <details style="margin-top:6px"><summary style="cursor:pointer;font-weight:600">Ver la explicación de todas las opciones</summary><ul style="margin:6px 0 0;padding-left:18px">${q.e.map((e,k)=>`<li><b>${"ABCD"[k]}.</b> ${e}</li>`).join("")}</ul></details>`;
+}
+
+/* =========================================================
+   PASO 3 · CONSTRUCTOR DE PROMPTS
+   ========================================================= */
+let activeField=null;
+function renderPB(){
+  const s=state.pb, dis=!active()?"disabled":"";
+  const chipGroup=(arr,key,cls="")=>`<div class="chips">${arr.map((x,i)=>`<button class="chip ${cls}" data-g="${key}" data-i="${i}" aria-pressed="${s[key].includes(i)}" ${dis}>${x}</button>`).join("")}</div>`;
+  const radio=(arr,key)=>`<div class="chips">${arr.map((x,i)=>`<button class="chip" data-r="${key}" data-i="${i}" aria-pressed="${s[key]===i}" ${dis}>${x}</button>`).join("")}</div>`;
+  const done=c=>c?'<span class="done">✔</span>':"";
+  const comp=components();
+  $("#pbForm").innerHTML=`
+    <div class="pb-sec"><h4><span class="k">ROL</span>¿Qué rol debe asumir la IA? ${done(comp.rol)}</h4>${radio(PB.roles,"rol")}</div>
+    <div class="pb-sec"><h4><span class="k">BRIEF</span>Contexto de la marca ${done(comp.contexto)}</h4><textarea data-f="contexto" ${dis}>${esc(s.contexto)}</textarea></div>
+    <div class="pb-sec"><h4><span class="k">TARGET</span>Público objetivo / buyer persona ${done(comp.target)}</h4><textarea data-f="target" ${dis}>${esc(s.target)}</textarea></div>
+    <div class="pb-sec"><h4><span class="k">OBJETIVO</span>Etapa del embudo y KPI ${done(comp.objetivo)}</h4>${radio(PB.etapas,"etapa")}<p style="margin:8px 0 4px;font-size:.82rem;color:var(--muted)">KPI (elige al menos 2):</p>${chipGroup(PB.kpis,"kpis")}</div>
+    <div class="pb-sec"><h4><span class="k">INSIGHT</span>Insight y propuesta de valor (USP / reason why) ${done(comp.insight)}</h4><textarea data-f="insight" ${dis} placeholder="Insight del consumidor. Pista: revisa el insight de la ficha del caso.">${esc(s.insight)}</textarea><textarea data-f="usp" ${dis} placeholder="USP / reason why: ¿qué hace única a la marca y por qué creerle? Ej.: café de origen cusqueño, auténtico, con energía para estudiar." style="margin-top:8px">${esc(s.usp)}</textarea></div>
+    <div class="pb-sec"><h4><span class="k">MIX</span>Mix de medios a evaluar (POEM / ATL-BTL) ${done(comp.mix)}</h4>${chipGroup(PB.medios,"medios")}</div>
+    <div class="pb-sec"><h4><span class="k">CRITERIOS</span>Criterios de evaluación ${done(comp.criterios)}</h4>
+      <p style="margin:0 0 4px;font-size:.82rem;color:var(--imp);font-weight:700">Bloque A · Mensaje-impacto</p><div class="chips">${IMP.map(c=>`<button class="chip i" data-cr="${c.id}" aria-pressed="${s.criterios.includes(c.id)}" ${dis}>${c.name}</button>`).join("")}</div>
+      <p style="margin:8px 0 4px;font-size:.82rem;color:var(--via);font-weight:700">Bloque B · Viabilidad</p><div class="chips">${VIA.map(c=>`<button class="chip v" data-cr="${c.id}" aria-pressed="${s.criterios.includes(c.id)}" ${dis}>${c.name}</button>`).join("")}</div></div>
+    <div class="pb-sec"><h4><span class="k">MANDATORIOS</span>Restricciones y mandatorios del cliente ${done(comp.mandatorios)}</h4><textarea data-f="mandatorios" ${dis} placeholder="Ej.: presupuesto, plazo y mandatorios del cliente (sello, consumo responsable…)">${esc(s.mandatorios)}</textarea><input data-f="tono" ${dis} placeholder="Tono de comunicación (opcional). Ej.: cercano, juvenil, auténtico" value="${esc(s.tono)}" style="width:100%;margin-top:8px;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:var(--surface);color:var(--ink)"></div>
+    <div class="pb-sec"><h4><span class="k">FORMATO</span>Formato de salida ${done(comp.formato)}</h4>${radio(PB.formatos,"formato")}
+      <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.88rem"><input type="checkbox" id="incQ" ${s.incluirQ?"checked":""} ${dis}> Incluir las 4 preguntas del mini-caso en el prompt</label></div>`;
+  $("#pbForm").querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{ s[b.dataset.r]=+b.dataset.i; pbChanged(); renderPB(); });
+  $("#pbForm").querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ const a=s[b.dataset.g], i=+b.dataset.i, x=a.indexOf(i); x>=0?a.splice(x,1):a.push(i); pbChanged(); renderPB(); });
+  $("#pbForm").querySelectorAll("[data-cr]").forEach(b=>b.onclick=()=>{ const a=s.criterios, i=b.dataset.cr, x=a.indexOf(i); x>=0?a.splice(x,1):a.push(i); pbChanged(); renderPB(); });
+  $("#pbForm").querySelectorAll("[data-f]").forEach(t=>{ t.oninput=e=>{ s[t.dataset.f]=e.target.value; pbChanged(true); }; t.onfocus=()=>activeField=t; });
+  const iq=$("#incQ"); if(iq) iq.onchange=e=>{ s.incluirQ=e.target.checked; pbChanged(); };
+  renderPrompt();
+}
+let lastPct=0;
+function pbChanged(soft){ save(); renderPrompt(); updateStats(); const q=promptQuality().pct;
+  if(q>=50&&lastPct<50) toast("✨ ¡Tu prompt ya tiene la mitad de los componentes de un brief profesional!",true);
+  if(q===100&&lastPct<100){ toast("🏆 ¡Prompt completo! Tiene los 9 componentes de un brief profesional.",true); confetti(); }
+  lastPct=q; if(!soft) renderDashboard(); }
+function components(){ const s=state.pb;
+  return { rol:s.rol!=null, contexto:s.contexto.trim().length>=30, target:s.target.trim().length>=20, objetivo:s.etapa!=null&&s.kpis.length>=2,
+    insight:s.insight.trim().length>=15&&s.usp.trim().length>=15, mix:s.medios.length>=2, criterios:s.criterios.length>=6,
+    mandatorios:s.mandatorios.trim().length>=15, formato:s.formato!=null }; }
+function buildPrompt(){
+  const s=state.pb, crI=IMP.filter(c=>s.criterios.includes(c.id)).map(c=>c.name), crV=VIA.filter(c=>s.criterios.includes(c.id)).map(c=>c.name);
+  let p=`## ROL\nActúa como ${s.rol!=null?PB.roles[s.rol]:"(elige un rol)"} con experiencia en campañas para el mercado peruano.\n\n`;
+  p+=`## CONTEXTO (BRIEF)\n${s.contexto.trim()}\n\n`;
+  p+=`## TARGET / BUYER PERSONA\n${s.target.trim()}\n\n`;
+  p+=`## OBJETIVO DE COMUNICACIÓN Y KPI\nEtapa del embudo: ${s.etapa!=null?PB.etapas[s.etapa]:"(por definir)"}.\nKPI: ${s.kpis.length?s.kpis.map(i=>PB.kpis[i]).join(", "):"(por definir)"}.\n\n`;
+  p+=`## INSIGHT Y PROPUESTA DE VALOR\nInsight: ${s.insight.trim()||"(por definir)"}\nUSP / reason why: ${s.usp.trim()||"(por definir)"}\n\n`;
+  p+=`## MIX DE MEDIOS A EVALUAR\n${s.medios.length?s.medios.map(i=>"- "+PB.medios[i]).join("\n"):"- (selecciona al menos 2 medios)"}\n\n`;
+  p+=`## CRITERIOS DE EVALUACIÓN (escala 1–5, donde 5 es lo más favorable)\nBloque A · Mensaje-impacto: ${crI.join(", ")||"(sin criterios)"}.\nBloque B · Viabilidad: ${crV.join(", ")||"(sin criterios)"}.\n\n`;
+  p+=`## RESTRICCIONES Y MANDATORIOS DEL CLIENTE\n${s.mandatorios.trim()||"(por definir)"}${s.tono.trim()?`\nTono de comunicación: ${s.tono.trim()}.`:""}\n\n`;
+  if(s.incluirQ){ p+=`## TAREA: MINI-CASO (4 preguntas cerradas)\n`; MINI.q.forEach((q,i)=>{ p+=`${i+1}. ${q.t}\n${q.o.map((o,k)=>`   ${"ABCD"[k]}) ${o}`).join("\n")}\n`; }); p+="\n"; }
+  p+=`## FORMATO DE SALIDA\n${s.formato!=null?PB.formatos[s.formato]:"(elige un formato)"}. Cita explícitamente los criterios de ambos bloques en cada justificación y usa terminología formal de marketing.`;
+  return p;
+}
+function promptQuality(){ const c=components(), n=Object.values(c).filter(Boolean).length; const txt=buildPrompt().toLowerCase();
+  const found=TERMS.filter(t=>txt.includes(t)); return {n, pct:Math.round(n/9*100), found, comp:c}; }
+function renderPrompt(){
+  const p=buildPrompt();
+  $("#promptOut").innerHTML=esc(p).replace(/^## (.*)$/gm,'<span class="h">## $1</span>');
+  const q=promptQuality(), labels={rol:"Rol",contexto:"Brief",target:"Target",objetivo:"Objetivo + KPI",insight:"Insight + USP",mix:"Mix de medios",criterios:"Criterios",mandatorios:"Mandatorios",formato:"Formato"};
+  const miss=Object.keys(q.comp).filter(k=>!q.comp[k]).map(k=>labels[k]);
+  $("#quality").innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline"><b>Calidad del prompt</b><b style="font-family:Fraunces,serif;font-size:1.6rem;color:${q.pct>=80?"var(--ok)":q.pct>=50?"var(--accent)":"var(--warn)"}">${q.pct}%</b></div>
+    <div class="qbar"><div style="width:${q.pct}%"></div></div>
+    <div style="font-size:.88rem">${q.n}/9 componentes${miss.length?` · <span style="color:var(--muted)">Te falta: ${miss.join(", ")}</span>`:" · <span style='color:var(--ok);font-weight:700'>¡Brief completo!</span>"}</div>
+    <div style="font-size:.84rem;margin-top:8px"><b>${q.found.length}</b> términos formales detectados:</div>
+    <div class="terms">${TERMS.map(t=>`<span class="${q.found.includes(t)?"on":""}">${t}</span>`).join("")}</div>
+    <p style="margin:10px 0 0;font-size:.86rem">${q.pct===100?"🌟 ¡Excelente! Tu prompt tiene la estructura de un brief profesional.":q.pct>=60?"👏 ¡Muy bien! Completa lo que falta para un brief impecable.":"💪 ¡Buen inicio! Cada componente hace la respuesta de la IA más precisa."}</p>`;
+  renderApply();
+}
+function renderApply(){
+  const a=state.ai, dis=!active()?"disabled":"";
+  $("#applyBox").innerHTML=`<h4>Aplica: compara la respuesta de la IA con la tuya</h4>
+    <p style="margin:0 0 8px;font-size:.86rem;color:var(--muted)">1) Copia el prompt · 2) Pégalo en una IA · 3) Pega aquí su respuesta (resumen o completa) · 4) Compárala con tus respuestas del mini-caso (${miniDone()?`tú: ${MINI.q.map((q,i)=>state.mini[i]!=null?`${i+1}${"ABCD"[state.mini[i]]}`:`${i+1}–`).join(" ")}`:"aún sin responder"}).</p>
+    <textarea id="aiText" ${dis} placeholder="Pega aquí la respuesta de la IA">${esc(a.texto)}</textarea>
+    <p style="margin:10px 0 6px;font-weight:600;font-size:.9rem">¿La IA coincidió con tus respuestas?</p>
+    <div class="chips">${[["si","Sí, en todo"],["parcial","Parcialmente"],["no","No coincidió"]].map(([k,t])=>`<button class="chip" data-ai="${k}" aria-pressed="${a.coincide===k}" ${dis}>${t}</button>`).join("")}</div>
+    <textarea id="aiRef" ${dis} placeholder="¿Qué aprendiste al comparar? ¿La IA usó bien los criterios? ¿Mejorarías tu prompt?" style="margin-top:10px">${esc(a.reflexion)}</textarea>`;
+  $("#aiText").oninput=e=>{ a.texto=e.target.value; save(); updateMindmap(); };
+  $("#aiRef").oninput=e=>{ a.reflexion=e.target.value; save(); updateMindmap(); };
+  $("#applyBox").querySelectorAll("[data-ai]").forEach(b=>b.onclick=()=>{ a.coincide=b.dataset.ai; save(); renderApply(); renderDashboard(); drawCard();
+    toast(a.coincide==="si"?"🤝 ¡Tu criterio y el de la IA coinciden! Eso confirma tu análisis.":a.coincide==="parcial"?"🔍 ¡Muy bien! Las diferencias son una oportunidad para afinar el prompt o tu criterio.":"💡 ¡Excelente hallazgo! Tú decides: la IA es apoyo, el criterio profesional es tuyo.",true); });
+}
+$("#copyBtn").onclick=async()=>{ if(!started()){ toast("Primero regístrate 🙂",true); return; } const t=buildPrompt();
+  try{ await navigator.clipboard.writeText(t); }catch(e){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} ta.remove(); }
+  state.pbCopied=true; save(); toast("⧉ ¡Prompt copiado! Pégalo en tu IA y luego compara su respuesta.",true); };
+function renderGloss(){
+  $("#gloss").innerHTML=GLOSS.map(([t,d])=>`<button data-t="${esc(t)}"><b>${t}</b><span>${d}</span></button>`).join("");
+  $("#gloss").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    if(!active()) return;
+    if(activeField&&document.body.contains(activeField)){ const f=activeField, term=b.dataset.t, pos=f.selectionStart??f.value.length;
+      f.value=f.value.slice(0,pos)+(pos&&f.value[pos-1]!==" "?" ":"")+term+" "+f.value.slice(pos); state.pb[f.dataset.f]=f.value; f.focus(); pbChanged(true); toast(`“${term}” insertado. ¡Lenguaje profesional!`); }
+    else toast("Haz clic primero en un campo de texto del constructor y luego en el término.",true);
+  });
+}
+
+/* =========================================================
+   PASO 4 · INFOGRAFÍA + LINKEDIN
+   ========================================================= */
+let infoImgData=null;
+try{ infoImgData=sessionStorage.getItem(KEY+"-info"); }catch(e){}
+function renderInfo(){
+  const s=state.info, dis=!started()?"disabled":"";
+  const radio=(arr,key)=>`<div class="chips">${arr.map((x,i)=>`<button class="chip" data-ir="${key}" data-i="${i}" aria-pressed="${s[key]===i}" ${dis}>${x}</button>`).join("")}</div>`;
+  const done=c=>c?'<span class="done">✔</span>':"";
+  $("#infoForm").innerHTML=`
+    <div class="pb-sec"><h4><span class="k">HERRAMIENTA</span>¿Con qué IA generarás la infografía? ${done(s.herramienta!=null)}</h4>${radio(INFO.herramientas,"herramienta")}</div>
+    <div class="pb-sec"><h4><span class="k">FORMATO</span>Formato y medidas ${done(s.formato!=null)}</h4>${radio(INFO.formatos,"formato")}</div>
+    <div class="pb-sec"><h4><span class="k">ESTILO</span>Estilo visual ${done(s.estilo!=null)}</h4>${radio(INFO.estilos,"estilo")}</div>
+    <div class="pb-sec"><h4><span class="k">TÍTULO</span>Título de la infografía ${done(s.titulo.trim().length>=10)}</h4><input data-if="titulo" ${dis} value="${esc(s.titulo)}" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:var(--surface);color:var(--ink)"></div>
+    <div class="pb-sec"><h4><span class="k">ETAPAS</span>Proceso de producción de la campaña ${done(s.etapas.length>=6)}</h4>
+      <div class="chips">${INFO.etapas.map(([t],i)=>`<button class="chip" data-ie="${i}" aria-pressed="${s.etapas.includes(i)}" ${dis}>${i+1}. ${t}</button>`).join("")}</div>
+      <p style="margin:6px 0 0;font-size:.8rem;color:var(--muted)">Deja al menos 6 etapas activas para explicar el proceso completo.</p></div>
+    <div class="pb-sec"><h4><span class="k">PALETA</span>Identidad visual ${done(s.paleta.trim().length>=10)}</h4><input data-if="paleta" ${dis} value="${esc(s.paleta)}" style="width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;background:var(--surface);color:var(--ink)"></div>
+    <div class="pb-sec"><h4><span class="k">DATOS</span>Contenido aplicado</h4>
+      <label style="display:flex;gap:8px;align-items:center;font-size:.88rem"><input type="checkbox" data-ic="caso" ${s.caso?"checked":""} ${dis}> Incluir el caso Killa Café como ejemplo</label>
+      <label style="display:flex;gap:8px;align-items:center;font-size:.88rem;margin-top:6px"><input type="checkbox" data-ic="resultados" ${s.resultados?"checked":""} ${dis}> Incluir mis decisiones de la matriz (cuadrantes)</label></div>`;
+  $("#infoForm").querySelectorAll("[data-ir]").forEach(b=>b.onclick=()=>{ s[b.dataset.ir]=+b.dataset.i; infoChanged(); renderInfo(); });
+  $("#infoForm").querySelectorAll("[data-ie]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.ie, x=s.etapas.indexOf(i); x>=0?s.etapas.splice(x,1):s.etapas.push(i); s.etapas.sort((a,b)=>a-b); infoChanged(); renderInfo(); });
+  $("#infoForm").querySelectorAll("[data-if]").forEach(t=>t.oninput=e=>{ s[t.dataset.if]=e.target.value; infoChanged(); });
+  $("#infoForm").querySelectorAll("[data-ic]").forEach(c=>c.onchange=e=>{ s[c.dataset.ic]=e.target.checked; infoChanged(); });
+  $("#infoOut").innerHTML=esc(buildInfoPrompt()).replace(/^## (.*)$/gm,'<span class="h">## $1</span>');
+}
+function infoReady(){ const s=state.info; return s.herramienta!=null&&s.formato!=null&&s.estilo!=null&&s.etapas.length>=6&&s.titulo.trim().length>=10; }
+let infoWasReady=false;
+function infoChanged(){ save(); $("#infoOut").innerHTML=esc(buildInfoPrompt()).replace(/^## (.*)$/gm,'<span class="h">## $1</span>');
+  if(infoReady()&&!infoWasReady) toast("🎨 ¡Prompt de infografía listo! Cópialo y llévalo a tu IA favorita.",true); infoWasReady=infoReady(); updateStats(); }
+function buildInfoPrompt(){
+  const s=state.info, tool=s.herramienta!=null?INFO.herramientas[s.herramienta]:"(elige una herramienta)";
+  let p=`## ROL\nActúa como diseñador/a de información y estratega de marketing publicitario.\n\n`;
+  p+=`## ENCARGO\nCrea una infografía titulada "${s.titulo.trim()}" que explique, a estudiantes de diseño gráfico, cómo funciona el marketing en el proceso de producción de una campaña publicitaria.\n\n`;
+  p+=`## FORMATO Y ESTILO\n- Formato: ${s.formato!=null?INFO.formatos[s.formato]:"(elige un formato)"}\n- Estilo visual: ${s.estilo!=null?INFO.estilos[s.estilo]:"(elige un estilo)"}\n- Paleta: ${s.paleta.trim()}\n- Tipografía sans serif, jerarquía clara, máximo 12 palabras por etapa, legible en celular.\n\n`;
+  p+=`## ESTRUCTURA (flujo numerado con un ícono por etapa)\n`+s.etapas.map((i,k)=>`${k+1}. ${INFO.etapas[i][0]}: ${INFO.etapas[i][1]}.`).join("\n")+"\n\n";
+  p+=`## BLOQUE DESTACADO: CRITERIOS PARA ELEGIR EL MEDIO\n- Mensaje-impacto: ${IMP.map(c=>c.name.toLowerCase()).join(", ")}.\n- Viabilidad: ${VIA.map(c=>c.name.toLowerCase()).join(", ")}.\n- Matriz 2×2: Ejecutar · Optimizar viabilidad · Reforzar el mensaje · Replantear.\n\n`;
+  if(s.caso) p+=`## EJEMPLO APLICADO\nCaso Killa Café: café frío en lata de origen cusqueño para universitarios de 18 a 25 años de Lima; presupuesto S/ 15 000; plazo 3 semanas; mix sugerido: video vertical con microinfluencers + sampling en campus; mandatorio: sello "Origen Cusco".\n\n`;
+  if(s.resultados){ const ev=PIECES.filter(p=>state.evalP[p.id]);
+    if(ev.length) p+=`## MIS RESULTADOS (incluir como recuadro "Así lo apliqué")\n`+ev.map(x=>`- ${x.marca} en ${x.medio.toLowerCase()}: ${quadrant(avg(vals(x.id),IMP),avg(vals(x.id),VIA)).t} (impacto ${avg(vals(x.id),IMP).toFixed(1)}, viabilidad ${avg(vals(x.id),VIA).toFixed(1)}).`).join("\n")+"\n\n"; }
+  p+=`## PIE DE LA INFOGRAFÍA\nIDC Diseño & Comunicación · Unidad didáctica: ${UNIDAD} · ${SEMANA}\n\n`;
+  p+=`## ENTREGA\nHerramienta: ${tool}. `+(s.herramienta===4?"Entrega la infografía como un archivo HTML o SVG autocontenido, listo para exportar como imagen."
+    :s.herramienta===2?"Describe el layout por bloques para recrearlo en Canva Magic Design y sugiere los elementos gráficos."
+    :"Genera la imagen final en alta resolución; si el texto sale con errores, prioriza los títulos de cada etapa.");
+  return p;
+}
+$("#copyInfoBtn").onclick=async()=>{ if(!started()){ toast("Primero regístrate 🙂",true); return; }
+  const t=buildInfoPrompt(); try{ await navigator.clipboard.writeText(t); }catch(e){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");}catch(_){} ta.remove(); }
+  state.infoCopied=true; save(); updateStats(); toast("⧉ ¡Prompt de infografía copiado! Genera tu infografía y súbela aquí.",true); };
+$("#infoFile").onchange=e=>{ const f=e.target.files[0]; if(!f) return; if(!/^image\/(png|jpeg|webp)$/.test(f.type)){ toast("Usa una imagen PNG, JPG o WEBP 🙂",true); return; }
+  const r=new FileReader(); r.onload=()=>{ const im=new Image(); im.onload=()=>{ const sc=Math.min(1,1400/Math.max(im.width,im.height)); const c=document.createElement("canvas"); c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc);
+      const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(im,0,0,c.width,c.height); infoImgData=c.toDataURL("image/jpeg",.85);
+      try{ sessionStorage.setItem(KEY+"-info",infoImgData); }catch(_){}
+      state.infoUploaded=true; save(); showInfoImg(); updateStats(); drawCard(); toast("🎉 ¡Infografía subida! Quedó genial: ya puedes compartirla en LinkedIn.",true); confetti(); }; im.src=r.result; }; r.readAsDataURL(f); };
+function showInfoImg(){ if(infoImgData){ $("#infoImg").src=infoImgData; $("#infoPrev").style.display="block"; $("#upLabel").querySelector("b").textContent="📤 Cambiar imagen"; }
+  else if(state.infoUploaded){ $("#upLabel").querySelector("b").textContent="📤 Vuelve a subir tu infografía para incluirla en el PDF"; } }
+
+let logoImg=null;
+function drawCard(){
+  const c=$("#cardCanvas"), x=c.getContext("2d"), W=1200, H=627;
+  const g=x.createLinearGradient(0,0,W,H); g.addColorStop(0,"#0f1720"); g.addColorStop(.6,"#0b3d66"); g.addColorStop(1,"#0071bc"); x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.fillStyle="rgba(242,161,0,.9)"; x.fillRect(0,H-10,W,10);
+  x.fillStyle="#fff"; roundRect(x,48,40,250,92,14); x.fill();
+  if(logoImg&&logoImg.complete) x.drawImage(logoImg,60,48,226,226*IDC_LOGO.h/IDC_LOGO.w);
+  x.fillStyle="#ffb829"; x.font="700 20px Inter, sans-serif"; x.fillText("SEMANA 5 · ACTIVIDAD 3 COMPLETADA",330,72);
+  x.fillStyle="#fff"; x.font="800 40px Fraunces, Georgia, serif"; x.fillText("Matriz de decisión de medios",330,118);
+  const nm=state.student?`${state.student.nombres} ${state.student.apellidos}`:"Estudiante"; x.font="600 26px Inter, sans-serif"; x.fillStyle="#dbe7f3"; x.fillText(nm,48,190);
+  const ev=PIECES.filter(p=>state.evalP[p.id]);
+  const stats=[["Concordancia de la matriz",ev.length?Math.round(ev.reduce((s,p)=>s+concord(p),0)/ev.length)+"%":"—"],["Mini-caso",`${miniScore()}/4`],["Calidad del prompt",promptQuality().pct+"%"],["Mapa de proceso",mindProgress().pct+"%"]];
+  stats.forEach(([l,v],i)=>{ const bx=48+i*278; x.fillStyle="rgba(255,255,255,.1)"; roundRect(x,bx,222,262,118,16); x.fill();
+    x.fillStyle="#fff"; x.font="800 46px Fraunces, Georgia, serif"; x.fillText(v,bx+20,288); x.fillStyle="#b8c7d6"; x.font="500 18px Inter, sans-serif"; x.fillText(l,bx+20,318); });
+  x.fillStyle="#fff"; x.font="700 20px Inter, sans-serif"; x.fillText("Mis decisiones de medio",48,392);
+  const qc={ejecutar:"#51cf66",optimizar:"#3bc9db",reforzar:"#f06595",replantear:"#ffb829",pend:"#6b7c8f"};
+  PIECES.forEach((p,i)=>{ const q=quadrant(avg(vals(p.id),IMP),avg(vals(p.id),VIA)); const bx=48+i*372;
+    x.fillStyle="rgba(255,255,255,.08)"; roundRect(x,bx,410,352,92,14); x.fill();
+    x.fillStyle="#fff"; x.font="700 20px Inter, sans-serif"; x.fillText(`${p.marca}`,bx+18,446);
+    x.fillStyle="#b8c7d6"; x.font="400 15px Inter, sans-serif"; x.fillText(p.medio.length>40?p.medio.slice(0,38)+"…":p.medio,bx+18,470);
+    x.fillStyle=qc[q.k]; x.font="700 16px Inter, sans-serif"; x.fillText("● "+q.t,bx+18,494); });
+  x.fillStyle="#dbe7f3"; x.font="500 17px Inter, sans-serif";
+  x.fillText("Criterios: atención · retención · resonancia · complejidad · presupuesto · plazo · alcance · factibilidad · cliente",48,555);
+  x.fillStyle="#9fb3c8"; x.font="400 15px Inter, sans-serif"; x.fillText(`IDC Diseño & Comunicación · ${UNIDAD} · ${DOCENTE}`,48,590);
+}
+function roundRect(x,a,b,w,h,r){ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r); x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath(); }
+$("#cardBtn").onclick=()=>{ if(!started()){ toast("Primero regístrate 🙂",true); return; } drawCard(); const l=document.createElement("a"); l.href=$("#cardCanvas").toDataURL("image/png"); l.download=fileBase().replace("informe","logros")+".png"; document.body.appendChild(l); l.click(); l.remove();
+  state.cardDone=true; save(); updateStats(); toast("🏅 ¡Tarjeta descargada! Es la evidencia de todo lo que lograste hoy.",true); };
+$("#cardRefresh").onclick=()=>{ drawCard(); toast("Tarjeta actualizada con tus últimos resultados ✨"); };
+function defaultPost(){ const ev=PIECES.filter(p=>state.evalP[p.id]);
+  return `🎓 Hoy completé la Actividad 3 de la Semana 5 en IDC Diseño & Comunicación.\n\n✅ Evalué ${ev.length||3} piezas publicitarias con una matriz de mensaje-impacto (atención, retención, resonancia emocional) y viabilidad (presupuesto, plazo, alcance, factibilidad técnica y restricciones del cliente).\n✅ Resolví un mini-caso de planificación de medios (${miniScore()}/4).\n✅ Redacté un prompt con nomenclatura formal de marketing (brief, target, insight, KPI, mix de medios POEM) y generé con IA una infografía sobre cómo trabaja el marketing en la producción de una campaña.\n\nAprendí que elegir un medio es equilibrar lo que el mensaje necesita con lo que realmente se puede ejecutar. 💡\n\n#Marketing #PlanificaciónDeMedios #DiseñoGráfico #InteligenciaArtificial #IDC`; }
+function renderPub(){
+  const t=$("#postText"); if(state.postText==null) state.postText=defaultPost(); t.value=state.postText; t.disabled=!started();
+  t.oninput=e=>{ state.postText=e.target.value; save(); };
+  $("#pubDone").checked=state.pubDone; $("#pubDone").disabled=!started();
+  $("#pubDone").onchange=e=>{ state.pubDone=e.target.checked; save(); updateStats(); if(state.pubDone){ toast("🚀 ¡Felicitaciones! Tu aprendizaje ya es visible para tu red profesional.",true); confetti(); } };
+  $("#pubUrl").value=state.pubUrl; $("#pubUrl").disabled=!started(); $("#pubUrl").oninput=e=>{ state.pubUrl=e.target.value.trim(); save(); };
+}
+$("#copyPost").onclick=async()=>{ if(!started()) return; const t=$("#postText").value; try{ await navigator.clipboard.writeText(t); }catch(e){ $("#postText").select(); try{document.execCommand("copy");}catch(_){} }
+  state.postCopied=true; save(); updateStats(); toast("⧉ ¡Texto copiado! Listo para LinkedIn.",true); };
+$("#openLi").onclick=()=>{ if(!started()) return; const t=$("#postText").value.slice(0,2900);
+  window.open("https://www.linkedin.com/feed/?shareActive=true&text="+encodeURIComponent(t),"_blank","noopener");
+  state.liOpened=true; state.postCopied=true; save(); updateStats(); toast("in LinkedIn abierto: adjunta tu tarjeta y tu infografía con el botón 🖼️ y publica.",true); };
+
+/* =========================================================
+   MAPA MENTAL DE PROGRESO
+   ========================================================= */
+function branches(){
+  const q=promptQuality(), a=state.ai, s=state.student||{};
+  const L=(t,v)=>({t,v:v===true?1:v===false?0:v});
+  return [
+    {id:"reg",label:"Registro",ang:198,leaves:[L("Nombre",!!s.nombres),L("Correo",!!s.email)]},
+    {id:"mat",label:"Matriz",ang:234,leaves:PIECES.map(p=>L(`Pieza ${p.short}`,state.evalP[p.id]?1:CRIT.some(c=>vals(p.id)[c.id])?.5:0))},
+    {id:"mini",label:"Mini-caso",ang:292,leaves:MINI.q.map((_,i)=>L(`P${i+1}`,state.mini[i]!=null))},
+    {id:"pb",label:"Prompt brief",ang:352,leaves:[L(`${q.n}/9 comp.`,q.pct===100?1:q.pct>0?.5:0),L("Copiado",state.pbCopied)]},
+    {id:"ia",label:"Comparar con IA",ang:28,leaves:[L("Respuesta",a.texto.trim().length>20),L("Coincidencia",!!a.coincide),L("Reflexión",a.reflexion.trim().length>=20)]},
+    {id:"info",label:"Infografía",ang:70,leaves:[L("Prompt",state.infoCopied?1:infoReady()?.5:0),L("Imagen",state.infoUploaded)]},
+    {id:"pub",label:"LinkedIn",ang:118,leaves:[L("Tarjeta",state.cardDone),L("Texto",state.postCopied),L("Publicado",state.pubDone)]},
+    {id:"inf",label:"Informe",ang:160,leaves:[L("Descargado",state.reportDone)]}
+  ];
+}
+function mindProgress(){ const b=branches(), all=b.flatMap(x=>x.leaves); const v=all.reduce((s,l)=>s+l.v,0); return {pct:Math.round(v/all.length*100), b}; }
+const NEXT={reg:"Completa tu registro para empezar.",mat:"Califica los 9 criterios de cada pieza y presiona “Evaluar pieza”.",mini:"Responde las 4 preguntas del mini-caso aplicando ambos bloques.",
+  pb:"Completa los 9 componentes del prompt y cópialo.",ia:"Pega la respuesta de la IA, indica si coincidió y escribe tu reflexión.",info:"Arma el prompt de la infografía, genérala y súbela.",
+  pub:"Descarga tu tarjeta, copia el texto y publica en LinkedIn.",inf:"Descarga tu informe en PDF o Markdown."};
+const BRANCH_CHEER={reg:"🌱 ¡Rama Registro completa!",mat:"🌿 ¡Rama Matriz completa! Evaluaste las 3 piezas.",mini:"🌿 ¡Rama Mini-caso completa!",pb:"🌿 ¡Rama Prompt completa! Tu brief es profesional.",
+  ia:"🌿 ¡Rama IA completa! Contrastaste tu criterio con la máquina.",info:"🎨 ¡Rama Infografía completa!",pub:"🚀 ¡Rama LinkedIn completa!",inf:"📄 ¡Rama Informe completa!"};
+function updateMindmap(){
+  const {pct,b}=mindProgress(), svg=$("#mindmap"); if(!svg) return;
+  const ok=css("--ok"), sun=css("--sun"), line=css("--line"), ink=css("--ink"), muted=css("--muted"), surf=css("--surface"), acc=css("--accent");
+  const col=v=>v>=1?ok:v>0?sun:line;
+  const cx=550, cy=350, rx=290, ry=200; let out="";
+  const cR=70, C=2*Math.PI*(cR-8);
+  b.forEach(br=>{ const t=br.ang*Math.PI/180, bx=cx+rx*Math.cos(t), by=cy+ry*Math.sin(t), v=br.leaves.reduce((s,l)=>s+l.v,0)/br.leaves.length; br.x=bx; br.y=by; br.v=v;
+    out+=`<path class="edge" d="M${cx},${cy} Q${(cx+bx)/2+(by-cy)*.15},${(cy+by)/2-(bx-cx)*.15} ${bx},${by}" stroke="${col(v)}"/>`;
+    const n=br.leaves.length;
+    br.leaves.forEach((l,i)=>{ const a=t+(i-(n-1)/2)*0.32, lx=cx+(rx+150)*Math.cos(a), ly=cy+(ry+115)*Math.sin(a); l.x=lx; l.y=ly;
+      out+=`<line class="ledge" x1="${bx}" y1="${by}" x2="${lx}" y2="${ly}" stroke="${col(l.v)}"/>`; }); });
+  b.forEach(br=>{ br.leaves.forEach(l=>{ const w=Math.max(76,l.t.length*8.6+32);
+      out+=`<g><rect x="${l.x-w/2}" y="${l.y-16}" width="${w}" height="32" rx="16" fill="${l.v>=1?ok:l.v>0?sun:surf}" stroke="${col(l.v)}" stroke-width="2"/><text x="${l.x}" y="${l.y+5}" text-anchor="middle" font-size="14" font-weight="600" fill="${l.v>0?"#fff":muted}">${l.v>=1?"✓ ":""}${esc(l.t)}</text></g>`; });
+    const w=Math.max(136,br.label.length*10.5+40);
+    out+=`<g><rect x="${br.x-w/2}" y="${br.y-25}" width="${w}" height="50" rx="12" fill="${surf}" stroke="${col(br.v)}" stroke-width="3"/><text x="${br.x}" y="${br.y-1}" text-anchor="middle" font-size="17" font-weight="700" fill="${ink}">${esc(br.label)}</text><text x="${br.x}" y="${br.y+17}" text-anchor="middle" font-size="12" fill="${muted}">${Math.round(br.v*100)}%</text></g>`; });
+  out+=`<circle cx="${cx}" cy="${cy}" r="${cR}" fill="${surf}" stroke="${line}" stroke-width="2"/>
+    <circle cx="${cx}" cy="${cy}" r="${cR-8}" fill="none" stroke="${line}" stroke-width="10"/>
+    <circle cx="${cx}" cy="${cy}" r="${cR-8}" fill="none" stroke="${pct>=100?ok:acc}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct/100)}" transform="rotate(-90 ${cx} ${cy})" style="transition:stroke-dashoffset .6s"/>
+    <text x="${cx}" y="${cy-14}" text-anchor="middle" font-size="11" font-weight="700" fill="${muted}">OBJETIVO</text>
+    <text x="${cx}" y="${cy+12}" text-anchor="middle" font-size="26" font-weight="800" fill="${ink}" font-family="Fraunces, Georgia, serif">${pct}%</text>
+    <text x="${cx}" y="${cy+30}" text-anchor="middle" font-size="10" fill="${muted}">decidir con criterios</text>`;
+  svg.innerHTML=out;
+  $("#hdrPct").textContent=pct+"%";
+  const nxt=b.find(x=>x.v<1);
+  $("#mmNext").innerHTML = nxt ? `<b>👉 Siguiente paso: ${nxt.label}</b><span style="font-size:.9rem">${NEXT[nxt.id]}</span><div style="margin-top:8px;font-size:.85rem;color:var(--muted)">${pct>=75?"¡Ya casi llegas a la meta! 🏁":pct>=40?"¡Vas muy bien! Tu mapa ya tiene varias ramas en verde. 🌿":pct>0?"¡Buen comienzo! Cada rama que completas te acerca al objetivo. 🌱":"Tu mapa te espera: empieza registrándote. ✨"}</div>`
+    : `<b>🏆 ¡Mapa completo!</b><span style="font-size:.9rem">Recorriste todo el proceso: analizaste, decidiste, creaste con IA y compartiste tu aprendizaje. ¡Excelente trabajo!</span>`;
+  const doneB=b.filter(x=>x.v>=1);
+  $("#mmDone").innerHTML = doneB.length ? doneB.map(x=>`<li>✓ <b>${x.label}</b>: ${x.id==="mat"?"evaluaste las 3 piezas":x.id==="mini"?`respondiste las 4 preguntas (${miniScore()}/4)`:x.id==="pb"?"brief de 9 componentes":x.id==="ia"?"contrastaste con la IA":x.id==="info"?"infografía creada":x.id==="pub"?"resultados publicados":x.id==="inf"?"informe descargado":"datos completos"}</li>`).join("") : `<li>🌱 Tus logros aparecerán aquí a medida que avances.</li>`;
+  if(started()) b.forEach(x=>{ if(x.v>=1&&!state.branchDone.includes(x.id)){ state.branchDone.push(x.id); save(); if(x.id!=="reg") setTimeout(()=>toast(BRANCH_CHEER[x.id]+` Tu mapa va en ${pct}%.`,true),1400); } });
+}
+
+/* =========================================================
+   VISOR
+   ========================================================= */
+function openLightbox(src,cap){ $("#lbImg").src=src; $("#lbImg").alt=cap; $("#lbCap").textContent=cap; $("#lbScroll").classList.remove("zoomed"); $("#lbZoom").textContent="🔍 Zoom 2×"; $("#lightbox").showModal(); }
+function toggleZoom(){ const z=$("#lbScroll").classList.toggle("zoomed"); $("#lbZoom").textContent=z?"↩ Ajustar":"🔍 Zoom 2×"; }
+$("#lbImg").onclick=toggleZoom; $("#lbZoom").onclick=toggleZoom; $("#lbClose").onclick=()=>$("#lightbox").close();
+$("#lightbox").addEventListener("click",e=>{ if(e.target.id==="lightbox") $("#lightbox").close(); });
+
+/* =========================================================
+   TABLERO
+   ========================================================= */
+let cQuad,cIdx,cTime;
+const quadPlugin={id:"quad",beforeDatasetsDraw(ch){ const {ctx,chartArea:a,scales:{x,y}}=ch; const xm=x.getPixelForValue(3.5), ym=y.getPixelForValue(3.5);
+  ctx.save(); const fills=[["rgba(43,138,62,.08)",xm,a.top,a.right-xm,ym-a.top,"Ejecutar"],["rgba(12,133,153,.08)",a.left,a.top,xm-a.left,ym-a.top,"Optimizar viabilidad"],["rgba(214,51,108,.08)",xm,ym,a.right-xm,a.bottom-ym,"Reforzar mensaje"],["rgba(242,161,0,.10)",a.left,ym,xm-a.left,a.bottom-ym,"Replantear"]];
+  fills.forEach(([c,x0,y0,w,h,t])=>{ ctx.fillStyle=c; ctx.fillRect(x0,y0,w,h); ctx.fillStyle="rgba(120,130,140,.9)"; ctx.font="600 11px Inter, sans-serif"; ctx.fillText(t,x0+6,y0+14); });
+  ctx.restore(); }};
+function quadCfg(fixed){
+  const pts=PIECES.map(p=>({p,u:{x:avg(vals(p.id),VIA),y:avg(vals(p.id),IMP)},r:{x:avg(p.ref,VIA),y:avg(p.ref,IMP)}}));
+  const ink=fixed?"#1b1f24":css("--ink"), muted=fixed?"#5f6b78":css("--muted"), line=fixed?"#dde3ea":css("--line");
+  return {type:"scatter",data:{datasets:[
+      {label:"Tú",data:pts.filter(o=>state.evalP[o.p.id]).map(o=>({x:o.u.x,y:o.u.y,l:o.p.short})),backgroundColor:pts.filter(o=>state.evalP[o.p.id]).map(o=>o.p.color),pointRadius:10,pointHoverRadius:12},
+      {label:"Referencia",data:pts.filter(o=>state.evalP[o.p.id]).map(o=>({x:o.r.x,y:o.r.y,l:o.p.short})),backgroundColor:"transparent",borderColor:pts.filter(o=>state.evalP[o.p.id]).map(o=>o.p.color),borderWidth:2.5,pointRadius:10,pointStyle:"rectRot"}]},
+    options:{responsive:!fixed,maintainAspectRatio:false,animation:fixed?false:undefined,
+      scales:{x:{min:1,max:5,title:{display:true,text:"Viabilidad →",color:ink},ticks:{color:muted,stepSize:1},grid:{color:line}},y:{min:1,max:5,title:{display:true,text:"Impacto →",color:ink},ticks:{color:muted,stepSize:1},grid:{color:line}}},
+      plugins:{legend:{labels:{color:ink,usePointStyle:true}},tooltip:{callbacks:{label:c=>`Pieza ${c.raw.l} (${c.dataset.label}): impacto ${c.raw.y.toFixed(2)}, viabilidad ${c.raw.x.toFixed(2)}`}}}},
+    plugins:[quadPlugin,{id:"lbl",afterDatasetsDraw(ch){ const ctx=ch.ctx; ctx.save(); ctx.font="700 11px Inter, sans-serif"; ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.textBaseline="middle";
+      ch.getDatasetMeta(0).data.forEach((pt,i)=>ctx.fillText(ch.data.datasets[0].data[i].l,pt.x,pt.y)); ctx.restore(); }}]};
+}
+function globalFb(){
+  const ev=PIECES.filter(p=>state.evalP[p.id]), items=[];
+  if(!ev.length&&!miniDone()) return items;
+  if(ev.length){ const m=Math.round(ev.reduce((s,p)=>s+concord(p),0)/ev.length);
+    items.push({t:"good",h:`Evaluaste ${ev.length} de 3 piezas con ${m}% de concordancia promedio. ${m>=70?"¡Tu matriz es muy sólida!":"¡Estás aplicando criterios profesionales!"}`});
+    const qm=ev.filter(p=>quadrant(avg(vals(p.id),IMP),avg(vals(p.id),VIA)).k===quadrant(avg(p.ref,IMP),avg(p.ref,VIA)).k).length;
+    if(qm) items.push({t:"good",h:`Tu decisión de cuadrante coincidió en ${qm} de ${ev.length} piezas.`});
+    const bi=ev.reduce((s,p)=>s+(avg(vals(p.id),IMP)-avg(p.ref,IMP)),0)/ev.length, bv=ev.reduce((s,p)=>s+(avg(vals(p.id),VIA)-avg(p.ref,VIA)),0)/ev.length;
+    if(Math.abs(bv)>=.5) items.push({t:"grow",h:`Oportunidad: tiendes a ver la <b>viabilidad</b> ${bv>0?"más favorable":"menos favorable"} que la referencia (${bv>0?"+":""}${bv.toFixed(1)}). Revisa presupuesto, plazos y mandatorios en el brief.`});
+    if(Math.abs(bi)>=.5) items.push({t:"grow",h:`Oportunidad: tiendes a ver el <b>impacto</b> ${bi>0?"más alto":"más bajo"} que la referencia (${bi>0?"+":""}${bi.toFixed(1)}). Piensa en el contexto real de exposición del medio.`});
+  }
+  if(miniDone()) items.push({t:"good",h:`Mini-caso: ${miniScore()} de 4. ${miniScore()>=3?"¡Aplicaste ambos bloques con mucha precisión!":"¡Cada explicación te deja una regla útil para el próximo caso!"}`});
+  const q=promptQuality(); if(q.n) items.push({t:q.pct>=70?"good":"grow",h:`Tu prompt tiene ${q.n}/9 componentes y ${q.found.length} términos formales de marketing.`});
+  if(!finished()){ const pend=[]; if(ev.length<3) pend.push(`${3-ev.length} pieza(s)`); if(miniDone()<4) pend.push(`${4-miniDone()} pregunta(s)`); if(q.pct<100) pend.push("componentes del prompt");
+    if(pend.length) items.push({t:"grow",h:`Te falta: ${pend.join(", ")}. Tienes ${fmt(DURATION-elapsed())}.`}); }
+  return items;
+}
+function renderDashboard(){
+  const ev=PIECES.filter(p=>state.evalP[p.id]);
+  $("#kMat").textContent=ev.length?Math.round(ev.reduce((s,p)=>s+concord(p),0)/ev.length)+"%":"—";
+  $("#kMini").textContent=miniDone()?`${miniScore()}/4`:"—";
+  $("#kPrompt").textContent=started()?promptQuality().pct+"%":"—";
+  const ink=css("--ink"),muted=css("--muted"),line=css("--line"),imp=css("--imp"),via=css("--via"),acc=css("--accent"),sun=css("--sun");
+  Chart.defaults.font.family="Inter, system-ui, sans-serif"; Chart.defaults.color=muted;
+  if(cQuad) cQuad.destroy(); cQuad=new Chart($("#cQuad"),quadCfg(false));
+  if(cIdx) cIdx.destroy();
+  cIdx=new Chart($("#cIdx"),{type:"bar",data:{labels:PIECES.map(p=>`Pieza ${p.short} · ${p.marca}`),datasets:[
+    {label:"Impacto (tú)",data:PIECES.map(p=>state.evalP[p.id]?+avg(vals(p.id),IMP).toFixed(2):0),backgroundColor:imp,borderRadius:5},
+    {label:"Impacto (ref.)",data:PIECES.map(p=>state.evalP[p.id]?+avg(p.ref,IMP).toFixed(2):0),backgroundColor:imp+"55",borderRadius:5},
+    {label:"Viabilidad (tú)",data:PIECES.map(p=>state.evalP[p.id]?+avg(vals(p.id),VIA).toFixed(2):0),backgroundColor:via,borderRadius:5},
+    {label:"Viabilidad (ref.)",data:PIECES.map(p=>state.evalP[p.id]?+avg(p.ref,VIA).toFixed(2):0),backgroundColor:via+"55",borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom",labels:{color:ink,usePointStyle:true,boxWidth:8}}},scales:{y:{min:0,max:5,ticks:{color:muted},grid:{color:line}},x:{ticks:{color:ink},grid:{display:false}}}}});
+  if(cTime) cTime.destroy();
+  cTime=new Chart($("#cTime"),{type:"bar",data:{labels:["Matriz","Mini-caso","Prompt","Infografía y LinkedIn"],datasets:[{data:[state.times.matriz,state.times.minicaso,state.times.prompt,state.times.publicar].map(s=>+((s||0)/60).toFixed(1)),backgroundColor:[imp,sun,via,"#0a66c2"],borderRadius:6}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>fmt(x.raw*60)+" min"}}},scales:{x:{beginAtZero:true,ticks:{color:muted},grid:{color:line}},y:{ticks:{color:ink},grid:{display:false}}}}});
+  const g=globalFb();
+  updateMindmap();
+  $("#globalFb").innerHTML=g.length?`<ul class="list good">${g.filter(x=>x.t==="good").map(x=>`<li>🌟 ${x.h}</li>`).join("")}</ul><ul class="list grow" style="margin-top:8px">${g.filter(x=>x.t==="grow").map(x=>`<li>🌱 ${x.h}</li>`).join("")}</ul>`:'<p class="empty">Evalúa al menos una pieza para ver tu retroalimentación. ¡Tú puedes!</p>';
+}
+function updateStats(){ updateMindmap(); $("#sMat").textContent=`${PIECES.filter(p=>state.evalP[p.id]).length}/3`; $("#sMini").textContent=`${miniDone()?miniScore():0}/4`; $("#sPrompt").textContent=promptQuality().pct+"%"; }
+
+/* =========================================================
+   INFORMES
+   ========================================================= */
+function info(){ return { estado:!finished()?"En curso":state.endReason==="tiempo"?"Tiempo agotado (30:00)":"Finalizado dentro del tiempo",
+  fecha:new Date(state.startTs).toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"}),
+  inicio:new Date(state.startTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}),
+  fin:state.endTs?new Date(state.endTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}):"—", usado:fmt(elapsed()) }; }
+function fileBase(){ const s=state.student; return ("informe-matriz-"+(s?`${s.apellidos}-${s.nombres}`:"estudiante")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-"); }
+function requireStart(){ if(!started()){ toast("Primero regístrate e inicia la actividad 🙂",true); document.getElementById("inicio").scrollIntoView({behavior:"smooth"}); return false; } return true; }
+const strip=s=>String(s).replace(/<\/?b>/g,"");
+const AIL={si:"Sí, en todo",parcial:"Parcialmente",no:"No coincidió"};
+function cellTxt(p,c){ const v=vals(p.id)[c.id]; return v?`${v} (ref. ${p.ref[c.id]})`:"—"; }
+
+function downloadMD(){
+  if(!requireStart()) return;
+  state.reportDone=true; save(); updateStats();
+  const I=info(), s=state.student, q=promptQuality();
+  let md=`# Informe – Actividad 3: Matriz de criterios, mini-caso y constructor de prompts\n\n**IDC Diseño & Comunicación – Instituto de Educación Superior Público**  \n**Unidad didáctica:** ${UNIDAD}  \n**Docente:** ${DOCENTE}  \n**${SEMANA}**\n\n`;
+  md+=`## Datos del estudiante\n\n| Campo | Valor |\n|---|---|\n| Apellidos | ${s.apellidos} |\n| Nombres | ${s.nombres} |\n| Correo electrónico | ${s.email||"—"} |\n| Fecha | ${I.fecha} |\n| Inicio / fin | ${I.inicio} / ${I.fin} |\n| Tiempo utilizado | ${I.usado} de 30:00 |\n| Estado | ${I.estado} |\n\n`;
+  md+=`## Tiempos por actividad\n\n| Actividad | Tiempo dedicado | Entrega |\n|---|---|---|\n`;
+  md+=`| Paso 1 · Matriz | ${fmt(state.times.matriz)} | ${PIECES.map(p=>`${p.short}: ${state.evalAt[p.id]!=null?fmt(state.evalAt[p.id]):"—"}`).join(" · ")} |\n`;
+  md+=`| Paso 2 · Mini-caso | ${fmt(state.times.minicaso)} | ${MINI.q.map((_,i)=>`P${i+1}: ${state.miniAt[i]!=null?fmt(state.miniAt[i]):"—"}`).join(" · ")} |\n`;
+  md+=`| Paso 3 · Prompt | ${fmt(state.times.prompt)} | ${state.pbCopied?"Copiado":"No copiado"} |\n`;
+  md+=`| Paso 4 · Infografía y LinkedIn | ${fmt(state.times.publicar)} | ${state.pubDone?"Publicado":"Pendiente"} |\n\n`;
+  md+=`## Paso 1 · Matriz de criterios\n\nValores del estudiante (entre paréntesis, la referencia). Escala 1–5, donde 5 es lo más favorable.\n\n| Criterio | ${PIECES.map(p=>`Pieza ${p.short} · ${p.marca}`).join(" | ")} |\n|---|---|---|---|\n`;
+  md+=`| **Bloque A · Mensaje-impacto** | | | |\n`; IMP.forEach(c=>md+=`| ${c.name} | ${PIECES.map(p=>cellTxt(p,c)).join(" | ")} |\n`);
+  md+=`| **Índice de impacto** | ${PIECES.map(p=>{const a=avg(vals(p.id),IMP);return a==null?"—":`**${a.toFixed(2)}** (ref. ${avg(p.ref,IMP).toFixed(2)})`;}).join(" | ")} |\n`;
+  md+=`| **Bloque B · Viabilidad** | | | |\n`; VIA.forEach(c=>md+=`| ${c.name} | ${PIECES.map(p=>cellTxt(p,c)).join(" | ")} |\n`);
+  md+=`| **Índice de viabilidad** | ${PIECES.map(p=>{const a=avg(vals(p.id),VIA);return a==null?"—":`**${a.toFixed(2)}** (ref. ${avg(p.ref,VIA).toFixed(2)})`;}).join(" | ")} |\n`;
+  md+=`| **Decisión** | ${PIECES.map(p=>quadrant(avg(vals(p.id),IMP),avg(vals(p.id),VIA)).t+` (ref. ${quadrant(avg(p.ref,IMP),avg(p.ref,VIA)).t})`).join(" | ")} |\n`;
+  md+=`| **Concordancia** | ${PIECES.map(p=>state.evalP[p.id]?concord(p)+"%":"—").join(" | ")} |\n\n`;
+  PIECES.forEach(p=>{ md+=`**Pieza ${p.short} · ${p.marca} (${p.medio}) – justificación:**\n\n> ${(state.just[p.id]||"(sin justificación)").trim().replace(/\n+/g," ")}\n\n`; });
+  md+=`## Paso 2 · Mini-caso: ${MINI.marca} – ${MINI.titulo}\n\n`+MINI.ficha.map(([k,v])=>`- **${k}:** ${v}`).join("\n")+"\n\n";
+  md+=`| # | Pregunta | Mi respuesta | Respuesta más fundamentada | Resultado |\n|---|---|---|---|---|\n`;
+  MINI.q.forEach((q,i)=>{ const a=state.mini[i]; md+=`| ${i+1} | ${q.t} | ${a!=null?"ABCD"[a]+") "+q.o[a]:"—"} | ${"ABCD"[q.c]}) ${q.o[q.c]} | ${a==null?"Sin responder":a===q.c?"✔ Correcta":"Para revisar"} |\n`; });
+  md+=`\n**Puntaje:** ${miniScore()}/4\n\n`;
+  md+=`## Paso 3 · Prompt construido (calidad ${q.pct}% · ${q.n}/9 componentes · ${q.found.length} términos formales)\n\n\`\`\`markdown\n${buildPrompt()}\n\`\`\`\n\n`;
+  md+=`### Aplicación con IA\n\n- **¿La IA coincidió con mis respuestas?** ${state.ai.coincide?AIL[state.ai.coincide]:"Sin responder"}\n- **Reflexión:** ${state.ai.reflexion.trim()||"—"}\n\n`;
+  if(state.ai.texto.trim()) md+=`**Respuesta de la IA:**\n\n> ${state.ai.texto.trim().replace(/\n/g,"\n> ")}\n\n`;
+  md+=`## Paso 4 · Infografía y publicación en LinkedIn\n\n- **Prompt de infografía copiado:** ${state.infoCopied?"Sí":"No"}\n- **Infografía subida:** ${state.infoUploaded?"Sí (adjuntar la imagen al entregar)":"No"}\n- **Tarjeta de logros descargada:** ${state.cardDone?"Sí":"No"}\n- **Publicado en LinkedIn:** ${state.pubDone?"Sí":"No"}${state.pubUrl?` — ${state.pubUrl}`:""}\n\n`;
+  md+=`### Prompt de la infografía\n\n\`\`\`markdown\n${buildInfoPrompt()}\n\`\`\`\n\n`;
+  if(state.postText) md+=`### Texto de la publicación\n\n> ${state.postText.trim().replace(/\n/g,"\n> ")}\n\n`;
+  const mp=mindProgress(); md+=`## Mapa de proceso (${mp.pct}% completado)\n\n| Rama | Avance | Detalle |\n|---|---|---|\n`+mp.b.map(b=>{ const v=b.leaves.reduce((a,l)=>a+l.v,0)/b.leaves.length; return `| ${b.label} | ${Math.round(v*100)}% | ${b.leaves.map(l=>(l.v>=1?"✓ ":l.v>0?"◐ ":"○ ")+l.t).join(" · ")} |`; }).join("\n")+"\n\n";
+  const g=globalFb(); md+=`## Retroalimentación global\n\n`+(g.length?g.map(x=>`- ${x.t==="good"?"🌟":"🌱"} ${x.h.replace(/<\/?b>/g,"**")}`).join("\n"):"- Aún no hay avances registrados.")+"\n\n";
+  md+=`## Mensaje final\n\n${s.nombres}, ${closing()}\n\n---\n\n${DOCENTE} · ${SEMANA} · Unidad didáctica: ${UNIDAD}\n`;
+  const blob=new Blob([md],{type:"text/markdown;charset=utf-8"}), u=URL.createObjectURL(blob), l=document.createElement("a");
+  l.href=u; l.download=fileBase()+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000); toast("✔ Informe Markdown descargado",true);
+}
+function chartImage(cfg,w,h){
+  const cv=document.createElement("canvas"); cv.width=w; cv.height=h; cv.style.cssText=`position:fixed;left:-9999px;width:${w}px;height:${h}px`; document.body.appendChild(cv);
+  cfg.options=Object.assign({},cfg.options,{responsive:false,animation:false,devicePixelRatio:2});
+  cfg.plugins=[{id:"bg",beforeDraw:ch=>{const x=ch.ctx;x.save();x.fillStyle="#fff";x.fillRect(0,0,ch.width,ch.height);x.restore();}},...(cfg.plugins||[])];
+  const ch=new Chart(cv,cfg), url=cv.toDataURL("image/jpeg",.9); ch.destroy(); cv.remove(); return url;
+}
+function pdfSafe(s){ return strip(s).replace(/[“”]/g,'"').replace(/×/g,"x").replace(/[^\x00-\xFF—–‘’"•]/g,"").trim(); }
+function downloadPDF(){
+  if(!requireStart()) return;
+  if(!window.jspdf){ toast("No se pudo cargar el generador de PDF (revisa tu conexión). Usa el informe Markdown.",true); return; }
+  state.reportDone=true; save(); updateStats(); drawCard();
+  const {jsPDF}=window.jspdf, doc=new jsPDF({unit:"mm",format:"a4",compress:true}), I=info(), s=state.student, W=210, M=15; let y=M;
+  const BLUE=[0,113,188],ORANGE=[242,161,0],PINK=[214,51,108],TEAL=[12,133,153],GRAY=[95,107,120],INK=[27,31,36],GREEN=[43,138,62];
+  const ensure=h=>{ if(y+h>282){ doc.addPage(); y=M+4; } };
+  const h2=t=>{ ensure(16); doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...INK); doc.text(t,M,y); y+=2; };
+  if(window.IDC_LOGO){ const lw=48; doc.addImage(IDC_LOGO.src,"JPEG",M,y,lw,lw*IDC_LOGO.h/IDC_LOGO.w); }
+  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...GRAY); doc.text("UNIDAD DIDÁCTICA",W-M,y+5,{align:"right"});
+  doc.setFontSize(10); doc.setTextColor(...INK); doc.text(UNIDAD,W-M,y+10,{align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GRAY); doc.text(`${DOCENTE} · ${SEMANA} · Actividad 3`,W-M,y+15,{align:"right"});
+  y+=24; doc.setDrawColor(...PINK); doc.setLineWidth(.8); doc.line(M,y,W-M,y); y+=9;
+  doc.setFont("helvetica","bold"); doc.setFontSize(15); doc.setTextColor(...INK); doc.text("Informe: matriz de criterios, mini-caso y prompt",M,y); y+=6;
+  doc.autoTable({startY:y,margin:{left:M,right:M},theme:"plain",styles:{fontSize:9.3,cellPadding:1.6,textColor:INK},columnStyles:{0:{fontStyle:"bold",cellWidth:34,textColor:GRAY},2:{fontStyle:"bold",cellWidth:30,textColor:GRAY}},
+    body:[["Apellidos",s.apellidos,"Fecha",I.fecha],["Nombres",s.nombres,"Inicio / fin",`${I.inicio} / ${I.fin}`],["Correo",s.email||"—","Tiempo",`${I.usado} de 30:00`],["Mapa de proceso",`${mindProgress().pct}% completado`,"Estado",I.estado]]});
+  y=doc.lastAutoTable.finalY+5;
+  const ev=PIECES.filter(p=>state.evalP[p.id]), q=promptQuality();
+  const k=[["Piezas evaluadas",`${ev.length}/3`],["Concordancia matriz",ev.length?Math.round(ev.reduce((a,p)=>a+concord(p),0)/ev.length)+"%":"—"],["Mini-caso",`${miniScore()}/4`],["Calidad del prompt",q.pct+"%"]], kw=(W-2*M-9)/4;
+  k.forEach((x,i)=>{ const kx=M+i*(kw+3); doc.setFillColor(238,242,246); doc.roundedRect(kx,y,kw,17,2,2,"F"); doc.setFontSize(7.5); doc.setTextColor(...GRAY); doc.text(x[0],kx+3,y+5.5);
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(...BLUE); doc.text(x[1],kx+3,y+13); doc.setFont("helvetica","normal"); });
+  y+=24;
+  h2("Tiempos por actividad");
+  doc.autoTable({startY:y+2,margin:{left:M,right:M},head:[["Actividad","Tiempo dedicado","Entregas (minuto)"]],
+    body:[["Paso 1 · Matriz",fmt(state.times.matriz),PIECES.map(p=>`${p.short}: ${state.evalAt[p.id]!=null?fmt(state.evalAt[p.id]):"—"}`).join("   ")],
+          ["Paso 2 · Mini-caso",fmt(state.times.minicaso),MINI.q.map((_,i)=>`P${i+1}: ${state.miniAt[i]!=null?fmt(state.miniAt[i]):"—"}`).join("   ")],
+          ["Paso 3 · Prompt",fmt(state.times.prompt),state.pbCopied?"Prompt copiado":"No copiado"],
+          ["Paso 4 · Infografía y LinkedIn",fmt(state.times.publicar),state.pubDone?"Publicado en LinkedIn":"Pendiente"]],
+    styles:{fontSize:8.8,cellPadding:1.8},headStyles:{fillColor:BLUE},alternateRowStyles:{fillColor:[245,247,250]}});
+  y=doc.lastAutoTable.finalY+7;
+  h2("Paso 1 · Matriz de criterios (estudiante / referencia)");
+  const body=[[{content:"Bloque A · Mensaje-impacto",colSpan:4,styles:{fillColor:[253,228,236],textColor:PINK,fontStyle:"bold"}}]]
+    .concat(IMP.map(c=>[c.name,...PIECES.map(p=>cellTxt(p,c))]))
+    .concat([["Índice de impacto",...PIECES.map(p=>{const a=avg(vals(p.id),IMP);return a==null?"—":`${a.toFixed(2)} (ref. ${avg(p.ref,IMP).toFixed(2)})`;})]])
+    .concat([[{content:"Bloque B · Viabilidad",colSpan:4,styles:{fillColor:[220,243,246],textColor:TEAL,fontStyle:"bold"}}]])
+    .concat(VIA.map(c=>[c.name,...PIECES.map(p=>cellTxt(p,c))]))
+    .concat([["Índice de viabilidad",...PIECES.map(p=>{const a=avg(vals(p.id),VIA);return a==null?"—":`${a.toFixed(2)} (ref. ${avg(p.ref,VIA).toFixed(2)})`;})]])
+    .concat([["Decisión",...PIECES.map(p=>`${quadrant(avg(vals(p.id),IMP),avg(vals(p.id),VIA)).t} (ref. ${quadrant(avg(p.ref,IMP),avg(p.ref,VIA)).t})`)]])
+    .concat([["Concordancia",...PIECES.map(p=>state.evalP[p.id]?concord(p)+"%":"—")]]);
+  doc.autoTable({startY:y+2,margin:{left:M,right:M},head:[["Criterio",...PIECES.map(p=>`Pieza ${p.short} · ${p.marca}`)]],body,
+    styles:{fontSize:8.3,cellPadding:1.7},headStyles:{fillColor:INK},columnStyles:{0:{fontStyle:"bold",cellWidth:44}},
+    didParseCell:d=>{ if(d.section==="body"&&["Índice de impacto","Índice de viabilidad","Decisión","Concordancia"].includes(d.row.raw[0])){ d.cell.styles.fillColor=[238,242,246]; d.cell.styles.fontStyle="bold"; } }});
+  y=doc.lastAutoTable.finalY+5;
+  const block=(title,text,color)=>{ ensure(10); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...color); doc.text(title,M,y); y+=4.5;
+    doc.setFont("helvetica","normal"); doc.setTextColor(...INK); doc.splitTextToSize(text,W-2*M-3).forEach(l=>{ ensure(5); doc.text(l,M+3,y); y+=4.3; }); y+=1.5; };
+  PIECES.forEach(p=>block(pdfSafe(`Justificación · Pieza ${p.short} (${p.marca} – ${p.medio}):`),pdfSafe((state.just[p.id]||"(sin justificación)").replace(/\n+/g," ")),PINK));
+  if(ev.length){ ensure(80); y+=2;
+    const img=chartImage(quadCfg(true),620,430); const gw=110; doc.addImage(img,"JPEG",(W-gw)/2,y,gw,gw*430/620); y+=gw*430/620+4;
+    doc.setFontSize(8); doc.setTextColor(...GRAY); doc.text("Mapa de decisión: círculos = estudiante · rombos = referencia",W/2,y,{align:"center"}); y+=7; }
+  h2(pdfSafe(`Paso 2 · Mini-caso: ${MINI.marca} – ${MINI.titulo} (${miniScore()}/4)`));
+  doc.autoTable({startY:y+2,margin:{left:M,right:M},head:[["#","Pregunta","Mi respuesta","Más fundamentada",""]],
+    body:MINI.q.map((q,i)=>{ const a=state.mini[i]; return [i+1,pdfSafe(q.t),a!=null?pdfSafe("ABCD"[a]+") "+q.o[a]):"—",pdfSafe("ABCD"[q.c]+") "+q.o[q.c]),a==null?"—":a===q.c?"Correcta":"Revisar"]; }),
+    styles:{fontSize:7.8,cellPadding:1.7,valign:"top"},headStyles:{fillColor:ORANGE,textColor:INK},columnStyles:{0:{cellWidth:7,halign:"center"},4:{cellWidth:16}},
+    didParseCell:d=>{ if(d.section==="body"&&d.column.index===4){ d.cell.styles.textColor=d.cell.raw==="Correcta"?GREEN:ORANGE; d.cell.styles.fontStyle="bold"; } }});
+  y=doc.lastAutoTable.finalY+7;
+  h2(`Paso 3 · Prompt construido (calidad ${q.pct}% · ${q.n}/9 componentes · ${q.found.length} términos formales)`); y+=4;
+  doc.setFont("courier","normal"); doc.setFontSize(7.6); doc.setTextColor(...INK);
+  doc.splitTextToSize(pdfSafe(buildPrompt()),W-2*M-6).forEach(l=>{ ensure(4.2); if(l.startsWith("## ")){ doc.setFont("courier","bold"); doc.setTextColor(...BLUE); } doc.text(l,M+3,y); doc.setFont("courier","normal"); doc.setTextColor(...INK); y+=3.6; });
+  doc.setFont("helvetica","normal"); y+=3;
+  block("¿La IA coincidió con mis respuestas?",state.ai.coincide?AIL[state.ai.coincide]:"Sin responder",TEAL);
+  if(state.ai.reflexion.trim()) block("Reflexión:",pdfSafe(state.ai.reflexion.replace(/\n+/g," ")),TEAL);
+  if(state.ai.texto.trim()) block("Respuesta de la IA (extracto):",pdfSafe(state.ai.texto.replace(/\n+/g," ").slice(0,1500)),GRAY);
+  // Paso 4
+  doc.addPage(); y=M+4; h2("Paso 4 · Infografía con IA y publicación en LinkedIn"); y+=4;
+  doc.autoTable({startY:y,margin:{left:M,right:M},theme:"plain",styles:{fontSize:9,cellPadding:1.5,textColor:INK},columnStyles:{0:{fontStyle:"bold",cellWidth:60,textColor:GRAY}},
+    body:[["Prompt de infografía copiado",state.infoCopied?"Sí":"No"],["Infografía subida",state.infoUploaded?"Sí":"No"],["Tarjeta de logros descargada",state.cardDone?"Sí":"No"],["Publicado en LinkedIn",state.pubDone?"Sí":"No"],["Enlace de la publicación",state.pubUrl||"—"]]});
+  y=doc.lastAutoTable.finalY+4;
+  { const card=$("#cardCanvas").toDataURL("image/jpeg",.9); const cw=W-2*M; ensure(cw*627/1200+8); doc.addImage(card,"JPEG",M,y,cw,cw*627/1200); y+=cw*627/1200+3;
+    doc.setFontSize(8); doc.setTextColor(...GRAY); doc.text("Tarjeta de logros para LinkedIn",W/2,y,{align:"center"}); y+=7; }
+  if(infoImgData){ const im=doc.getImageProperties(infoImgData); let iw=W-2*M, ih=iw*im.height/im.width; if(ih>200){ ih=200; iw=ih*im.width/im.height; }
+    ensure(ih+8); doc.addImage(infoImgData,"JPEG",(W-iw)/2,y,iw,ih); y+=ih+3; doc.setFontSize(8); doc.setTextColor(...GRAY); doc.text("Infografía generada por el estudiante",W/2,y,{align:"center"}); y+=7; }
+  ensure(20); doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...INK); doc.text("Prompt de la infografía",M,y); y+=5;
+  doc.setFont("courier","normal"); doc.setFontSize(7.6);
+  doc.splitTextToSize(pdfSafe(buildInfoPrompt()),W-2*M-6).forEach(l=>{ ensure(4.2); if(l.startsWith("## ")){ doc.setFont("courier","bold"); doc.setTextColor(...BLUE); } doc.text(l,M+3,y); doc.setFont("courier","normal"); doc.setTextColor(...INK); y+=3.6; });
+  doc.setFont("helvetica","normal"); y+=5;
+  const mp=mindProgress(); h2(`Mapa de proceso (${mp.pct}% completado)`);
+  doc.autoTable({startY:y+2,margin:{left:M,right:M},head:[["Rama","Avance","Detalle"]],
+    body:mp.b.map(b=>{ const v=b.leaves.reduce((a,l)=>a+l.v,0)/b.leaves.length; return [b.label,Math.round(v*100)+"%",b.leaves.map(l=>(l.v>=1?"[x] ":l.v>0?"[~] ":"[ ] ")+l.t).join("   ")]; }),
+    styles:{fontSize:8.5,cellPadding:1.8},headStyles:{fillColor:GREEN},columnStyles:{0:{fontStyle:"bold",cellWidth:38},1:{cellWidth:18,halign:"center"}},
+    didParseCell:d=>{ if(d.section==="body"&&d.column.index===1){ const n=parseInt(d.cell.raw); d.cell.styles.textColor=n>=100?GREEN:n>0?ORANGE:GRAY; d.cell.styles.fontStyle="bold"; } }});
+  y=doc.lastAutoTable.finalY+7;
+  const g=globalFb(); ensure(24); h2("Retroalimentación global"); y+=5; doc.setFont("helvetica","normal"); doc.setFontSize(9.3); doc.setTextColor(...INK);
+  (g.length?g:[{t:"good",h:"Aún no hay avances registrados."}]).forEach(x=>{ doc.splitTextToSize((x.t==="good"?"+ ":"> ")+pdfSafe(x.h),W-2*M-3).forEach(l=>{ ensure(5); doc.text(l,M+2,y); y+=4.6; }); y+=1; });
+  y+=3; ensure(20); doc.setFillColor(253,241,214); const fl=doc.splitTextToSize(pdfSafe(`${s.nombres}, ${closing()}`),W-2*M-10); doc.roundedRect(M,y,W-2*M,fl.length*5+8,2,2,"F");
+  doc.setFont("helvetica","bold"); doc.setTextColor(...INK); doc.text(fl,M+5,y+6.5);
+  const pages=doc.getNumberOfPages();
+  for(let p=1;p<=pages;p++){ doc.setPage(p); doc.setDrawColor(...ORANGE); doc.setLineWidth(.6); doc.line(M,287,W-M,287); doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...GRAY);
+    doc.text(`${DOCENTE} · ${SEMANA} · ${UNIDAD}`,M,292); doc.text(`${p} / ${pages}`,W-M,292,{align:"right"}); }
+  doc.save(fileBase()+".pdf"); toast("✔ Informe PDF descargado",true);
+}
+$("#pdfBtn").onclick=downloadPDF; $("#mdBtn").onclick=downloadMD;
+$("#finishBtn2").onclick=()=>{ if(!requireStart()) return; if(finished()){ toast("La actividad ya fue finalizada. ¡Descarga tu informe!",true); return; } askFinish(); };
+$("#resetBtn").onclick=()=>{ if(!confirm("¿Borrar el registro, el tiempo y todas las respuestas de esta actividad?")) return; state=freshState(); save(); lastPct=0; infoImgData=null; try{sessionStorage.removeItem(KEY+"-info");}catch(e){} $("#infoPrev").style.display="none"; renderAll(); scrollTo({top:0,behavior:"smooth"}); toast("Actividad reiniciada",true); };
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+function renderAll(){
+  const locked=!started(); ["#matLock","#miniLock","#pbLock","#pubLock"].forEach(s=>$(s).classList.toggle("locked",locked));
+  renderRegister(); renderPieces(); renderMatrix(); renderJusts(); renderMini(); renderPB(); renderGloss(); renderInfo(); renderPub(); showInfoImg(); renderDashboard(); updateStats(); updateTimerUI(); drawCard();
+  infoWasReady=infoReady();
+  if(state.fbView&&state.evalP[state.fbView]) showPieceFb(state.fbView,true); else { $("#pieceFb").classList.remove("show"); }
+  lastPct=promptQuality().pct;
+}
+if(active()&&elapsed()>=DURATION){ state.endTs=state.startTs+DURATION*1000; state.endReason="tiempo"; save(); }
+if(window.IDC_LOGO){ logoImg=new Image(); logoImg.onload=()=>drawCard(); logoImg.src=IDC_LOGO.src; }
+renderAll();
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>drawCard());
+setInterval(tick,1000);
+</script>
+</body>
+</html>

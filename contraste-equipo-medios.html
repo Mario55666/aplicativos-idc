@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juicio y Equipo · IDC</title>
+<meta name="description" content="Actividad 2: contrasta tu juicio inicial sobre 6 casos publicitarios con el de tu equipo, identifica la información que faltaba (público, costo y tiempo de producción) y ordena los casos según tu certeza.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="img/logo-b64.js"></script>
+<style>
+:root{
+  --bg:#f5f7fa; --surface:#ffffff; --surface-2:#eef2f6; --ink:#1b1f24; --muted:#5f6b78;
+  --line:#dde3ea; --accent:#0071bc; --accent-soft:#e1effa; --sun:#f2a100; --sun-soft:#fdf1d6;
+  --ok:#2b8a3e; --ok-soft:#e1f3e4; --warn:#c77700; --bad:#c92a2a; --bad-soft:#fbe1e1;
+  --team:#5f3dc4; --team-soft:#ece6fb;
+  --radius:16px; --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1318; --surface:#171c22; --surface-2:#1f262e; --ink:#eef2f6; --muted:#9aa7b4;
+    --line:#2c3540; --accent:#4da3e8; --accent-soft:#132a3e; --sun:#ffb829; --sun-soft:#33280f;
+    --ok:#51cf66; --ok-soft:#173022; --warn:#ffb829; --bad:#ff6b6b; --bad-soft:#3a1d1d;
+    --team:#9775fa; --team-soft:#241d3d; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#171c22; --surface-2:#1f262e; --ink:#eef2f6; --muted:#9aa7b4;
+  --line:#2c3540; --accent:#4da3e8; --accent-soft:#132a3e; --sun:#ffb829; --sun-soft:#33280f;
+  --ok:#51cf66; --ok-soft:#173022; --warn:#ffb829; --bad:#ff6b6b; --bad-soft:#3a1d1d;
+  --team:#9775fa; --team-soft:#241d3d; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.55;font-size:16px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;margin:0 0 .5em}
+.wrap{max-width:1140px;margin:0 auto;padding:0 16px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* Cabecera */
+header.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:14px;min-height:68px}
+.logo{background:#fff;border-radius:10px;padding:4px 8px;display:flex;align-items:center;flex-shrink:0}
+.logo img{height:40px;width:auto;display:block}
+.unit{border-left:2px solid var(--line);padding-left:14px;line-height:1.25;min-width:0}
+.unit small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.unit b{font-size:.95rem}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.timer{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px 6px 10px;font-variant-numeric:tabular-nums;font-weight:700;font-size:1.05rem;transition:.3s}
+.timer .ic{width:22px;height:22px}
+.timer.run{border-color:var(--accent);color:var(--accent)}
+.timer.low{border-color:var(--sun);color:var(--warn);background:var(--sun-soft)}
+.timer.crit{border-color:var(--bad);color:var(--bad);background:var(--bad-soft);animation:pulse 1s infinite}
+.timer.end{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.toggle{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:38px;height:38px;flex-shrink:0}
+.time-bar{height:4px;background:var(--line)}
+.time-bar div{height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--sun));transform-origin:left;transition:transform 1s linear}
+
+/* Hero */
+.hero{padding:48px 0 40px}
+.hero-grid{display:grid;grid-template-columns:7fr 5fr;gap:32px;align-items:start}
+.eyebrow{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--team);background:var(--team-soft);padding:5px 11px;border-radius:999px;margin-bottom:16px}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);max-width:16ch}
+.hero h1 em{color:var(--accent);font-style:normal;position:relative}
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.05em;height:.22em;background:var(--sun);opacity:.45;z-index:-1;border-radius:4px}
+.lead{font-size:1.1rem;color:var(--muted);max-width:58ch}
+.consigna{margin-top:20px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--team);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+.consigna strong{display:block;font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.register{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:relative;overflow:hidden}
+.register::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,var(--team),var(--accent),var(--sun))}
+.register h2{font-size:1.35rem;margin-bottom:4px}
+.register p{color:var(--muted);font-size:.92rem;margin:0 0 14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-weight:600;font-size:.88rem;margin-bottom:4px}
+.field label span{font-weight:400;color:var(--muted)}
+.field input,.field textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink)}
+.field input:focus,.field textarea:focus{border-color:var(--accent);outline:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.big-timer{display:flex;align-items:center;gap:14px;background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:6px 0 14px}
+.big-timer b{font-family:Fraunces,serif;font-size:2rem;font-variant-numeric:tabular-nums}
+.big-timer span{font-size:.85rem;color:var(--muted)}
+.import-note{font-size:.84rem;background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:8px 12px;margin-bottom:12px}
+.student-chip{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;flex-shrink:0}
+.student-chip b{display:block;font-size:1.05rem}
+.student-chip span{color:var(--muted);font-size:.85rem}
+.team-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.team-list span{background:var(--team-soft);color:var(--team);border-radius:999px;padding:3px 10px;font-size:.8rem;font-weight:600}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sun{background:var(--sun);color:#1b1f24}
+.btn.team{background:var(--team);color:#fff}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.block{width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:24px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{font-family:Fraunces,serif;font-size:1.6rem;display:block}
+.stat span{color:var(--muted);font-size:.8rem}
+
+section{padding:48px 0;border-top:1px solid var(--line)}
+section > .wrap > h2{font-size:clamp(1.5rem,3.4vw,2.2rem)}
+.sub{color:var(--muted);max-width:68ch;margin-top:-4px}
+.step-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--accent);border-radius:6px;padding:3px 8px;margin-bottom:10px}
+
+/* Instrucciones */
+.instr{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.ins{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;position:relative}
+.ins .n{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;margin-bottom:10px}
+.ins:nth-child(2) .n{background:var(--team)} .ins:nth-child(3) .n{background:var(--sun);color:#1b1f24} .ins:nth-child(4) .n{background:var(--ok)}
+.ins h3{font-family:Inter,sans-serif;font-size:1rem;margin-bottom:6px}
+.ins ol{margin:0;padding-left:18px;color:var(--muted);font-size:.88rem}
+.ins ol li{margin-bottom:3px}
+.ins .t{position:absolute;top:16px;right:16px;font-size:.75rem;font-weight:700;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:2px 8px}
+.gaps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.gap{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:flex-start}
+.gap .ico{font-size:1.5rem}
+.gap b{display:block}
+.gap p{margin:0;font-size:.86rem;color:var(--muted)}
+
+/* Bloqueo */
+.lockable{position:relative}
+.lock-msg{display:none;position:absolute;inset:0;z-index:5;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(3px);border-radius:var(--radius);place-items:center;text-align:center;padding:20px}
+.lockable.locked .lock-msg{display:grid}
+.lock-msg div{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow);max-width:420px}
+.lock-msg b{display:block;font-size:1.1rem;margin-bottom:4px}
+.lock-msg p{margin:0 0 14px;color:var(--muted)}
+
+/* Casos */
+.case-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 16px}
+.tab{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.tab .dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.tab.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.tab.done .dot{background:var(--ok)}
+.case{display:grid;grid-template-columns:4fr 8fr;gap:20px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.piece-img{display:block;width:100%;padding:0;border:0;background:#000;position:relative;aspect-ratio:3/2;cursor:zoom-in}
+.piece-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.piece-img:hover img{transform:scale(1.03)}
+.piece-img .badge{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:.72rem;padding:4px 10px;border-radius:999px;font-weight:600}
+.piece-img .zoom{position:absolute;bottom:10px;right:10px;background:rgba(255,255,255,.92);color:#1b1f24;font-size:.78rem;padding:5px 11px;border-radius:999px;font-weight:600}
+.piece-body{padding:18px}
+.piece-body h3{font-size:1.35rem;margin-bottom:2px}
+.meta{color:var(--muted);font-size:.85rem;margin-bottom:10px}
+.kv{border-top:1px solid var(--line);padding:10px 0;font-size:.92rem}
+.kv small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-bottom:2px}
+.medio{display:inline-block;background:var(--sun-soft);color:var(--warn);font-weight:700;padding:3px 10px;border-radius:8px}
+.case-time{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px;margin-top:10px}
+.case-time b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+.form{padding:20px}
+.blk{border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.blk h4{margin:0 0 4px;font-size:1rem;display:flex;align-items:center;gap:8px}
+.blk h4 .pill-n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;color:#fff;background:var(--accent)}
+.blk.b2 h4 .pill-n{background:var(--team)} .blk.b3 h4 .pill-n{background:var(--sun);color:#1b1f24}
+.blk .help{font-size:.84rem;color:var(--muted);margin:0 0 10px}
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vbtn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 8px;font-weight:600;font-size:.88rem}
+.vbtn[aria-pressed="true"][data-v="acertada"]{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.vbtn[aria-pressed="true"][data-v="parcial"]{background:var(--sun-soft);border-color:var(--sun);color:var(--warn)}
+.vbtn[aria-pressed="true"][data-v="no"]{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.agree{margin-top:10px;font-size:.88rem;padding:9px 12px;border-radius:10px;display:none}
+.agree.show{display:block}
+.agree.same{background:var(--ok-soft);color:var(--ok)}
+.agree.diff{background:var(--team-soft);color:var(--team)}
+.checks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.check{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:var(--surface)}
+.check input{margin-top:3px;accent-color:var(--sun);width:18px;height:18px;flex-shrink:0}
+.check b{display:block;font-size:.9rem}
+.check span{font-size:.78rem;color:var(--muted)}
+.check:has(input:checked){border-color:var(--sun);background:var(--sun-soft)}
+textarea{width:100%;min-height:76px;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font:inherit;background:var(--surface);color:var(--ink);resize:vertical;margin-top:10px}
+.meter{height:6px;border-radius:99px;background:var(--line);margin-top:6px;overflow:hidden}
+.meter div{height:100%;width:0;background:var(--sun);transition:width .3s,background .3s}
+.meter-label{font-size:.78rem;color:var(--muted);margin-top:4px}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Retroalimentación de caso */
+.feedback{margin-top:20px;display:none}
+.feedback.show{display:block;animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fb-head{padding:16px 20px;background:linear-gradient(90deg,var(--team-soft),var(--sun-soft));font-weight:600;display:flex;gap:10px;align-items:center}
+.fb-head .emoji{font-size:1.5rem}
+.fb-body{padding:20px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.fact{border-radius:12px;padding:14px;background:var(--surface-2);border:1.5px solid transparent}
+.fact.hit{border-color:var(--sun);background:var(--sun-soft)}
+.fact small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--muted)}
+.fact b{display:block;margin:4px 0}
+.fact p{margin:0;font-size:.86rem}
+.fact .flag{display:inline-block;margin-top:8px;font-size:.74rem;font-weight:700;border-radius:999px;padding:2px 9px;background:var(--ok-soft);color:var(--ok)}
+.cost{letter-spacing:2px;color:var(--warn);font-weight:800}
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:9px 12px;border-radius:10px;margin-bottom:8px;font-size:.9rem}
+.list.good li{background:var(--ok-soft)}
+.list.grow li{background:var(--surface-2)}
+.rethink{margin-top:14px;background:var(--accent-soft);border-radius:12px;padding:14px}
+.rethink p{margin:0 0 10px;font-weight:600}
+.rethink .actions .btn{padding:9px 16px;font-size:.9rem}
+.rethink .btn[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Ranking */
+.rank-wrap{display:grid;grid-template-columns:6fr 5fr;gap:20px;margin-top:22px;align-items:start}
+.rank{list-style:none;padding:0;margin:0;counter-reset:r}
+.rank li{display:flex;align-items:center;gap:12px;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px;cursor:grab;transition:transform .15s,box-shadow .15s;user-select:none}
+.rank li.dragging{opacity:.5}
+.rank li.over{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rank .pos{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:800;color:#fff;flex-shrink:0}
+.rank img{width:64px;height:42px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.rank .info{flex:1;min-width:0}
+.rank .info b{display:block}
+.rank .info span{font-size:.8rem;color:var(--muted)}
+.rank .mv{display:flex;flex-direction:column;gap:4px}
+.rank .mv button{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;width:32px;height:26px;line-height:1;font-size:.8rem}
+.scale{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:8px}
+.scale span:first-child{color:var(--ok)} .scale span:last-child{color:var(--warn)}
+.rank-fb{display:none}
+.rank-fb.show{display:block;animation:rise .4s ease}
+
+/* Tablero */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.kpi small{color:var(--muted);font-size:.8rem;font-weight:600}
+.kpi b{display:block;font-family:Fraunces,serif;font-size:2rem;margin-top:4px;font-variant-numeric:tabular-nums}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.chart-card h3{font-family:Inter,sans-serif;font-size:1rem;margin-bottom:12px}
+.chart-wrap{position:relative;height:260px}
+.empty{color:var(--muted);text-align:center;padding:30px}
+.table-wrap{overflow-x:auto;margin-top:16px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.86rem;background:var(--surface)}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.pill.acertada{background:var(--ok-soft);color:var(--ok)}
+.pill.parcial{background:var(--sun-soft);color:var(--warn)}
+.pill.no{background:var(--bad-soft);color:var(--bad)}
+.report-box{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.report-box p{margin:0;color:var(--muted);flex:1 1 260px}
+
+/* Mapa del plan */
+.map-frame{margin-top:22px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.map-frame iframe{display:block;width:100%;height:1220px;border:0;background:#fff}
+.map-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.map-bar span{font-size:.85rem;color:var(--muted)}
+.seq{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:22px;counter-reset:s}
+.seq div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:.84rem;position:relative}
+.seq div b{display:block;font-size:.92rem;margin-bottom:2px}
+.seq div em{display:block;font-style:normal;color:var(--warn);font-weight:700;font-size:.78rem;margin-top:6px}
+.seq div::before{counter-increment:s;content:counter(s);position:absolute;top:-10px;left:10px;background:var(--accent);color:#fff;font-weight:700;font-size:.72rem;border-radius:999px;padding:1px 8px}
+.cost-table td:nth-child(3){white-space:nowrap}
+
+footer{padding:28px 0 40px;border-top:4px solid var(--accent);background:var(--surface)}
+footer .wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+footer .doc b{display:block;font-size:1.05rem}
+footer .doc span{color:var(--muted);font-size:.88rem}
+footer .week{margin-left:auto;background:var(--sun);color:#1b1f24;font-weight:700;border-radius:999px;padding:8px 16px}
+footer .legal{flex-basis:100%;color:var(--muted);font-size:.78rem;margin-top:6px}
+footer .legal a{color:var(--accent)}
+
+dialog.lightbox{border:0;padding:0;background:transparent;max-width:96vw;max-height:94vh;overflow:visible}
+dialog.lightbox::backdrop{background:rgba(5,8,12,.88)}
+.lb-scroll{max-width:96vw;max-height:84vh;overflow:auto;border-radius:12px;background:#000}
+.lb-scroll img{display:block;max-width:96vw;max-height:84vh;cursor:zoom-in}
+.lb-scroll.zoomed img{max-width:none;max-height:none;width:200%;cursor:zoom-out}
+.lb-bar{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:10px;color:#fff;flex-wrap:wrap}
+.lb-bar button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 14px}
+dialog.modal{border:0;border-radius:20px;padding:0;max-width:480px;width:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+dialog.modal::backdrop{background:rgba(5,8,12,.6)}
+.modal-body{padding:28px;text-align:center}
+.modal-body .big{font-size:3rem}
+.modal-body h3{font-size:1.6rem}
+.modal-body p{color:var(--muted)}
+.modal-body .actions{justify-content:center;margin-top:16px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:500;transition:transform .3s;z-index:60;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:8px;height:14px;border-radius:2px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.6}}
+
+@media (max-width:960px){
+  .hero-grid,.case,.charts,.rank-wrap{grid-template-columns:1fr}
+  .instr,.dash-grid{grid-template-columns:1fr 1fr}
+  .seq{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:620px){
+  .unit{display:none}
+  .logo img{height:32px}
+  .instr,.gaps,.checks,.facts,.row2{grid-template-columns:1fr}
+  .verdicts{grid-template-columns:1fr}
+  .seq{grid-template-columns:1fr 1fr}
+  .timer{font-size:.95rem;padding:5px 10px 5px 8px}
+  .map-frame iframe{height:900px}
+  .rank img{display:none}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="IDC Diseño & Comunicación – inicio"><img src="img/idc-logo.jpg" alt="IDC Diseño & Comunicación – Instituto de Educación Superior Público"></a>
+    <div class="unit"><small>Unidad didáctica</small><b>Producción y publicación de piezas gráficas</b></div>
+    <div class="top-right">
+      <div class="timer" id="timer" role="timer" title="Tiempo restante de la actividad">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+        <span id="timerTxt">25:00</span>
+      </div>
+      <button class="toggle" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐</button>
+    </div>
+  </div>
+  <div class="time-bar"><div id="timeBar"></div></div>
+</header>
+
+<main id="inicio">
+<section class="hero" style="border-top:0">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Semana 5 · Actividad 2 · Trabajo en equipo</span>
+      <h1>Tu juicio, tu equipo y <em>lo que faltaba</em> saber</h1>
+      <p class="lead">En la Actividad 1 opinaste solo con la pieza y el medio. Ahora vas a contrastar ese juicio con tu equipo, descubrir qué datos te faltaban para decidir con fundamento y ordenar los casos según qué tan seguro/a estabas.</p>
+      <div class="consigna">
+        <strong>Consigna</strong>
+        Contrasta tu juicio inicial con el de tu equipo y anota qué información te faltaba para decidir con fundamento (a quién le habla el mensaje, cuánto cuesta el medio, cuánto tiempo toma producirlo). Ordena los 6 casos de mayor a menor certeza en tu propio juicio inicial.
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="sDone">0/6</b><span>casos contrastados</span></div>
+        <div class="stat"><b id="sAgree">—</b><span>coincidencias con el equipo</span></div>
+        <div class="stat"><b id="sRank">Pendiente</b><span>ranking de certeza</span></div>
+      </div>
+    </div>
+    <aside class="register" id="registerCard" aria-live="polite"></aside>
+  </div>
+</section>
+
+<section id="instrucciones">
+  <div class="wrap">
+    <h2>Instrucciones</h2>
+    <p class="sub">Tienes <b>25 minutos</b>. Sigue estos 4 pasos en orden. No hay respuestas incorrectas: el objetivo es que descubras <b>qué información necesita un buen juicio sobre medios</b>.</p>
+    <div class="instr">
+      <div class="ins"><span class="t">≈ 2 min</span><div class="n">1</div><h3>Recupera tu juicio inicial</h3><ol><li>Regístrate con tu equipo.</li><li>En cada caso, marca el veredicto que diste en la Actividad 1. Si la hiciste en este navegador, se carga solo.</li></ol></div>
+      <div class="ins"><span class="t">≈ 10 min</span><div class="n">2</div><h3>Contrasta con tu equipo</h3><ol><li>Cada integrante dice su veredicto en voz alta.</li><li>Acuerden un veredicto de equipo y márcalo.</li><li>Anota el argumento que más te hizo dudar.</li></ol></div>
+      <div class="ins"><span class="t">≈ 8 min</span><div class="n">3</div><h3>Identifica lo que faltaba</h3><ol><li>Marca qué datos te faltaron: público, costo y/o tiempo de producción.</li><li>Guarda el caso y lee la ficha con los datos.</li><li>Decide si mantienes o cambias tu juicio.</li></ol></div>
+      <div class="ins"><span class="t">≈ 5 min</span><div class="n">4</div><h3>Ordena por certeza</h3><ol><li>Arrastra los 6 casos (o usa ↑ ↓) de <b>mayor</b> a <b>menor</b> certeza en tu juicio inicial.</li><li>Confirma y descarga tu informe.</li></ol></div>
+    </div>
+    <div class="gaps">
+      <div class="gap"><span class="ico">🎯</span><div><b>¿A quién le habla el mensaje?</b><p>Edad, intereses y situación del público. Un medio “masivo” puede ser un error si el público es pequeño y específico.</p></div></div>
+      <div class="gap"><span class="ico">💰</span><div><b>¿Cuánto cuesta el medio?</b><p>Espacio o pauta + producción. Un medio caro solo se justifica si llega a quien necesitas.</p></div></div>
+      <div class="gap"><span class="ico">⏳</span><div><b>¿Cuánto tiempo toma producirlo?</b><p>De horas (un post) a meses o años (un evento en vivo). El tiempo también es costo.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="casos">
+  <div class="wrap">
+    <span class="step-tag">Pasos 1 · 2 · 3</span>
+    <h2>Contraste caso por caso</h2>
+    <p class="sub">Completa los tres bloques de cada caso y presiona <b>Guardar y ver datos</b>. Haz clic en la imagen para ampliarla.</p>
+    <div class="lockable" id="caseLock">
+      <div class="lock-msg"><div><b>🔒 Registra tus datos y tu equipo</b><p>El cronómetro de 25 minutos inicia al registrarte.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="case-tabs" id="tabs" role="tablist"></div>
+      <div id="caseHost"></div>
+    </div>
+  </div>
+</section>
+
+<section id="ranking">
+  <div class="wrap">
+    <span class="step-tag" style="background:var(--ok)">Paso 4</span>
+    <h2>Ordena los casos según tu certeza inicial</h2>
+    <p class="sub">Piensa en <b>cómo te sentiste en la Actividad 1</b>, antes de hablar con tu equipo: arriba el caso en el que estabas más seguro/a de tu juicio y abajo el que te generó más dudas. Arrastra las tarjetas o usa las flechas.</p>
+    <div class="lockable" id="rankLock">
+      <div class="lock-msg"><div><b>🔒 Primero regístrate</b><p>Puedes ordenar los casos en cualquier momento después de registrarte.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="rank-wrap">
+        <div>
+          <div class="scale"><span>▲ Más certeza</span><span>Menos certeza ▼</span></div>
+          <ol class="rank" id="rankList"></ol>
+          <button class="btn primary" id="rankBtn" style="margin-top:8px">✔ Confirmar mi ranking</button>
+        </div>
+        <div class="card rank-fb" id="rankFb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resultados">
+  <div class="wrap">
+    <h2>Tablero de resultados</h2>
+    <p class="sub">Resume tu contraste con el equipo, los datos que más te faltaron y la relación entre tu certeza y lo que pasó al conversar.</p>
+    <div class="dash-grid">
+      <div class="kpi"><small>Coincidencias con el equipo</small><b id="kAgree">—</b></div>
+      <div class="kpi"><small>Datos faltantes detectados</small><b id="kGaps">—</b></div>
+      <div class="kpi"><small>Juicios revisados</small><b id="kRev">—</b></div>
+      <div class="kpi"><small>Tiempo utilizado</small><b id="kTime">00:00</b></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h3>¿Qué información te faltó más?</h3><div class="chart-wrap"><canvas id="cGaps"></canvas></div></div>
+      <div class="chart-card"><h3>Tu certeza vs. coincidencia con el equipo</h3><div class="chart-wrap"><canvas id="cRank"></canvas></div></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h3>Tiempo por actividad (min)</h3><div class="chart-wrap"><canvas id="cTime"></canvas></div></div>
+      <div class="chart-card"><h3>Retroalimentación global</h3><div id="globalFb"><p class="empty">Guarda al menos un caso para ver tu retroalimentación.</p></div></div>
+    </div>
+    <div class="table-wrap"><table id="summaryTable"><thead><tr><th>Certeza</th><th>Caso</th><th>Mi juicio</th><th>Equipo</th><th>Me faltaba saber</th><th>Tras los datos</th><th>Tiempo</th></tr></thead><tbody></tbody></table></div>
+    <div class="report-box">
+      <p><b style="color:var(--ink)">Informe del estudiante.</b> Incluye tus datos y los de tu equipo, el contraste por caso, la información faltante, el ranking de certeza y el tiempo de cada actividad.</p>
+      <div class="actions">
+        <button class="btn primary" id="pdfBtn">📄 Informe PDF</button>
+        <button class="btn sun" id="mdBtn">⬇ Informe Markdown</button>
+        <button class="btn ghost" id="finishBtn2">Finalizar actividad</button>
+        <button class="btn ghost" id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="plan">
+  <div class="wrap">
+    <span class="step-tag" style="background:var(--team)">Cierre</span>
+    <h2>Mapa del proceso: secuencia del plan de trabajo con costos</h2>
+    <p class="sub">Lo que te faltó en esta actividad no es casualidad: en una campaña real, el medio se elige <b>después</b> de definir objetivo, público y mensaje, y <b>antes</b> de producir, porque su costo y su tiempo de producción condicionan todo lo demás.</p>
+    <div class="seq">
+      <div><b>Objetivo</b>¿Qué queremos lograr y cómo lo mediremos?<em>Costo: horas de planificación</em></div>
+      <div><b>Público</b>¿A quién le habla el mensaje?<em>Costo: investigación</em></div>
+      <div><b>Mensaje</b>Idea central y tono para ese público.<em>Costo: creatividad</em></div>
+      <div><b>Medio</b>Dónde está ese público y qué formato permite.<em>Costo: cotización</em></div>
+      <div><b>Presupuesto</b>Medios 60–70 %, producción 20–30 %, reserva 10 %.<em>Si excede → reajustar</em></div>
+      <div><b>Producción y difusión</b>Diseño, impresión o video; luego la pauta.<em>Tiempo: días a meses</em></div>
+      <div><b>Medición</b>Resultado obtenido vs. lo invertido.<em>Costo por resultado</em></div>
+    </div>
+    <div class="map-frame">
+      <div class="map-bar"><span>Diagrama interactivo: acerca, aleja, busca nodos o cambia a modo oscuro desde su barra (en inglés).</span><a class="btn ghost" href="plan-trabajo-campana.html" target="_blank" rel="noopener" style="padding:8px 16px">⤢ Abrir en pantalla completa</a></div>
+      <iframe src="plan-trabajo-campana.html" title="Mapa de la secuencia del plan de trabajo de una campaña con costos" loading="lazy"></iframe>
+    </div>
+    <h3 style="margin-top:28px;font-size:1.3rem">Referencia de costos y tiempos por tipo de medio</h3>
+    <p class="sub">Niveles relativos y orientativos para comparar medios entre sí. Los montos reales dependen del país, la ciudad, la duración y la negociación.</p>
+    <div class="table-wrap"><table class="cost-table"><thead><tr><th>Medio</th><th>Qué se paga</th><th>Costo relativo</th><th>Tiempo de producción</th><th>Conviene cuando…</th></tr></thead><tbody>
+      <tr><td><b>Redes sociales (orgánico)</b></td><td>Diseño y gestión</td><td class="cost">$</td><td>Horas a 3 días</td><td>El público ya te sigue y quieres conversación.</td></tr>
+      <tr><td><b>Redes sociales (pauta)</b></td><td>Pauta por alcance o clic + diseño</td><td class="cost">$–$$</td><td>1 a 5 días</td><td>Necesitas segmentar por edad, ciudad o intereses.</td></tr>
+      <tr><td><b>Empaque</b></td><td>Diseño + impresión del envase</td><td class="cost">$$–$$$</td><td>Semanas a meses</td><td>Quieres impactar en el momento de compra.</td></tr>
+      <tr><td><b>Publicidad ambiental</b></td><td>Permiso del espacio + instalación</td><td class="cost">$–$$</td><td>1 a 3 semanas</td><td>Buscas sorpresa y que la gente lo comparta.</td></tr>
+      <tr><td><b>Exterior / paneles</b></td><td>Alquiler por semanas o meses + impresión</td><td class="cost">$$–$$$</td><td>1 a 2 semanas</td><td>Necesitas presencia repetida en una ruta.</td></tr>
+      <tr><td><b>Radio</b></td><td>Pauta por frecuencia + grabación</td><td class="cost">$–$$</td><td>2 a 7 días</td><td>Quieres frecuencia a bajo costo.</td></tr>
+      <tr><td><b>Televisión</b></td><td>Espacio por segundos + rodaje</td><td class="cost">$$$–$$$$</td><td>4 a 12 semanas</td><td>Necesitas alcance masivo y simultáneo.</td></tr>
+      <tr><td><b>Evento en vivo / streaming</b></td><td>Producción técnica + logística</td><td class="cost">$$–$$$$</td><td>Meses (o años)</td><td>La emoción del “en vivo” es el mensaje.</td></tr>
+    </tbody></table></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="logo"><img src="img/idc-logo.jpg" alt="IDC" style="height:34px"></div>
+    <div class="doc"><b>Mg. Mario Quiroz Martínez</b><span>Docente · Unidad didáctica: Producción y publicación de piezas gráficas</span></div>
+    <div class="week">Semana 5</div>
+    <div class="legal">Actividad 2 de la Semana 5 · <a href="evaluacion-medios-publicitarios.html">Ir a la Actividad 1: ¿El medio fue la elección correcta?</a> · Las imágenes son referenciales de cada marca; los datos de público, costo y tiempo son aproximaciones pedagógicas, no cifras oficiales de las marcas.</div>
+  </div>
+</footer>
+
+<dialog class="lightbox" id="lightbox" aria-label="Imagen ampliada">
+  <div class="lb-scroll" id="lbScroll"><img id="lbImg" alt=""></div>
+  <div class="lb-bar"><span id="lbCap"></span><span><button id="lbZoom">🔍 Zoom 2×</button> <button id="lbClose">✕ Cerrar</button></span></div>
+</dialog>
+<dialog class="modal" id="endModal"><div class="modal-body" id="endBody"></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   DATOS
+   ========================================================= */
+const DURATION = 25*60;
+const UNIDAD = "Producción y publicación de piezas gráficas";
+const DOCENTE = "Mg. Mario Quiroz Martínez";
+const SEMANA = "Semana 5";
+const ACT1_KEY = "medio-mensaje-idc-v2";
+const VLABEL = {acertada:"Acertada", parcial:"Parcialmente acertada", no:"No acertada"};
+const GAPS = [
+  {id:"publico", ico:"🎯", label:"A quién le habla", desc:"público objetivo del mensaje"},
+  {id:"costo",   ico:"💰", label:"Cuánto cuesta",    desc:"el medio y su producción"},
+  {id:"tiempo",  ico:"⏳", label:"Cuánto tiempo",    desc:"toma producir la pieza"}
+];
+
+const CASES = [
+  { id:"coca", marca:"Coca-Cola", titulo:"Envases con nombres propios", img:"img/coca-cola.webp", medio:"Empaque / punto de venta",
+    pieza:"Etiquetas de botellas y latas con nombres de pila comunes en lugar del logotipo.",
+    datos:{ publico:"Jóvenes y adultos jóvenes (aprox. 18–35 años) que comparten momentos en redes sociales.",
+            costo:3, costoTxt:"No se paga espacio (el envase es propio), pero la impresión personalizada de millones de etiquetas y su logística es costosa.",
+            tiempo:"Varios meses: selección de nombres, diseño, impresión variable y distribución a tiendas.",
+            clave:"Saber que el público comparte en redes explica por qué un empaque —que se fotografía— fue tan eficaz." } },
+  { id:"apple", marca:"Apple", titulo:"Fotografías de usuarios a gran formato", img:"img/apple.webp", medio:"Exterior: paneles y paradas",
+    pieza:"Fotos reales tomadas por usuarios con su teléfono, impresas en tamaño gigante.",
+    datos:{ publico:"Personas urbanas interesadas en fotografía y tecnología que evalúan comprar un teléfono de gama alta.",
+            costo:4, costoTxt:"Alto: alquiler de espacios premium en grandes ciudades durante semanas, más impresión de gran formato.",
+            tiempo:"2 a 4 semanas: las fotos ya existen; se seleccionan, se gestionan permisos y se imprimen.",
+            clave:"Con poco tiempo de producción, casi todo el presupuesto va al espacio: el medio ES la inversión." } },
+  { id:"redbull", marca:"Red Bull", titulo:"Salto desde la estratosfera", img:"img/red-bull.webp", medio:"Transmisión en vivo por internet y TV",
+    pieza:"Un paracaidista salta desde unos 39 km de altura; el evento se transmite en vivo.",
+    datos:{ publico:"Jóvenes de 18 a 34 años afines a los deportes extremos, la aventura y el contenido digital.",
+            costo:4, costoTxt:"Muy alto en producción (equipo científico, cápsula, cámaras); la difusión fue en canales propios y cobertura ganada en medios.",
+            tiempo:"Varios años de preparación técnica antes del salto.",
+            clave:"Un costo de producción tan alto solo se justifica con un alcance global y conversación en tiempo real." } },
+  { id:"vw", marca:"Volkswagen", titulo:"Niño disfrazado de villano galáctico", img:"img/volkswagen.webp", medio:"Televisión abierta (Super Bowl)",
+    pieza:"Spot de 60 segundos de un niño que intenta “usar la Fuerza” sobre el auto familiar.",
+    datos:{ publico:"Madres y padres de 30 a 45 años que buscan un auto familiar mediano.",
+            costo:4, costoTxt:"Muy alto: los espacios del Super Bowl están entre los más caros de la TV (varios millones de dólares por pocos segundos), más el rodaje.",
+            tiempo:"2 a 3 meses: guion, casting, rodaje y posproducción.",
+            clave:"Su público (familias) sí ve el Super Bowl; publicarlo antes en internet multiplicó el valor de un espacio tan caro." } },
+  { id:"spotify", marca:"Spotify", titulo:"Resumen anual personalizado", img:"img/spotify.webp", medio:"App propia + redes sociales",
+    pieza:"Pantallas tipo “historias” con las canciones y artistas más escuchados de cada usuario.",
+    datos:{ publico:"Usuarios activos de la app (sobre todo de 18 a 34 años) y, a través de ellos, sus seguidores en redes.",
+            costo:2, costoTxt:"Bajo en medios (la app es propia y los usuarios difunden gratis); la inversión está en datos, tecnología y diseño.",
+            tiempo:"Varios meses de desarrollo cada año para procesar datos y diseñar las pantallas.",
+            clave:"Cuando el público es tu propio usuario, un medio propio cuesta poco y segmenta al máximo." } },
+  { id:"frontline", marca:"Frontline", titulo:"Perro gigante en el piso de un centro comercial", img:"img/frontline.webp", medio:"Publicidad ambiental",
+    pieza:"Imagen gigante de un perro en el piso; vistas desde arriba, las personas parecen pulgas.",
+    datos:{ publico:"Dueños de perros que visitan ese centro comercial (un público pequeño y específico).",
+            costo:1, costoTxt:"Bajo: vinil de piso de gran formato y permiso del centro comercial.",
+            tiempo:"1 a 3 semanas para diseño, impresión e instalación.",
+            clave:"Bajo costo y alcance local: su verdadero valor llegó cuando las fotos circularon en internet." } }
+];
+
+const CHEERS = {
+  start:["¡Excelente! Empezar por tu propio juicio es el primer paso."],
+  team:["¡Gran trabajo en equipo! Contrastar opiniones fortalece el criterio.","¡Muy bien! Escuchar otras miradas es clave en publicidad."],
+  gap:["¡Bien detectado! Reconocer lo que no sabes es pensar como estratega.","¡Eso es! Ese dato cambia muchas decisiones de medios."],
+  note:["¡Muy buena reflexión!","¡Excelente argumento, se nota tu criterio!"]
+};
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const KEY = "juicio-equipo-idc-v1";
+function freshState(){ return { student:null, team:null, members:[], startTs:null, endTs:null, endReason:null, answers:{}, current:0, rank:CASES.map(c=>c.id), rankDone:false, rankAt:null, times:{rank:0}, milestones:[], imported:false }; }
+let state = freshState();
+try { const s=JSON.parse(localStorage.getItem(KEY)); if(s && s.answers) state=Object.assign(state,s); } catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function act1(){ try{ return JSON.parse(localStorage.getItem(ACT1_KEY)); }catch(e){ return null; } }
+
+const $ = s => document.querySelector(s);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pick = a => a[Math.floor(Math.random()*a.length)];
+function fmt(s){ s=Math.max(0,Math.round(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function esc(s){ return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+function cap(s){ return s.trim().replace(/\s+/g," ").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" "); }
+const started=()=>!!state.startTs, finished=()=>!!state.endTs, active=()=>started()&&!finished();
+function elapsed(){ if(!started()) return 0; return Math.min(DURATION, ((state.endTs||Date.now())-state.startTs)/1000); }
+function costStr(n){ return "$".repeat(n); }
+
+let toastLock=0;
+function toast(msg,force){ const now=Date.now(); if(!force && now<toastLock) return; toastLock=now+2200; const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2800); }
+function confetti(){ if(matchMedia("(prefers-reduced-motion: reduce)").matches) return; const box=document.createElement("div"); box.className="confetti"; const cols=["#0071bc","#f2a100","#2b8a3e","#5f3dc4","#ffd166"];
+  for(let i=0;i<60;i++){ const p=document.createElement("i"); p.style.left=Math.random()*100+"vw"; p.style.background=pick(cols); p.style.animationDelay=Math.random()*.4+"s"; p.style.animationDuration=1.2+Math.random()+"s"; box.appendChild(p); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(),2800); }
+
+$("#themeBtn").onclick=()=>{ const r=document.documentElement; const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme=dark?"light":"dark"; renderCase(state.current); renderDashboard(); };
+
+/* =========================================================
+   REGISTRO
+   ========================================================= */
+function renderRegister(){
+  const box=$("#registerCard"), a1=act1();
+  if(!started()){
+    const pre=a1&&a1.student;
+    const importable = a1 && a1.answers && Object.values(a1.answers).some(x=>x.evaluado);
+    box.innerHTML=`
+      <h2>Registro</h2>
+      <p>Al presionar <b>Iniciar</b> comienza el cronómetro de <b>25 minutos</b>.</p>
+      ${importable?`<div class="import-note">✔ Encontramos tus respuestas de la Actividad 1 en este navegador: tu juicio inicial se cargará automáticamente.</div>`:""}
+      <div class="row2">
+        <div class="field"><label for="fNom">Nombres</label><input id="fNom" autocomplete="given-name" value="${pre?esc(pre.nombres):""}"></div>
+        <div class="field"><label for="fApe">Apellidos</label><input id="fApe" autocomplete="family-name" value="${pre?esc(pre.apellidos):""}"></div>
+      </div>
+      <div class="field"><label for="fTeam">Nombre del equipo</label><input id="fTeam" placeholder="Ej.: Equipo Pixel"></div>
+      <div class="field"><label for="fMem">Integrantes del equipo <span>(nombres y apellidos, separados por coma)</span></label><textarea id="fMem" rows="2" placeholder="Ej.: Luis Pérez Ramos, Carla Díaz Soto, Jorge Ríos Vega"></textarea></div>
+      <button class="btn primary block" id="startBtn" disabled>▶ Iniciar actividad</button>`;
+    const n=$("#fNom"), a=$("#fApe"), t=$("#fTeam"), m=$("#fMem"), b=$("#startBtn");
+    const v=()=>{ b.disabled = n.value.trim().length<2 || a.value.trim().length<2 || t.value.trim().length<2 || m.value.split(",").filter(x=>x.trim().length>2).length<1; };
+    [n,a,t,m].forEach(i=>i.oninput=v); v();
+    b.onclick=()=>{
+      state.student={nombres:cap(n.value), apellidos:cap(a.value)}; state.team=t.value.trim();
+      state.members=m.value.split(",").map(x=>cap(x)).filter(x=>x.length>2);
+      if(importable){ CASES.forEach(c=>{ const x=a1.answers[c.id]; if(x&&x.evaluado){ getAns(c.id).mine=x.veredicto; getAns(c.id).fromAct1=true; } }); state.imported=true; }
+      state.startTs=Date.now(); save(); renderAll();
+      toast(`¡Bienvenido/a, ${state.student.nombres}! ${state.imported?"Cargamos tu juicio inicial. ":""}¡A trabajar en equipo!`,true);
+      setTimeout(()=>document.getElementById("casos").scrollIntoView({behavior:"smooth"}),600);
+    };
+  } else {
+    const ini=new Date(state.startTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"});
+    box.innerHTML=`
+      <h2>${finished()?"Actividad finalizada":"¡En marcha!"}</h2>
+      <div class="student-chip"><div class="avatar">${esc((state.student.nombres[0]+state.student.apellidos[0]).toUpperCase())}</div><div><b>${esc(state.student.nombres+" "+state.student.apellidos)}</b><span>${esc(state.team)} · inició ${ini}</span></div></div>
+      <div class="team-list">${state.members.map(x=>`<span>${esc(x)}</span>`).join("")}</div>
+      <div class="big-timer"><b id="bigTimer">${finished()?fmt(elapsed()):fmt(DURATION-elapsed())}</b><span>${finished()?"tiempo utilizado":"tiempo restante"}</span></div>
+      ${finished()?`<button class="btn primary block" onclick="downloadPDF()">📄 Descargar informe PDF</button><div style="height:8px"></div><button class="btn sun block" onclick="downloadMD()">⬇ Descargar informe Markdown</button>`
+        :`<a class="btn primary block" href="#casos">Ir a los casos →</a><div style="height:8px"></div><button class="btn ghost block" id="finishBtn">Finalizar y generar informe</button>`}`;
+    const fb=$("#finishBtn"); if(fb) fb.onclick=askFinish;
+  }
+}
+
+/* =========================================================
+   CRONÓMETRO
+   ========================================================= */
+const MILESTONES=[
+  {at:DURATION/2,msg:"⏱ ¡Mitad del tiempo! Su equipo va muy bien, sigan conversando."},
+  {at:600,msg:"⏱ Quedan 10 minutos. ¡Buen ritmo! Recuerda reservar tiempo para el ranking."},
+  {at:300,msg:"⏱ Quedan 5 minutos. ¡Ya casi! Ordena tus casos por certeza."},
+  {at:60,msg:"⏱ ¡Último minuto! Confirma tu ranking y guarda lo que tengas."}
+];
+function updateTimerUI(){
+  const rem=DURATION-elapsed(), t=$("#timer");
+  $("#timerTxt").textContent = finished()?"✔ "+fmt(elapsed()):fmt(rem);
+  t.className="timer"+(!started()?"":finished()?" end":rem<=60?" crit":rem<=300?" low":" run");
+  $("#timeBar").style.transform=`scaleX(${started()?rem/DURATION:1})`;
+  const bt=$("#bigTimer"); if(bt&&!finished()) bt.textContent=fmt(rem);
+  $("#kTime").textContent=fmt(elapsed());
+}
+function activeSection(){ const el=document.elementFromPoint(innerWidth/2, innerHeight*.45); const s=el&&el.closest("section"); return s?s.id:null; }
+function tick(){
+  if(active()){
+    const sec=activeSection();
+    if(sec==="casos"){ const id=CASES[state.current].id; state.times[id]=(state.times[id]||0)+1; const ct=$("#caseTime"); if(ct) ct.textContent=fmt(state.times[id]); }
+    else if(sec==="ranking" && !state.rankDone) state.times.rank=(state.times.rank||0)+1;
+    const rem=DURATION-elapsed();
+    MILESTONES.forEach(m=>{ if(rem<=m.at && !state.milestones.includes(m.at)){ state.milestones.push(m.at); toast(m.msg,true); } });
+    if(rem<=0) finish("tiempo");
+    if(Math.round(elapsed())%5===0) save();
+  }
+  updateTimerUI();
+}
+function askFinish(){
+  const d=doneCases().length;
+  $("#endBody").innerHTML=`<div class="big">🏁</div><h3>¿Finalizar la actividad?</h3><p>Contrastaste <b>${d} de 6</b> casos${state.rankDone?" y confirmaste tu ranking":""} en ${fmt(elapsed())}. ${d<6||!state.rankDone?"Aún tienes tiempo para completar lo pendiente, ¡pero tú decides!":"¡Completaste todo, excelente trabajo!"}</p>
+    <div class="actions"><button class="btn ghost" id="mCancel">Seguir trabajando</button><button class="btn primary" id="mOk">Sí, finalizar</button></div>`;
+  $("#endModal").showModal(); $("#mCancel").onclick=()=>$("#endModal").close(); $("#mOk").onclick=()=>{ $("#endModal").close(); finish("manual"); };
+}
+function finish(reason){
+  if(finished()) return;
+  state.endTs = reason==="tiempo"? state.startTs+DURATION*1000 : Date.now(); state.endReason=reason; save(); renderAll();
+  const d=doneCases().length;
+  $("#endBody").innerHTML=`<div class="big">${reason==="tiempo"?"⏰":"🎉"}</div><h3>${reason==="tiempo"?"¡Tiempo cumplido!":"¡Actividad completada!"}</h3>
+    <p><b>${esc(state.student.nombres)}</b>, contrastaste <b>${d} de 6</b> casos con <b>${esc(state.team)}</b>. ${closing()}</p>
+    <div class="actions"><button class="btn primary" onclick="downloadPDF()">📄 Informe PDF</button><button class="btn sun" onclick="downloadMD()">⬇ Markdown</button></div>
+    <div class="actions" style="margin-top:8px"><button class="btn ghost" id="mClose">Ver mis resultados</button></div>`;
+  if(!$("#endModal").open) $("#endModal").showModal();
+  $("#mClose").onclick=()=>{ $("#endModal").close(); document.getElementById("resultados").scrollIntoView({behavior:"smooth"}); };
+  confetti();
+}
+function closing(){
+  const d=doneCases().length;
+  if(d>=6&&state.rankDone) return "¡Recorrido completo! Ya sabes que un buen juicio de medios necesita datos de público, costo y tiempo.";
+  if(d>=3) return "¡Gran avance! Ya reconoces qué información necesitas para decidir con fundamento.";
+  if(d>=1) return "¡Buen comienzo! Cada caso contrastado te acerca a decidir como un planificador de medios.";
+  return "Esta fue tu primera aproximación: en la próxima sesión retomaremos el contraste en equipo.";
+}
+
+/* =========================================================
+   CASOS
+   ========================================================= */
+function blank(){ return { mine:null, team:null, doubt:"", gaps:[], otro:"", saved:false, savedAt:null, rethink:null, fromAct1:false, cheered:{} }; }
+function getAns(id){ if(!state.answers[id]) state.answers[id]=blank(); return state.answers[id]; }
+function doneCases(){ return CASES.filter(c=>state.answers[c.id]&&state.answers[c.id].saved); }
+
+function renderTabs(){
+  const t=$("#tabs"); t.innerHTML="";
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id], b=document.createElement("button");
+    b.className="tab"+(i===state.current?" active":"")+(a&&a.saved?" done":""); b.setAttribute("role","tab"); b.setAttribute("aria-selected",i===state.current);
+    b.innerHTML=`<span class="dot"></span>${i+1}. ${c.marca}`; b.onclick=()=>{ state.current=i; save(); renderCase(i); }; t.appendChild(b); });
+}
+
+function renderCase(i){
+  renderTabs();
+  const c=CASES[i], a=getAns(c.id);
+  $("#caseHost").innerHTML=`
+  <div class="case">
+    <article class="card">
+      <button class="piece-img" id="pieceImg" aria-label="Ampliar imagen de ${c.marca}"><img src="${c.img}" alt="Pieza referencial de ${c.marca}"><span class="badge">Caso ${i+1} de 6</span><span class="zoom">🔍 Ampliar</span></button>
+      <div class="piece-body">
+        <h3>${c.marca}</h3><div class="meta">${c.titulo}</div>
+        <div class="kv"><small>La pieza</small>${c.pieza}</div>
+        <div class="kv"><small>Medio empleado</small><span class="medio">${c.medio}</span></div>
+        <div class="case-time"><span>⏱ Tiempo en este caso</span><b id="caseTime">${fmt(state.times[c.id]||0)}</b></div>
+      </div>
+    </article>
+    <div class="card form" id="caseForm">
+      <div class="blk b1">
+        <h4><span class="pill-n">1</span>Mi juicio inicial</h4>
+        <p class="help">${a.fromAct1?"✔ Cargado desde tu Actividad 1. Puedes corregirlo si no coincide.":"¿Qué veredicto diste en la Actividad 1 sobre la elección del medio?"}</p>
+        <div class="verdicts" data-k="mine">${["acertada","parcial","no"].map(v=>`<button class="vbtn" data-v="${v}" aria-pressed="${a.mine===v}">${VLABEL[v]}</button>`).join("")}</div>
+      </div>
+      <div class="blk b2">
+        <h4><span class="pill-n">2</span>Juicio de mi equipo</h4>
+        <p class="help">Después de escuchar a todos, ¿qué veredicto acordó el equipo?</p>
+        <div class="verdicts" data-k="team">${["acertada","parcial","no"].map(v=>`<button class="vbtn" data-v="${v}" aria-pressed="${a.team===v}">${VLABEL[v]}</button>`).join("")}</div>
+        <div class="agree" id="agree"></div>
+        <textarea id="doubt" placeholder="¿Qué argumento de tu equipo te hizo dudar o te convenció? (opcional)">${esc(a.doubt)}</textarea>
+      </div>
+      <div class="blk b3">
+        <h4><span class="pill-n">3</span>¿Qué información me faltaba para decidir con fundamento?</h4>
+        <p class="help">Marca todo lo que te habría ayudado a decidir mejor (al menos una opción) y explica brevemente.</p>
+        <div class="checks">${GAPS.map(g=>`<label class="check"><input type="checkbox" value="${g.id}" ${a.gaps.includes(g.id)?"checked":""}><div><b>${g.ico} ${g.label}</b><span>${g.desc}</span></div></label>`).join("")}</div>
+        <textarea id="otro" placeholder="Ej.: Me faltaba saber si su público ve televisión o si el costo del espacio se justificaba…">${esc(a.otro)}</textarea>
+        <div class="meter"><div id="noteMeter"></div></div><div class="meter-label" id="noteLbl"></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="saveBtn">${a.saved?"Actualizar caso":"Guardar y ver datos"}</button>
+        ${i<5?`<button class="btn ghost" id="nextBtn">Siguiente caso →</button>`:`<a class="btn ghost" href="#ranking">Ir al ranking →</a>`}
+      </div>
+    </div>
+  </div>
+  <div class="card feedback" id="fb"></div>`;
+
+  $("#pieceImg").onclick=()=>openLightbox(c.img, `${c.marca} — ${c.medio}`);
+  $("#caseForm").inert=!active();
+  document.querySelectorAll(".verdicts").forEach(g=>g.querySelectorAll(".vbtn").forEach(b=>b.onclick=()=>{
+    const k=g.dataset.k; a[k]=b.dataset.v; g.querySelectorAll(".vbtn").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    if(k==="mine"&&!a.cheered.m){ a.cheered.m=1; toast(pick(CHEERS.start)); }
+    if(k==="team"&&!a.cheered.t){ a.cheered.t=1; toast(pick(CHEERS.team)); }
+    save(); agree(); validate();
+  }));
+  document.querySelectorAll(".check input").forEach(ch=>ch.onchange=()=>{
+    a.gaps=[...document.querySelectorAll(".check input:checked")].map(x=>x.value);
+    if(a.gaps.length&&!a.cheered.g){ a.cheered.g=1; toast(pick(CHEERS.gap)); }
+    save(); validate();
+  });
+  $("#doubt").oninput=e=>{ a.doubt=e.target.value; save(); };
+  $("#otro").oninput=e=>{ a.otro=e.target.value; if(!a.cheered.n&&a.otro.trim().length>=60){ a.cheered.n=1; toast(pick(CHEERS.note)); } save(); meter(); validate(); };
+  $("#saveBtn").onclick=()=>{
+    if(!a.saved) a.savedAt=Math.round(elapsed());
+    a.saved=true; save(); showFeedback(c,a); renderTabs(); renderDashboard(); renderRank(); updateStats();
+    if(doneCases().length===6){ setTimeout(()=>{ toast("🏆 ¡Contrastaste los 6 casos! Ahora ordénalos por certeza.",true); confetti(); },1200); }
+  };
+  const nb=$("#nextBtn"); if(nb) nb.onclick=()=>{ state.current=i+1; save(); renderCase(i+1); document.getElementById("casos").scrollIntoView({behavior:"smooth"}); };
+
+  function agree(){
+    const el=$("#agree"); if(!a.mine||!a.team){ el.className="agree"; return; }
+    if(a.mine===a.team){ el.className="agree show same"; el.textContent="✔ ¡Coinciden! Tu equipo respalda tu juicio inicial."; }
+    else { el.className="agree show diff"; el.textContent="💬 ¡Excelente! Ver el caso distinto es justo lo que enriquece el análisis. ¿Qué dato explicaría la diferencia?"; }
+  }
+  function meter(){ const n=a.otro.trim().length; $("#noteMeter").style.width=Math.min(100,n/120*100)+"%"; $("#noteMeter").style.background=n>=60?"var(--ok)":"var(--sun)";
+    $("#noteLbl").textContent = n===0?"Escribe qué te faltaba saber y por qué.": n<20?"¡Buen inicio! Sigue escribiendo.": n<60?"¡Bien! Agrega cómo ese dato cambiaría tu decisión.":"¡Excelente! Reflexión bien fundamentada ✔"; }
+  function validate(){ const ok=a.mine&&a.team&&a.gaps.length>0&&a.otro.trim().length>=10; $("#saveBtn").disabled=!ok; $("#saveBtn").title=ok?"":"Completa los 3 bloques: tu juicio, el del equipo y al menos un dato faltante con una breve explicación"; }
+  agree(); meter(); validate();
+  if(a.saved) showFeedback(c,a,true);
+}
+
+function strengthsCase(c,a){
+  const s=[];
+  if(a.mine===a.team) s.push("Tu juicio inicial coincidió con el de tu equipo: <b>tu intuición fue sólida</b>.");
+  else s.push("Te abriste a una mirada distinta: <b>contrastar opiniones</b> es como trabajan los equipos de medios.");
+  s.push(`Identificaste <b>${a.gaps.length} de 3</b> datos clave que faltaban para decidir.`);
+  if(a.otro.trim().length>=60) s.push("Tu explicación está <b>bien argumentada</b>.");
+  if(a.doubt.trim().length>=10) s.push("Registraste el argumento del equipo que te hizo reflexionar.");
+  return s;
+}
+function showFeedback(c,a,silent){
+  const fb=$("#fb"), same=a.mine===a.team, d=c.datos, missed=GAPS.filter(g=>!a.gaps.includes(g.id));
+  const head = same ? ["🤝","¡Coincidieron! Ahora mira los datos que confirman (o matizan) su juicio."] : ["💡","¡Diferencia valiosa! Estos datos ayudan a decidir quién tenía más fundamento."];
+  fb.innerHTML=`
+    <div class="fb-head"><span class="emoji">${head[0]}</span><span>${head[1]}</span></div>
+    <div class="fb-body">
+      <div class="facts">
+        <div class="fact ${a.gaps.includes("publico")?"hit":""}"><small>🎯 A quién le habla</small><p>${d.publico}</p>${a.gaps.includes("publico")?'<span class="flag">✔ Lo detectaste</span>':""}</div>
+        <div class="fact ${a.gaps.includes("costo")?"hit":""}"><small>💰 Cuánto cuesta</small><b class="cost">${costStr(d.costo)}<span style="opacity:.25">${costStr(4-d.costo)}</span></b><p>${d.costoTxt}</p>${a.gaps.includes("costo")?'<span class="flag">✔ Lo detectaste</span>':""}</div>
+        <div class="fact ${a.gaps.includes("tiempo")?"hit":""}"><small>⏳ Tiempo de producción</small><p>${d.tiempo}</p>${a.gaps.includes("tiempo")?'<span class="flag">✔ Lo detectaste</span>':""}</div>
+      </div>
+      <div class="charts" style="margin-top:0">
+        <div><h4 style="margin:0 0 8px">🌟 Lo que hiciste bien</h4><ul class="list good">${strengthsCase(c,a).map(x=>`<li>${x}</li>`).join("")}</ul></div>
+        <div><h4 style="margin:0 0 8px">🌱 Para seguir creciendo</h4><ul class="list grow">
+          <li><b>Idea clave:</b> ${d.clave}</li>
+          ${missed.length?`<li>Dato extra que también influye: <b>${missed.map(g=>g.label.toLowerCase()).join(" y ")}</b>. Míralo en la ficha de arriba.</li>`:`<li>¡Marcaste los 3 datos! Reto: ¿cuál de ellos pesaría más en la decisión?</li>`}
+        </ul></div>
+      </div>
+      <div class="rethink">
+        <p>Con estos datos, ¿qué harías con tu juicio inicial (“${VLABEL[a.mine]}”)?</p>
+        <div class="actions">
+          <button class="btn ghost" data-r="mantengo" aria-pressed="${a.rethink==="mantengo"}">👍 Lo mantengo</button>
+          <button class="btn ghost" data-r="matizo" aria-pressed="${a.rethink==="matizo"}">✏️ Lo matizo</button>
+          <button class="btn ghost" data-r="cambio" aria-pressed="${a.rethink==="cambio"}">🔄 Lo cambiaría</button>
+        </div>
+      </div>
+    </div>`;
+  fb.classList.add("show");
+  fb.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{ if(!active()) return; a.rethink=b.dataset.r; fb.querySelectorAll("[data-r]").forEach(x=>x.setAttribute("aria-pressed",x===b)); save(); renderDashboard();
+    toast(a.rethink==="mantengo"?"¡Bien! Ahora tu juicio tiene datos que lo respaldan.":a.rethink==="matizo"?"¡Muy bien! Matizar con datos es señal de buen criterio.":"¡Excelente! Cambiar de opinión con evidencia es pensar como profesional.",true); });
+  if(!silent){ fb.scrollIntoView({behavior:"smooth",block:"start"}); toast(`${head[0]} Caso ${CASES.indexOf(c)+1} guardado. ¡Sigue así!`,true); }
+}
+
+/* =========================================================
+   RANKING
+   ========================================================= */
+const RANK_COLORS=["#2b8a3e","#4c9a3f","#7a9d2a","#c79100","#d97a00","#c95a00"];
+function renderRank(){
+  const ul=$("#rankList"); ul.innerHTML="";
+  state.rank.forEach((id,pos)=>{ const c=CASES.find(x=>x.id===id), a=state.answers[id];
+    const li=document.createElement("li"); li.draggable=active(); li.dataset.id=id;
+    li.innerHTML=`<span class="pos" style="background:${RANK_COLORS[pos]}">${pos+1}</span><img src="${c.img}" alt=""><div class="info"><b>${c.marca}</b><span>${c.medio}${a&&a.mine?` · juicio inicial: ${VLABEL[a.mine].toLowerCase()}`:""}</span></div>
+      <div class="mv"><button aria-label="Subir ${c.marca}" data-d="-1">▲</button><button aria-label="Bajar ${c.marca}" data-d="1">▼</button></div>`;
+    li.querySelectorAll(".mv button").forEach(b=>b.onclick=()=>{ if(!active()) return; move(pos,pos+ +b.dataset.d); });
+    li.addEventListener("dragstart",e=>{ li.classList.add("dragging"); e.dataTransfer.setData("text/plain",pos); });
+    li.addEventListener("dragend",()=>li.classList.remove("dragging"));
+    li.addEventListener("dragover",e=>{ e.preventDefault(); li.classList.add("over"); });
+    li.addEventListener("dragleave",()=>li.classList.remove("over"));
+    li.addEventListener("drop",e=>{ e.preventDefault(); li.classList.remove("over"); move(+e.dataTransfer.getData("text/plain"),pos); });
+    ul.appendChild(li); });
+  $("#rankBtn").disabled=!active();
+  $("#rankBtn").textContent = state.rankDone?"✔ Actualizar mi ranking":"✔ Confirmar mi ranking";
+  if(state.rankDone) showRankFb(true);
+}
+function move(from,to){ if(to<0||to>5||from===to) return; const r=state.rank; const [x]=r.splice(from,1); r.splice(to,0,x); save(); renderRank(); if(state.rankDone){ renderDashboard(); } }
+$("#rankBtn").onclick=()=>{ if(!active()) return; if(!state.rankDone) state.rankAt=Math.round(elapsed()); state.rankDone=true; save(); showRankFb(); renderDashboard(); updateStats(); toast("🎯 ¡Ranking confirmado! Reconocer tu nivel de certeza es una habilidad profesional.",true); confetti(); };
+
+function rankInsights(){
+  return state.rank.map((id,pos)=>{ const c=CASES.find(x=>x.id===id), a=state.answers[id]; const saved=a&&a.saved; const same=saved&&a.mine===a.team; const high=pos<=1, low=pos>=4;
+    let tag, txt;
+    if(!saved){ tag="⏳"; txt="Aún no lo contrastas con tu equipo."; }
+    else if(high&&same){ tag="✅ Certeza respaldada"; txt="Estabas muy seguro/a y tu equipo coincidió."; }
+    else if(high&&!same){ tag="🔍 Certeza para contrastar"; txt="Estabas muy seguro/a, pero tu equipo lo vio distinto: ¡gran caso para pedir datos antes de decidir!"; }
+    else if(low&&!same){ tag="🧭 Duda bien fundada"; txt="Tenías dudas y, en efecto, había opiniones distintas: tu intuición sobre la incertidumbre fue acertada."; }
+    else if(low&&same){ tag="💪 Más seguro/a de lo que pensabas"; txt="Dudabas, pero tu juicio coincidió con el del equipo."; }
+    else { tag=same?"👍 Coincidencia":"💬 Diferencia"; txt=same?"Certeza media y coincidencia con el equipo.":"Certeza media y una mirada distinta del equipo."; }
+    return {c,a,pos,tag,txt,same,saved}; });
+}
+function showRankFb(silent){
+  const box=$("#rankFb"), ins=rankInsights();
+  const top=ins[0], bottom=ins[5];
+  const gapsTop = top.saved? top.a.gaps.length : null;
+  box.innerHTML=`<div class="fb-head"><span class="emoji">🎯</span><span>¡Ranking confirmado! Así leemos tu certeza:</span></div>
+    <div class="fb-body">
+      <ul class="list good">
+        <li>Tu caso de <b>mayor certeza</b> fue <b>${top.c.marca}</b> y el de <b>mayor duda</b>, <b>${bottom.c.marca}</b>. Reconocer cuánto sabes es el punto de partida de toda buena decisión de medios.</li>
+        ${gapsTop!==null?`<li>Incluso en tu caso más seguro identificaste <b>${gapsTop}</b> dato(s) faltante(s): la certeza también se apoya en información.</li>`:""}
+      </ul>
+      <ul class="list grow">${ins.map(x=>`<li><b>${x.pos+1}. ${x.c.marca}</b> — ${x.tag}<br><span style="font-size:.84rem;color:var(--muted)">${x.txt}</span></li>`).join("")}</ul>
+    </div>`;
+  box.classList.add("show");
+  if(!silent) box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* =========================================================
+   VISOR
+   ========================================================= */
+function openLightbox(src,cap){ $("#lbImg").src=src; $("#lbImg").alt=cap; $("#lbCap").textContent=cap; $("#lbScroll").classList.remove("zoomed"); $("#lbZoom").textContent="🔍 Zoom 2×"; $("#lightbox").showModal(); }
+function toggleZoom(){ const z=$("#lbScroll").classList.toggle("zoomed"); $("#lbZoom").textContent=z?"↩ Ajustar":"🔍 Zoom 2×"; }
+$("#lbImg").onclick=toggleZoom; $("#lbZoom").onclick=toggleZoom; $("#lbClose").onclick=()=>$("#lightbox").close();
+$("#lightbox").addEventListener("click",e=>{ if(e.target.id==="lightbox") $("#lightbox").close(); });
+
+/* =========================================================
+   TABLERO
+   ========================================================= */
+let cGaps,cRank,cTime;
+function gapCounts(){ const d=doneCases(); return GAPS.map(g=>d.filter(c=>state.answers[c.id].gaps.includes(g.id)).length); }
+function globalFb(){
+  const d=doneCases(); if(!d.length) return [];
+  const agree=d.filter(c=>state.answers[c.id].mine===state.answers[c.id].team).length, gc=gapCounts(), items=[];
+  items.push({t:"good",h:`¡Contrastaste ${d.length} caso(s) con ${state.team}! Coincidieron en ${agree} y en ${d.length-agree} descubrieron miradas distintas.`});
+  const maxG=Math.max(...gc); if(maxG>0){ const g=GAPS[gc.indexOf(maxG)]; items.push({t:"good",h:`El dato que más te faltó fue <b>${g.label.toLowerCase()}</b> (${maxG} de ${d.length} casos): ya sabes qué preguntar en tu próximo brief.`}); }
+  const rev=d.filter(c=>["matizo","cambio"].includes(state.answers[c.id].rethink)).length;
+  if(rev) items.push({t:"good",h:`Revisaste tu juicio en ${rev} caso(s) al conocer los datos: eso es decidir con fundamento.`});
+  const minG=Math.min(...gc); if(minG<d.length){ const g=GAPS[gc.indexOf(minG)]; items.push({t:"grow",h:`Para la próxima: pregúntate también <b>${g.label.toLowerCase()}</b> (${g.desc}).`}); }
+  if(d.length<6&&!finished()) items.push({t:"grow",h:`¡Te faltan ${6-d.length} caso(s)! Tienes ${fmt(DURATION-elapsed())}.`});
+  if(!state.rankDone) items.push({t:"grow",h:"No olvides ordenar los casos por certeza (Paso 4)."});
+  return items;
+}
+function renderDashboard(){
+  const d=doneCases(), gc=gapCounts();
+  const agree=d.filter(c=>state.answers[c.id].mine===state.answers[c.id].team).length;
+  $("#kAgree").textContent=d.length?`${agree}/${d.length}`:"—";
+  $("#kGaps").textContent=d.length?String(gc.reduce((s,x)=>s+x,0)):"—";
+  $("#kRev").textContent=d.length?`${d.filter(c=>["matizo","cambio"].includes(state.answers[c.id].rethink)).length}/${d.length}`:"—";
+  updateStats();
+  const ink=css("--ink"), muted=css("--muted"), line=css("--line"), acc=css("--accent"), sun=css("--sun"), ok=css("--ok"), team=css("--team");
+  Chart.defaults.font.family="Inter, system-ui, sans-serif"; Chart.defaults.color=muted;
+
+  if(cGaps) cGaps.destroy();
+  cGaps=new Chart($("#cGaps"),{type:"bar",data:{labels:GAPS.map(g=>g.ico+" "+g.label),datasets:[{data:gc,backgroundColor:[acc,sun,team],borderRadius:8}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>`${x.raw} de ${d.length||0} casos`}}},scales:{y:{beginAtZero:true,max:6,ticks:{stepSize:1,color:muted},grid:{color:line}},x:{ticks:{color:ink},grid:{display:false}}}}});
+
+  const ins=rankInsights();
+  if(cRank) cRank.destroy();
+  cRank=new Chart($("#cRank"),{type:"bar",data:{labels:ins.map(x=>`${x.pos+1}. ${x.c.marca}`),datasets:[{label:"Certeza (6 = máxima)",data:ins.map(x=>6-x.pos),backgroundColor:ins.map(x=>!x.saved?line:x.same?ok:team),borderRadius:6}]},
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>{const i=ins[x.dataIndex]; return `Certeza ${x.raw}/6 · ${!i.saved?"sin contrastar":i.same?"coincidió con el equipo":"el equipo opinó distinto"}`;}}},
+      subtitle:{display:true,text:"Verde: coincidió con el equipo · Morado: opinión distinta · Gris: pendiente",color:muted,padding:{bottom:8}}},
+      scales:{x:{min:0,max:6,ticks:{stepSize:1,color:muted},grid:{color:line}},y:{ticks:{color:ink},grid:{display:false}}}}});
+
+  const tl=[...CASES.map(c=>c.marca),"Ranking"], td=[...CASES.map(c=>state.times[c.id]||0),state.times.rank||0].map(s=>+(s/60).toFixed(1));
+  if(cTime) cTime.destroy();
+  cTime=new Chart($("#cTime"),{type:"bar",data:{labels:tl,datasets:[{data:td,backgroundColor:[...CASES.map(()=>acc),ok],borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>fmt(x.raw*60)+" min"}}},scales:{y:{beginAtZero:true,ticks:{color:muted},grid:{color:line}},x:{ticks:{color:ink},grid:{display:false}}}}});
+
+  const g=globalFb();
+  $("#globalFb").innerHTML=g.length?`<ul class="list good">${g.filter(x=>x.t==="good").map(x=>`<li>🌟 ${x.h}</li>`).join("")}</ul><ul class="list grow">${g.filter(x=>x.t==="grow").map(x=>`<li>🌱 ${x.h}</li>`).join("")}</ul>`:'<p class="empty">Guarda al menos un caso para ver tu retroalimentación. ¡Tú puedes!</p>';
+
+  const RL={mantengo:"Lo mantengo",matizo:"Lo matizo",cambio:"Lo cambiaría"};
+  $("#summaryTable tbody").innerHTML=state.rank.map((id,pos)=>{ const c=CASES.find(x=>x.id===id), a=state.answers[id]||blank();
+    return `<tr><td><b>${state.rankDone?pos+1:"—"}</b></td><td><b>${c.marca}</b><br><span style="color:var(--muted)">${c.medio}</span></td>
+      <td>${a.mine?`<span class="pill ${a.mine}">${VLABEL[a.mine]}</span>`:"—"}</td><td>${a.team?`<span class="pill ${a.team}">${VLABEL[a.team]}</span>`:"—"}</td>
+      <td>${a.saved?a.gaps.map(g=>GAPS.find(x=>x.id===g).label).join(", ")+(a.otro?`<br><span style="color:var(--muted)">${esc(a.otro)}</span>`:""):"—"}</td>
+      <td>${a.rethink?RL[a.rethink]:"—"}</td><td>${fmt(state.times[id]||0)}</td></tr>`; }).join("");
+}
+function updateStats(){
+  const d=doneCases(); $("#sDone").textContent=`${d.length}/6`;
+  $("#sAgree").textContent=d.length?`${d.filter(c=>state.answers[c.id].mine===state.answers[c.id].team).length}/${d.length}`:"—";
+  $("#sRank").textContent=state.rankDone?"Listo ✔":"Pendiente";
+}
+
+/* =========================================================
+   INFORMES
+   ========================================================= */
+const RLABEL={mantengo:"Lo mantengo",matizo:"Lo matizo",cambio:"Lo cambiaría"};
+function info(){
+  const d=doneCases(), agree=d.filter(c=>state.answers[c.id].mine===state.answers[c.id].team).length;
+  return { d, agree, gc:gapCounts(),
+    estado: !finished()?"En curso":state.endReason==="tiempo"?"Tiempo agotado (25:00)":"Finalizado dentro del tiempo",
+    fecha: new Date(state.startTs).toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"}),
+    inicio: new Date(state.startTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}),
+    fin: state.endTs? new Date(state.endTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}):"—",
+    usado: fmt(elapsed()), rev: d.filter(c=>["matizo","cambio"].includes(state.answers[c.id].rethink)).length };
+}
+function fileBase(){ const s=state.student; return ("informe-contraste-"+(s?`${s.apellidos}-${s.nombres}`:"estudiante")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-"); }
+function requireStart(){ if(!started()){ toast("Primero regístrate e inicia la actividad 🙂",true); document.getElementById("inicio").scrollIntoView({behavior:"smooth"}); return false; } return true; }
+const strip=s=>String(s).replace(/<\/?b>/g,"");
+
+function downloadMD(){
+  if(!requireStart()) return;
+  const I=info(), s=state.student;
+  let md=`# Informe – Actividad 2: Contraste de juicio en equipo\n\n**IDC Diseño & Comunicación – Instituto de Educación Superior Público**  \n**Unidad didáctica:** ${UNIDAD}  \n**Docente:** ${DOCENTE}  \n**${SEMANA}**\n\n`;
+  md+=`> Consigna: Contrasta tu juicio inicial con el de tu equipo y anota qué información te faltaba para decidir con fundamento (a quién le habla el mensaje, cuánto cuesta el medio, cuánto tiempo toma producirlo). Ordena los 6 casos de mayor a menor certeza en tu propio juicio inicial.\n\n`;
+  md+=`## Datos\n\n| Campo | Valor |\n|---|---|\n| Apellidos | ${s.apellidos} |\n| Nombres | ${s.nombres} |\n| Equipo | ${state.team} |\n| Integrantes | ${state.members.join(", ")} |\n| Fecha | ${I.fecha} |\n| Inicio / fin | ${I.inicio} / ${I.fin} |\n| Tiempo utilizado | ${I.usado} de 25:00 |\n| Estado | ${I.estado} |\n| Juicio inicial importado de la Actividad 1 | ${state.imported?"Sí":"No"} |\n\n`;
+  md+=`## Resumen\n\n- Casos contrastados: **${I.d.length} de 6**\n- Coincidencias con el equipo: **${I.agree}/${I.d.length}**\n- Datos faltantes detectados: público **${I.gc[0]}**, costo **${I.gc[1]}**, tiempo **${I.gc[2]}**\n- Juicios revisados tras conocer los datos: **${I.rev}/${I.d.length}**\n- Ranking de certeza: **${state.rankDone?"confirmado":"pendiente"}**\n\n`;
+  md+=`## Ranking de certeza (de mayor a menor)\n\n| Puesto | Caso | Medio | Mi juicio | Equipo | Lectura |\n|---|---|---|---|---|---|\n`;
+  rankInsights().forEach(x=>{ md+=`| ${state.rankDone?x.pos+1:"—"} | ${x.c.marca} | ${x.c.medio} | ${x.a&&x.a.mine?VLABEL[x.a.mine]:"—"} | ${x.a&&x.a.team?VLABEL[x.a.team]:"—"} | ${strip(x.tag)} |\n`; });
+  md+=`\n## Tiempos por actividad\n\n| Actividad | Tiempo dedicado | Minuto de entrega | Estado |\n|---|---|---|---|\n`;
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id]; md+=`| Caso ${i+1}: ${c.marca} | ${fmt(state.times[c.id]||0)} | ${a&&a.savedAt!=null?fmt(a.savedAt):"—"} | ${a&&a.saved?"Guardado":"Pendiente"} |\n`; });
+  md+=`| Ranking de certeza | ${fmt(state.times.rank||0)} | ${state.rankAt!=null?fmt(state.rankAt):"—"} | ${state.rankDone?"Confirmado":"Pendiente"} |\n\n`;
+  md+=`## Contraste por caso\n\n`;
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id];
+    md+=`### ${i+1}. ${c.marca} — ${c.titulo}\n\n- **Medio:** ${c.medio}\n`;
+    if(a&&a.saved){
+      md+=`- **Mi juicio inicial:** ${VLABEL[a.mine]}${a.fromAct1?" (de la Actividad 1)":""}\n- **Juicio del equipo:** ${VLABEL[a.team]} — ${a.mine===a.team?"coincidimos":"opinamos distinto"}\n`;
+      md+=`- **Me faltaba saber:** ${a.gaps.map(g=>GAPS.find(x=>x.id===g).label).join(", ")}\n- **Tras conocer los datos:** ${a.rethink?RLABEL[a.rethink]:"sin respuesta"}\n- **Tiempo dedicado:** ${fmt(state.times[c.id]||0)}\n\n`;
+      md+=`**Mi explicación:**\n\n> ${a.otro.trim().replace(/\n+/g," ")}\n\n`;
+      if(a.doubt.trim()) md+=`**Argumento del equipo que me hizo reflexionar:**\n\n> ${a.doubt.trim().replace(/\n+/g," ")}\n\n`;
+      md+=`**Datos del caso:** público: ${c.datos.publico} · costo ${costStr(c.datos.costo)}: ${c.datos.costoTxt} · tiempo: ${c.datos.tiempo}\n\n`;
+      md+=`**Lo que hice bien:**\n\n`+strengthsCase(c,a).map(x=>"- "+x.replace(/<\/?b>/g,"**")).join("\n")+"\n\n";
+    } else md+=`- _Caso no contrastado._\n\n`;
+  });
+  const g=globalFb();
+  md+=`## Retroalimentación global\n\n`+(g.length?g.map(x=>`- ${x.t==="good"?"🌟":"🌱"} ${x.h.replace(/<\/?b>/g,"**")}`).join("\n"):"- Aún no hay casos contrastados.")+"\n\n";
+  md+=`## Secuencia del plan de trabajo con costos\n\n1. **Objetivo** — qué queremos lograr\n2. **Público** — a quién le habla el mensaje\n3. **Mensaje** — idea central y tono\n4. **Medio** — dónde está ese público\n5. **Presupuesto** — medios 60–70 %, producción 20–30 %, reserva 10 % (si excede → reajustar el medio)\n6. **Producción y difusión** — de días a meses según el medio\n7. **Medición** — costo por resultado\n\n`;
+  md+=`## Mensaje final\n\n${closing()}\n\n---\n\n${DOCENTE} · ${SEMANA} · Unidad didáctica: ${UNIDAD}\n`;
+  const blob=new Blob([md],{type:"text/markdown;charset=utf-8"}), u=URL.createObjectURL(blob), l=document.createElement("a");
+  l.href=u; l.download=fileBase()+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
+  toast("✔ Informe Markdown descargado",true);
+}
+
+function chartImage(cfg,w,h){
+  const cv=document.createElement("canvas"); cv.width=w; cv.height=h; cv.style.cssText=`position:fixed;left:-9999px;width:${w}px;height:${h}px`; document.body.appendChild(cv);
+  cfg.options=Object.assign({},cfg.options,{responsive:false,animation:false,devicePixelRatio:2});
+  cfg.plugins=[{id:"bg",beforeDraw:ch=>{const x=ch.ctx;x.save();x.fillStyle="#fff";x.fillRect(0,0,ch.width,ch.height);x.restore();}}];
+  const ch=new Chart(cv,cfg), url=cv.toDataURL("image/jpeg",.88); ch.destroy(); cv.remove(); return url;
+}
+function pdfSafe(s){ return strip(s).replace(/[“”]/g,'"').replace(/[^\x00-\xFF—–‘’"•]/g,"").trim(); }
+
+function downloadPDF(){
+  if(!requireStart()) return;
+  if(!window.jspdf){ toast("No se pudo cargar el generador de PDF (revisa tu conexión). Usa el informe Markdown.",true); return; }
+  const {jsPDF}=window.jspdf, doc=new jsPDF({unit:"mm",format:"a4",compress:true});
+  const I=info(), s=state.student, W=210, M=15; let y=M;
+  const BLUE=[0,113,188], ORANGE=[242,161,0], PURPLE=[95,61,196], GRAY=[95,107,120], INK=[27,31,36], GREEN=[43,138,62];
+  const ensure=h=>{ if(y+h>282){ doc.addPage(); y=M+4; } };
+  const h2=t=>{ ensure(16); doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...INK); doc.text(t,M,y); y+=2; };
+
+  if(window.IDC_LOGO){ const lw=48; doc.addImage(IDC_LOGO.src,"JPEG",M,y,lw,lw*IDC_LOGO.h/IDC_LOGO.w); }
+  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...GRAY); doc.text("UNIDAD DIDÁCTICA",W-M,y+5,{align:"right"});
+  doc.setFontSize(10); doc.setTextColor(...INK); doc.text(UNIDAD,W-M,y+10,{align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GRAY); doc.text(`${DOCENTE} · ${SEMANA} · Actividad 2`,W-M,y+15,{align:"right"});
+  y+=24; doc.setDrawColor(...PURPLE); doc.setLineWidth(.8); doc.line(M,y,W-M,y); y+=9;
+  doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...INK); doc.text("Informe: contraste de juicio en equipo",M,y); y+=5;
+  doc.setFont("helvetica","normal"); doc.setFontSize(8.8); doc.setTextColor(...GRAY);
+  const cons=doc.splitTextToSize("Consigna: Contrasta tu juicio inicial con el de tu equipo y anota qué información te faltaba para decidir con fundamento (a quién le habla el mensaje, cuánto cuesta el medio, cuánto tiempo toma producirlo). Ordena los 6 casos de mayor a menor certeza en tu propio juicio inicial.",W-2*M); doc.text(cons,M,y); y+=cons.length*4+3;
+
+  doc.autoTable({startY:y,margin:{left:M,right:M},theme:"plain",styles:{fontSize:9.3,cellPadding:1.6,textColor:INK},
+    columnStyles:{0:{fontStyle:"bold",cellWidth:34,textColor:GRAY},2:{fontStyle:"bold",cellWidth:30,textColor:GRAY}},
+    body:[["Apellidos",s.apellidos,"Fecha",I.fecha],["Nombres",s.nombres,"Inicio / fin",`${I.inicio} / ${I.fin}`],["Equipo",state.team,"Tiempo",`${I.usado} de 25:00`],["Integrantes",state.members.join(", "),"Estado",I.estado]]});
+  y=doc.lastAutoTable.finalY+5;
+
+  const k=[["Casos contrastados",`${I.d.length}/6`],["Coincidencias equipo",`${I.agree}/${I.d.length}`],["Datos faltantes",String(I.gc.reduce((a,b)=>a+b,0))],["Juicios revisados",`${I.rev}/${I.d.length}`]], kw=(W-2*M-9)/4;
+  k.forEach((x,i)=>{ const kx=M+i*(kw+3); doc.setFillColor(238,242,246); doc.roundedRect(kx,y,kw,17,2,2,"F"); doc.setFontSize(7.5); doc.setTextColor(...GRAY); doc.text(x[0],kx+3,y+5.5);
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(...BLUE); doc.text(x[1],kx+3,y+13); doc.setFont("helvetica","normal"); });
+  y+=24;
+
+  h2("Ranking de certeza en el juicio inicial (de mayor a menor)");
+  doc.autoTable({startY:y+2,margin:{left:M,right:M},head:[["#","Caso","Mi juicio","Equipo","Me faltaba saber","Lectura"]],
+    body:rankInsights().map(x=>[state.rankDone?x.pos+1:"—",x.c.marca,x.a&&x.a.mine?VLABEL[x.a.mine]:"—",x.a&&x.a.team?VLABEL[x.a.team]:"—",x.saved?x.a.gaps.map(g=>GAPS.find(z=>z.id===g).label).join(", "):"—",pdfSafe(x.tag)]),
+    styles:{fontSize:8.3,cellPadding:2,valign:"top"},headStyles:{fillColor:PURPLE},columnStyles:{0:{cellWidth:8,halign:"center",fontStyle:"bold"},1:{cellWidth:24,fontStyle:"bold"}},alternateRowStyles:{fillColor:[245,247,250]}});
+  y=doc.lastAutoTable.finalY+7;
+
+  h2("Tiempos por actividad");
+  doc.autoTable({startY:y+2,margin:{left:M,right:M},head:[["Actividad","Tiempo dedicado","Minuto de entrega","Estado"]],
+    body:CASES.map((c,i)=>{ const a=state.answers[c.id]; return [`Caso ${i+1}: ${c.marca}`,fmt(state.times[c.id]||0),a&&a.savedAt!=null?fmt(a.savedAt):"—",a&&a.saved?"Guardado":"Pendiente"]; })
+      .concat([["Ranking de certeza",fmt(state.times.rank||0),state.rankAt!=null?fmt(state.rankAt):"—",state.rankDone?"Confirmado":"Pendiente"]]),
+    styles:{fontSize:8.8,cellPadding:1.8},headStyles:{fillColor:BLUE},alternateRowStyles:{fillColor:[245,247,250]}});
+  y=doc.lastAutoTable.finalY+7;
+
+  if(I.d.length){
+    ensure(72); h2("Gráficas"); y+=2;
+    const gimg=chartImage({type:"bar",data:{labels:GAPS.map(g=>g.label),datasets:[{data:I.gc,backgroundColor:["#0071bc","#f2a100","#5f3dc4"],borderRadius:4}]},
+      options:{plugins:{legend:{display:false},title:{display:true,text:"Información que faltó (n.º de casos)",color:"#1b1f24"}},scales:{y:{beginAtZero:true,max:6,ticks:{stepSize:1,color:"#5f6b78"},grid:{color:"#dde3ea"}},x:{ticks:{color:"#1b1f24"},grid:{display:false}}}}},520,380);
+    const ins=rankInsights();
+    const rimg=chartImage({type:"bar",data:{labels:ins.map(x=>`${x.pos+1}. ${x.c.marca}`),datasets:[{data:ins.map(x=>6-x.pos),backgroundColor:ins.map(x=>!x.saved?"#dde3ea":x.same?"#2b8a3e":"#5f3dc4"),borderRadius:4}]},
+      options:{indexAxis:"y",plugins:{legend:{display:false},title:{display:true,text:"Certeza (verde: coincide · morado: distinto)",color:"#1b1f24"}},scales:{x:{min:0,max:6,ticks:{stepSize:1,color:"#5f6b78"},grid:{color:"#dde3ea"}},y:{ticks:{color:"#1b1f24"},grid:{display:false}}}}},520,380);
+    const gw=(W-2*M-6)/2; doc.addImage(gimg,"JPEG",M,y,gw,gw*380/520); doc.addImage(rimg,"JPEG",M+gw+6,y,gw,gw*380/520); y+=gw*380/520+6;
+  }
+
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id]; if(!(a&&a.saved)) return;
+    ensure(40);
+    doc.setFillColor(...PURPLE); doc.rect(M,y,2,7,"F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text(pdfSafe(`${i+1}. ${c.marca} — ${c.medio}`),M+5,y+5);
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GRAY); doc.text(`Tiempo: ${fmt(state.times[c.id]||0)}`,W-M,y+5,{align:"right"}); y+=10;
+    doc.autoTable({startY:y,margin:{left:M,right:M},head:[["Mi juicio inicial","Juicio del equipo","Me faltaba saber","Tras los datos"]],
+      body:[[VLABEL[a.mine]+(a.fromAct1?" (Act. 1)":""),VLABEL[a.team],a.gaps.map(g=>GAPS.find(x=>x.id===g).label).join(", "),a.rethink?RLABEL[a.rethink]:"—"]],
+      styles:{fontSize:8.5,cellPadding:1.8},headStyles:{fillColor:[238,242,246],textColor:INK}});
+    y=doc.lastAutoTable.finalY+4;
+    const block=(title,text,color)=>{ ensure(10); doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...color); doc.text(title,M,y); y+=4.5;
+      doc.setFont("helvetica","normal"); doc.setTextColor(...INK); doc.splitTextToSize(text,W-2*M-3).forEach(l=>{ ensure(5); doc.text(l,M+3,y); y+=4.3; }); y+=1.5; };
+    block("Mi explicación:",pdfSafe(a.otro.replace(/\n+/g," ")),BLUE);
+    if(a.doubt.trim()) block("Argumento del equipo que me hizo reflexionar:",pdfSafe(a.doubt.replace(/\n+/g," ")),PURPLE);
+    block("Datos del caso:",pdfSafe(`Público: ${c.datos.publico}\nCosto (${costStr(c.datos.costo)} de $$$$): ${c.datos.costoTxt}\nTiempo: ${c.datos.tiempo}`),[199,119,0]);
+    block("Lo que hice bien:",strengthsCase(c,a).map(x=>"• "+pdfSafe(x)).join("\n"),GREEN);
+    y+=3;
+  });
+
+  const g=globalFb(); ensure(30); h2("Retroalimentación global"); y+=5;
+  doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(...INK);
+  (g.length?g:[{t:"good",h:"Aún no hay casos contrastados."}]).forEach(x=>{ doc.splitTextToSize((x.t==="good"?"+ ":"> ")+pdfSafe(x.h),W-2*M-3).forEach(l=>{ ensure(5); doc.text(l,M+2,y); y+=4.6; }); y+=1; });
+  y+=3; ensure(36); h2("Secuencia del plan de trabajo con costos"); y+=5;
+  doc.setFont("helvetica","normal"); doc.setFontSize(9);
+  ["1. Objetivo: qué queremos lograr","2. Público: a quién le habla el mensaje","3. Mensaje: idea central y tono","4. Medio: dónde está ese público","5. Presupuesto: medios 60–70 %, producción 20–30 %, reserva 10 % (si excede: reajustar el medio)","6. Producción y difusión: de días a meses según el medio","7. Medición: costo por resultado"]
+    .forEach(l=>{ ensure(5); doc.text(l,M+2,y); y+=4.6; });
+  y+=4; ensure(20);
+  doc.setFillColor(253,241,214); const fl=doc.splitTextToSize(pdfSafe(closing()),W-2*M-10); doc.roundedRect(M,y,W-2*M,fl.length*5+8,2,2,"F");
+  doc.setFont("helvetica","bold"); doc.setTextColor(...INK); doc.text(fl,M+5,y+6.5);
+
+  const pages=doc.getNumberOfPages();
+  for(let p=1;p<=pages;p++){ doc.setPage(p); doc.setDrawColor(...ORANGE); doc.setLineWidth(.6); doc.line(M,287,W-M,287);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...GRAY); doc.text(`${DOCENTE} · ${SEMANA} · ${UNIDAD}`,M,292); doc.text(`${p} / ${pages}`,W-M,292,{align:"right"}); }
+  doc.save(fileBase()+".pdf"); toast("✔ Informe PDF descargado",true);
+}
+
+$("#pdfBtn").onclick=downloadPDF; $("#mdBtn").onclick=downloadMD;
+$("#finishBtn2").onclick=()=>{ if(!requireStart()) return; if(finished()){ toast("La actividad ya fue finalizada. ¡Descarga tu informe!",true); return; } askFinish(); };
+$("#resetBtn").onclick=()=>{ if(!confirm("¿Borrar el registro, el tiempo y todas las respuestas de esta actividad?")) return; state=freshState(); save(); renderAll(); scrollTo({top:0,behavior:"smooth"}); toast("Actividad reiniciada",true); };
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+function renderAll(){
+  const locked=!started();
+  ["#caseLock","#rankLock"].forEach(s=>$(s).classList.toggle("locked",locked));
+  $("#tabs").inert=locked;
+  renderRegister(); renderCase(state.current||0); renderRank(); renderDashboard(); updateTimerUI();
+}
+if(active()&&elapsed()>=DURATION){ state.endTs=state.startTs+DURATION*1000; state.endReason="tiempo"; save(); }
+renderAll();
+setInterval(tick,1000);
+</script>
+</body>
+</html>

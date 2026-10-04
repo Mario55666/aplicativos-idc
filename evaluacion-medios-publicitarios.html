@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Medio y Mensaje · IDC</title>
+<meta name="description" content="Dinámica interactiva de 25 minutos: evalúa si la elección del medio publicitario fue acertada en 6 casos reales, con retroalimentación inmediata, gráficas e informe en PDF y Markdown.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="img/logo-b64.js"></script>
+<style>
+:root{
+  --bg:#f5f7fa; --surface:#ffffff; --surface-2:#eef2f6; --ink:#1b1f24; --muted:#5f6b78;
+  --line:#dde3ea; --accent:#0071bc; --accent-soft:#e1effa; --sun:#f2a100; --sun-soft:#fdf1d6;
+  --ok:#2b8a3e; --ok-soft:#e1f3e4; --warn:#c77700; --warn-soft:#fdf1d6; --bad:#c92a2a; --bad-soft:#fbe1e1;
+  --ref:#5f3dc4; --ref-soft:#ece6fb;
+  --radius:16px; --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1318; --surface:#171c22; --surface-2:#1f262e; --ink:#eef2f6; --muted:#9aa7b4;
+    --line:#2c3540; --accent:#4da3e8; --accent-soft:#132a3e; --sun:#ffb829; --sun-soft:#33280f;
+    --ok:#51cf66; --ok-soft:#173022; --warn:#ffb829; --warn-soft:#33280f; --bad:#ff6b6b; --bad-soft:#3a1d1d;
+    --ref:#9775fa; --ref-soft:#241d3d; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --surface:#171c22; --surface-2:#1f262e; --ink:#eef2f6; --muted:#9aa7b4;
+  --line:#2c3540; --accent:#4da3e8; --accent-soft:#132a3e; --sun:#ffb829; --sun-soft:#33280f;
+  --ok:#51cf66; --ok-soft:#173022; --warn:#ffb829; --warn-soft:#33280f; --bad:#ff6b6b; --bad-soft:#3a1d1d;
+  --ref:#9775fa; --ref-soft:#241d3d; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.55;font-size:16px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;line-height:1.15;margin:0 0 .5em}
+.wrap{max-width:1140px;margin:0 auto;padding:0 16px}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* ---------- Cabecera ---------- */
+header.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;gap:14px;min-height:68px}
+.logo{background:#fff;border-radius:10px;padding:4px 8px;display:flex;align-items:center;flex-shrink:0}
+.logo img{height:40px;width:auto;display:block}
+.unit{border-left:2px solid var(--line);padding-left:14px;line-height:1.25;min-width:0}
+.unit small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.unit b{font-size:.95rem}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.timer{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1.5px solid var(--line);border-radius:999px;padding:6px 14px 6px 10px;font-variant-numeric:tabular-nums;font-weight:700;font-size:1.05rem;transition:.3s}
+.timer .ic{width:22px;height:22px}
+.timer.run{border-color:var(--accent);color:var(--accent)}
+.timer.low{border-color:var(--sun);color:var(--warn);background:var(--sun-soft)}
+.timer.crit{border-color:var(--bad);color:var(--bad);background:var(--bad-soft);animation:pulse 1s infinite}
+.timer.end{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.toggle{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;width:38px;height:38px;flex-shrink:0}
+.time-bar{height:4px;background:var(--line)}
+.time-bar div{height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--sun));transform-origin:left;transition:transform 1s linear}
+
+/* ---------- Hero ---------- */
+.hero{padding:48px 0 40px}
+.hero-grid{display:grid;grid-template-columns:7fr 5fr;gap:32px;align-items:start}
+.eyebrow{display:inline-block;font-size:.76rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);padding:5px 11px;border-radius:999px;margin-bottom:16px}
+.hero h1{font-size:clamp(2rem,5vw,3.4rem);max-width:15ch}
+.hero h1 em{color:var(--accent);font-style:normal;position:relative}
+.hero h1 em::after{content:"";position:absolute;left:0;right:0;bottom:.05em;height:.22em;background:var(--sun);opacity:.45;z-index:-1;border-radius:4px}
+.lead{font-size:1.1rem;color:var(--muted);max-width:58ch}
+.consigna{margin-top:20px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--sun);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+.consigna strong{display:block;font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.register{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;position:relative;overflow:hidden}
+.register::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:linear-gradient(90deg,var(--accent),var(--sun))}
+.register h2{font-size:1.35rem;margin-bottom:4px}
+.register p{color:var(--muted);font-size:.92rem;margin:0 0 16px}
+.field{margin-bottom:12px}
+.field label{display:block;font-weight:600;font-size:.88rem;margin-bottom:4px}
+.field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;background:var(--surface);color:var(--ink)}
+.field input:focus{border-color:var(--accent);outline:none}
+.big-timer{display:flex;align-items:center;gap:14px;background:var(--surface-2);border-radius:12px;padding:12px 14px;margin:6px 0 14px}
+.big-timer b{font-family:Fraunces,serif;font-size:2rem;font-variant-numeric:tabular-nums}
+.big-timer span{font-size:.85rem;color:var(--muted)}
+.student-chip{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:1.05rem;flex-shrink:0}
+.student-chip b{display:block;font-size:1.05rem}
+.student-chip span{color:var(--muted);font-size:.85rem}
+.btn{border:0;border-radius:999px;padding:12px 22px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sun{background:var(--sun);color:#1b1f24}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.block{width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{font-family:Fraunces,serif;font-size:1.6rem;display:block}
+.stat span{color:var(--muted);font-size:.8rem}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin-top:22px}
+.subnav a{font-size:.86rem;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--surface)}
+.subnav a:hover{color:var(--accent);border-color:var(--accent)}
+
+section{padding:48px 0;border-top:1px solid var(--line)}
+section > .wrap > h2{font-size:clamp(1.5rem,3.4vw,2.2rem)}
+.sub{color:var(--muted);max-width:66ch;margin-top:-4px}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.step .n{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;margin-bottom:10px}
+.step h3{font-family:Inter,sans-serif;font-size:1rem;margin-bottom:4px}
+.step p{margin:0;color:var(--muted);font-size:.9rem}
+.criteria{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:22px}
+.crit{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;border-top:3px solid var(--sun)}
+.crit b{display:block;margin-bottom:4px}
+.crit p{margin:0;font-size:.86rem;color:var(--muted)}
+
+/* Bloqueo */
+.lockable{position:relative}
+.lock-msg{display:none;position:absolute;inset:0;z-index:5;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(3px);border-radius:var(--radius);place-items:center;text-align:center;padding:20px}
+.lockable.locked .lock-msg{display:grid}
+.lock-msg div{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 26px;box-shadow:var(--shadow);max-width:420px}
+.lock-msg b{display:block;font-size:1.1rem;margin-bottom:4px}
+.lock-msg p{margin:0 0 14px;color:var(--muted)}
+
+/* Calentamiento */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:22px}
+.col{display:flex;flex-direction:column;gap:8px}
+.col h3{font-family:Inter,sans-serif;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 4px}
+.mbtn{text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--ink);transition:.15s}
+.mbtn:hover{border-color:var(--accent)}
+.mbtn.sel{border-color:var(--accent);background:var(--accent-soft)}
+.mbtn.done{border-color:var(--ok);background:var(--ok-soft);cursor:default}
+.mbtn.shake{animation:shake .35s;border-color:var(--sun);background:var(--sun-soft)}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.matchfb{margin-top:14px;font-weight:500;min-height:1.5em}
+
+/* Casos */
+.case-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 16px}
+.tab{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 14px;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.tab .dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.tab.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.tab.done .dot{background:var(--ok)}
+.case{display:grid;grid-template-columns:5fr 7fr;gap:20px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.piece-img{display:block;width:100%;padding:0;border:0;background:#000;position:relative;aspect-ratio:3/2;cursor:zoom-in}
+.piece-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.piece-img:hover img{transform:scale(1.03)}
+.piece-img .badge{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.6);color:#fff;font-size:.74rem;padding:4px 10px;border-radius:999px;font-weight:600}
+.piece-img .zoom{position:absolute;bottom:12px;right:12px;background:rgba(255,255,255,.92);color:#1b1f24;font-size:.8rem;padding:6px 12px;border-radius:999px;font-weight:600;display:flex;align-items:center;gap:6px}
+.piece-body{padding:20px}
+.piece-body h3{font-size:1.45rem;margin-bottom:2px}
+.meta{color:var(--muted);font-size:.86rem;margin-bottom:12px}
+.kv{border-top:1px solid var(--line);padding:12px 0}
+.kv small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;margin-bottom:2px}
+.kv .medio{display:inline-block;background:var(--sun-soft);color:var(--warn);font-weight:700;padding:3px 10px;border-radius:8px}
+.note-small{font-size:.78rem;color:var(--muted);margin:8px 0 0;font-style:italic}
+.case-time{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px;margin-top:12px}
+.case-time b{color:var(--ink);font-variant-numeric:tabular-nums}
+
+.form{padding:20px}
+.q{margin-bottom:22px}
+.q > label,.q > .ql{display:block;font-weight:600;margin-bottom:8px}
+.q .hint{font-weight:400;color:var(--muted);font-size:.85rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;font-size:.88rem}
+.chip[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.slider-row{display:grid;grid-template-columns:140px 1fr 32px;gap:10px;align-items:center;margin-bottom:6px}
+.slider-row span:first-child{font-size:.9rem}
+.slider-row output{font-weight:700;text-align:right;color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.live{margin-top:8px;font-size:.86rem;padding:10px 12px;border-radius:10px;background:var(--surface-2);color:var(--muted)}
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vbtn{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px 8px;font-weight:600;font-size:.9rem}
+.vbtn[aria-pressed="true"][data-v="acertada"]{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.vbtn[aria-pressed="true"][data-v="parcial"]{background:var(--sun-soft);border-color:var(--sun);color:var(--warn)}
+.vbtn[aria-pressed="true"][data-v="no"]{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+textarea{width:100%;min-height:90px;border:1.5px solid var(--line);border-radius:12px;padding:12px;font:inherit;background:var(--surface);color:var(--ink);resize:vertical}
+.meter{height:6px;border-radius:99px;background:var(--line);margin-top:6px;overflow:hidden}
+.meter div{height:100%;width:0;background:var(--sun);transition:width .3s,background .3s}
+.meter-label{font-size:.8rem;color:var(--muted);margin-top:4px}
+.coherence{font-size:.86rem;margin-top:8px;min-height:1.3em}
+.coherence.warn{color:var(--warn)}
+.coherence.ok{color:var(--ok)}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+
+/* Retroalimentación */
+.feedback{margin-top:20px;display:none}
+.feedback.show{display:block;animation:rise .4s ease}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fb-head{padding:16px 20px;background:linear-gradient(90deg,var(--accent-soft),var(--sun-soft));font-weight:600;display:flex;gap:10px;align-items:center}
+.fb-head .emoji{font-size:1.5rem}
+.fb-grid{display:grid;grid-template-columns:240px 1fr;gap:20px;padding:20px}
+.score-ring{position:relative;width:170px;height:170px;margin:0 auto}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .val{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.score-ring .val b{font-family:Fraunces,serif;font-size:2.4rem;line-height:1}
+.score-ring .val span{font-size:.76rem;color:var(--muted)}
+.level{text-align:center;font-weight:700;margin-top:8px}
+.radar-box{position:relative;height:270px}
+.fb-text{padding:0 20px 20px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.compare div{border-radius:12px;padding:12px}
+.compare .you{background:var(--accent-soft)}
+.compare .ref{background:var(--ref-soft)}
+.compare small{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700;opacity:.8}
+.fb-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+.fb-cols h4{margin:0 0 8px;font-size:.92rem}
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:9px 12px;border-radius:10px;margin-bottom:8px;font-size:.9rem}
+.list.good li{background:var(--ok-soft)}
+.list.grow li{background:var(--surface-2)}
+.list li b{color:var(--accent)}
+.keyidea{background:var(--ref-soft);padding:10px 12px;border-radius:10px;margin:0}
+
+/* Tablero */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.kpi small{color:var(--muted);font-size:.8rem;font-weight:600}
+.kpi b{display:block;font-family:Fraunces,serif;font-size:2rem;margin-top:4px;font-variant-numeric:tabular-nums}
+.charts{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-top:16px}
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.chart-card h3{font-family:Inter,sans-serif;font-size:1rem;margin-bottom:12px}
+.chart-wrap{position:relative;height:270px}
+.empty{color:var(--muted);text-align:center;padding:30px}
+.table-wrap{overflow-x:auto;margin-top:16px;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:.88rem;background:var(--surface)}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--surface-2);font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.76rem;font-weight:600;white-space:nowrap}
+.pill.acertada{background:var(--ok-soft);color:var(--ok)}
+.pill.parcial{background:var(--sun-soft);color:var(--warn)}
+.pill.no{background:var(--bad-soft);color:var(--bad)}
+.report-box{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.report-box p{margin:0;color:var(--muted);flex:1 1 260px}
+
+footer{padding:28px 0 40px;border-top:4px solid var(--accent);background:var(--surface)}
+footer .wrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+footer .doc b{display:block;font-size:1.05rem}
+footer .doc span{color:var(--muted);font-size:.88rem}
+footer .week{margin-left:auto;background:var(--sun);color:#1b1f24;font-weight:700;border-radius:999px;padding:8px 16px}
+footer .legal{flex-basis:100%;color:var(--muted);font-size:.78rem;margin-top:6px}
+
+/* Visor de imagen */
+dialog.lightbox{border:0;padding:0;background:transparent;max-width:96vw;max-height:94vh;overflow:visible}
+dialog.lightbox::backdrop{background:rgba(5,8,12,.88)}
+.lb-inner{position:relative}
+.lb-scroll{max-width:96vw;max-height:84vh;overflow:auto;border-radius:12px;background:#000}
+.lb-scroll img{display:block;max-width:96vw;max-height:84vh;cursor:zoom-in;transition:.2s}
+.lb-scroll.zoomed img{max-width:none;max-height:none;width:200%;cursor:zoom-out}
+.lb-bar{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:10px;color:#fff;flex-wrap:wrap}
+.lb-bar button{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px 14px}
+dialog.modal{border:0;border-radius:20px;padding:0;max-width:480px;width:calc(100% - 32px);background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+dialog.modal::backdrop{background:rgba(5,8,12,.6)}
+.modal-body{padding:28px;text-align:center}
+.modal-body .big{font-size:3rem}
+.modal-body h3{font-size:1.6rem}
+.modal-body p{color:var(--muted)}
+.modal-body .actions{justify-content:center;margin-top:16px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(140px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:500;transition:transform .3s;z-index:60;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:8px;height:14px;border-radius:2px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.6}}
+
+@media (max-width:960px){
+  .hero-grid,.case,.fb-grid,.charts,.fb-cols{grid-template-columns:1fr}
+  .steps,.criteria{grid-template-columns:1fr 1fr}
+  .dash-grid{grid-template-columns:1fr 1fr}
+  .unit b{font-size:.85rem}
+}
+@media (max-width:620px){
+  .unit{display:none}
+  .logo img{height:32px}
+  .steps,.criteria,.match,.compare{grid-template-columns:1fr}
+  .slider-row{grid-template-columns:105px 1fr 26px}
+  .verdicts{grid-template-columns:1fr}
+  .timer{font-size:.95rem;padding:5px 10px 5px 8px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#inicio" aria-label="IDC Diseño & Comunicación – inicio"><img src="img/idc-logo.jpg" alt="IDC Diseño & Comunicación – Instituto de Educación Superior Público"></a>
+    <div class="unit"><small>Unidad didáctica</small><b>Producción y publicación de piezas gráficas</b></div>
+    <div class="top-right">
+      <div class="timer" id="timer" role="timer" aria-live="off" title="Tiempo restante de la dinámica">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+        <span id="timerTxt">25:00</span>
+      </div>
+      <button class="toggle" id="themeBtn" aria-label="Cambiar tema claro/oscuro">◐</button>
+    </div>
+  </div>
+  <div class="time-bar"><div id="timeBar"></div></div>
+</header>
+
+<main id="inicio">
+<section class="hero" style="border-top:0">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Semana 5 · Introducción a medios publicitarios</span>
+      <h1>¿El <em>medio</em> fue la elección correcta?</h1>
+      <p class="lead">Analiza 6 casos reales de publicidad observando la pieza y el medio donde se difundió. Interpreta qué se busca comunicar, evalúa el medio con criterios de marketing y recibe retroalimentación inmediata.</p>
+      <div class="consigna">
+        <strong>Consigna</strong>
+        Observa 6 casos reales de comunicación publicitaria (solo la pieza y el medio empleado, sin mensaje ni presupuesto) y anota si consideras acertada la elección del medio para lo que percibes que se busca comunicar.
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="sDone">0/6</b><span>casos evaluados</span></div>
+        <div class="stat"><b id="sAvg">—</b><span>concordancia media</span></div>
+        <div class="stat"><b id="sWarm">0/6</b><span>calentamiento</span></div>
+      </div>
+      <nav class="subnav" aria-label="Secciones">
+        <a href="#como">Cómo funciona</a><a href="#criterios">Criterios</a><a href="#calentamiento">Calentamiento</a><a href="#casos">6 casos</a><a href="#resultados">Resultados e informe</a>
+      </nav>
+    </div>
+    <aside class="register" id="registerCard" aria-live="polite"></aside>
+  </div>
+</section>
+
+<section id="como">
+  <div class="wrap">
+    <h2>Cómo funciona</h2>
+    <p class="sub">Tienes <b>25 minutos</b> para toda la dinámica. Te sugerimos unos 3 minutos para el calentamiento y unos 3–4 minutos por caso. No hay respuestas “malas”: es una introducción y lo importante es que argumentes tu criterio.</p>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Observa</h3><p>Mira la pieza (puedes ampliarla) y fíjate en el medio donde se difundió.</p></div>
+      <div class="step"><div class="n">2</div><h3>Interpreta</h3><p>Elige qué percibes que la marca buscaba comunicar u obtener.</p></div>
+      <div class="step"><div class="n">3</div><h3>Evalúa</h3><p>Califica el medio en 5 criterios y emite tu veredicto con una breve anotación.</p></div>
+      <div class="step"><div class="n">4</div><h3>Aprende</h3><p>Recibe retroalimentación con tus aciertos y una idea para seguir creciendo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="criterios">
+  <div class="wrap">
+    <h2>Los 5 criterios para evaluar un medio</h2>
+    <p class="sub">Califica de 1 (muy bajo) a 5 (muy alto) qué tanto aporta el medio elegido en cada dimensión, según lo que percibes que se buscaba.</p>
+    <div class="criteria">
+      <div class="crit"><b>Alcance</b><p>Cuántas personas puede exponer el medio a la pieza.</p></div>
+      <div class="crit"><b>Segmentación</b><p>Qué tan bien llega al público adecuado y no a cualquiera.</p></div>
+      <div class="crit"><b>Interacción</b><p>Si invita a participar, compartir, tocar o responder.</p></div>
+      <div class="crit"><b>Coherencia</b><p>Si el formato de la pieza aprovecha lo que el medio hace mejor.</p></div>
+      <div class="crit"><b>Recordación</b><p>Si el medio ayuda a que la pieza se recuerde y se comente.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="calentamiento">
+  <div class="wrap">
+    <h2>Calentamiento: cada medio tiene su fortaleza</h2>
+    <p class="sub">Selecciona un medio a la izquierda y luego su fortaleza principal a la derecha. ¡Es para entrar en ritmo!</p>
+    <div class="lockable" id="warmLock">
+      <div class="lock-msg"><div><b>🔒 Registra tu nombre para comenzar</b><p>El cronómetro de 25 minutos inicia al registrarte.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div id="warmBody">
+        <div class="match">
+          <div class="col" id="mLeft"><h3>Medio</h3></div>
+          <div class="col" id="mRight"><h3>Fortaleza principal</h3></div>
+        </div>
+        <div class="matchfb" id="matchFb" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="casos">
+  <div class="wrap">
+    <h2>Los 6 casos</h2>
+    <p class="sub">Puedes avanzar en orden o saltar entre casos. Haz clic en la imagen para ampliarla. Tus respuestas se guardan automáticamente en este navegador.</p>
+    <div class="lockable" id="caseLock">
+      <div class="lock-msg"><div><b>🔒 Registra tu nombre para comenzar</b><p>Así tu informe llevará tus nombres y apellidos.</p><a class="btn primary" href="#inicio">Ir al registro</a></div></div>
+      <div class="case-tabs" id="tabs" role="tablist"></div>
+      <div id="caseHost"></div>
+    </div>
+  </div>
+</section>
+
+<section id="resultados">
+  <div class="wrap">
+    <h2>Tablero de resultados</h2>
+    <p class="sub">Se actualiza cada vez que evalúas un caso. Mira en qué criterios tu lectura ya coincide con la referencia y en cuáles puedes seguir afinando.</p>
+    <div class="dash-grid">
+      <div class="kpi"><small>Concordancia promedio</small><b id="kAvg">—</b></div>
+      <div class="kpi"><small>Veredictos coincidentes</small><b id="kVer">—</b></div>
+      <div class="kpi"><small>Objetivos identificados</small><b id="kObj">—</b></div>
+      <div class="kpi"><small>Tiempo utilizado</small><b id="kTime">00:00</b></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h3>Concordancia por caso (%)</h3><div class="chart-wrap"><canvas id="cBar"></canvas></div></div>
+      <div class="chart-card"><h3>Tiempo por actividad (min)</h3><div class="chart-wrap"><canvas id="cTime"></canvas></div></div>
+    </div>
+    <div class="charts">
+      <div class="chart-card"><h3>Perfil promedio: tú vs. referencia</h3><div class="chart-wrap"><canvas id="cRadarAll"></canvas></div></div>
+      <div class="chart-card"><h3>Retroalimentación global</h3><div id="globalFb"><p class="empty">Evalúa al menos un caso para ver tu retroalimentación.</p></div></div>
+    </div>
+    <div class="table-wrap"><table id="summaryTable"><thead><tr><th>Caso</th><th>Medio</th><th>Tu veredicto</th><th>Referencia</th><th>Concordancia</th><th>Tiempo</th><th>Tu anotación</th></tr></thead><tbody></tbody></table></div>
+    <div class="report-box">
+      <p><b style="color:var(--ink)">Informe del estudiante.</b> Incluye tus datos, respuestas, concordancia y el tiempo empleado en cada actividad. Descárgalo y entrégalo a tu docente.</p>
+      <div class="actions">
+        <button class="btn primary" id="pdfBtn">📄 Informe PDF</button>
+        <button class="btn sun" id="mdBtn">⬇ Informe Markdown</button>
+        <button class="btn ghost" id="finishBtn2">Finalizar dinámica</button>
+        <button class="btn ghost" id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="logo"><img src="img/idc-logo.jpg" alt="IDC" style="height:34px"></div>
+    <div class="doc"><b>Mg. Mario Quiroz Martínez</b><span>Docente · Unidad didáctica: Producción y publicación de piezas gráficas</span></div>
+    <div class="week">Semana 5</div>
+    <div class="legal">Dinámica didáctica. Las imágenes son referenciales de cada marca; la valoración de referencia es un análisis pedagógico, no un dato oficial de las marcas.</div>
+  </div>
+</footer>
+
+<dialog class="lightbox" id="lightbox" aria-label="Imagen ampliada">
+  <div class="lb-inner">
+    <div class="lb-scroll" id="lbScroll"><img id="lbImg" alt=""></div>
+    <div class="lb-bar"><span id="lbCap"></span><span><button id="lbZoom">🔍 Zoom 2×</button> <button id="lbClose">✕ Cerrar</button></span></div>
+  </div>
+</dialog>
+
+<dialog class="modal" id="endModal">
+  <div class="modal-body" id="endBody"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* =========================================================
+   DATOS
+   ========================================================= */
+const DURATION = 25*60;
+const UNIDAD = "Producción y publicación de piezas gráficas";
+const DOCENTE = "Mg. Mario Quiroz Martínez";
+const SEMANA = "Semana 5";
+const CRITERIA = ["Alcance","Segmentación","Interacción","Coherencia","Recordación"];
+const OBJECTIVES = ["Dar a conocer la marca","Crear vínculo emocional","Generar participación / que se comparta","Demostrar una cualidad del producto","Impulsar la compra inmediata"];
+
+const CASES = [
+  { id:"coca", marca:"Coca-Cola", titulo:"Envases con nombres propios", anio:"2011 (Australia), luego global", img:"img/coca-cola.webp",
+    pieza:"Etiquetas de botellas y latas en las que el logotipo se sustituye por nombres de pila comunes de cada país, impresos en masa y distribuidos en anaqueles.",
+    medio:"Empaque / punto de venta", medioDesc:"El propio envase del producto funciona como soporte publicitario en tiendas, refrigeradores y en la mano del consumidor.",
+    ref:{ veredicto:"acertada", objetivos:[1,2,4], criterios:[5,3,5,5,5],
+      analisis:"El empaque llega a todas las personas que ya compran o ven el producto, sin costo de pauta adicional. La pieza solo funciona en ese medio: buscar tu nombre en el anaquel convierte el acto de compra en la experiencia publicitaria, y la botella se fotografía y se regala, por lo que el medio se extiende solo hacia redes sociales.",
+      clave:"Cuando la pieza ES el producto, el medio también es el canal de venta." } },
+  { id:"apple", marca:"Apple", titulo:"Fotografías de usuarios a gran formato", anio:"2015 en adelante", img:"img/apple.webp",
+    pieza:"Fotografías reales tomadas por usuarios comunes con su teléfono, impresas en tamaño gigante con un crédito discreto del autor.",
+    medio:"Exterior: espectaculares, muros y paradas", medioDesc:"Publicidad exterior de gran formato en ciudades de varios países, complementada con prensa.",
+    ref:{ veredicto:"acertada", objetivos:[0,3], criterios:[5,2,2,5,4],
+      analisis:"El exterior gigante es la prueba más exigente para una imagen: si una foto de teléfono se ve nítida a varios metros, la cualidad del producto queda demostrada sin decir nada. Pierde en segmentación e interacción, pero gana enormemente en coherencia y notoriedad urbana.",
+      clave:"El medio puede funcionar como “demostración”: el tamaño del soporte prueba la calidad." } },
+  { id:"redbull", marca:"Red Bull", titulo:"Salto desde la estratosfera", anio:"2012", img:"img/red-bull.webp",
+    pieza:"Un paracaidista asciende en cápsula a unos 39 km de altura y salta en caída libre; todo el evento se documenta con múltiples cámaras.",
+    medio:"Transmisión en vivo por internet y TV", medioDesc:"Streaming en tiempo real con millones de personas conectadas simultáneamente, retomado por televisoras y redes sociales.",
+    ref:{ veredicto:"acertada", objetivos:[0,1,2], criterios:[5,4,4,5,5],
+      analisis:"Un evento de riesgo real pierde casi todo su valor si se ve después: la incertidumbre del “en vivo” es lo que retiene a la audiencia. El streaming permitió alcance global, conversación simultánea en redes y llegar a un público joven afín a deportes extremos.",
+      clave:"Para piezas basadas en suspenso y tiempo real, el medio debe ser en vivo." } },
+  { id:"vw", marca:"Volkswagen", titulo:"Niño disfrazado de villano galáctico", anio:"2011", img:"img/volkswagen.webp",
+    pieza:"Spot de 60 segundos: un niño con disfraz de Darth Vader intenta “usar la Fuerza” sobre objetos de la casa y finalmente sobre el auto familiar.",
+    medio:"Televisión abierta (Super Bowl)", medioDesc:"Espacio en el evento televisivo de mayor audiencia en EE. UU.; el video se publicó en internet unos días antes.",
+    ref:{ veredicto:"acertada", objetivos:[0,1,3], criterios:[5,2,3,4,5],
+      analisis:"La TV en un gran evento ofrece alcance masivo y una audiencia que ve los anuncios con atención, ideal para una narrativa emocional. Su segmentación es baja y la interacción depende de lo que ocurra fuera de la TV: el lanzamiento previo en línea fue clave para multiplicar la conversación.",
+      clave:"Un medio masivo se potencia cuando se combina con uno que permita compartir." } },
+  { id:"spotify", marca:"Spotify", titulo:"Resumen anual personalizado", anio:"2016 en adelante", img:"img/spotify.webp",
+    pieza:"Secuencia de pantallas tipo “historias” que muestra a cada usuario sus canciones, artistas y géneros más escuchados del año, con diseño listo para compartir.",
+    medio:"App móvil propia + redes sociales", medioDesc:"Se entrega dentro de la app a cada usuario; ellos mismos la publican en Instagram, X, TikTok, etc.",
+    ref:{ veredicto:"acertada", objetivos:[1,2], criterios:[4,5,5,5,5],
+      analisis:"Solo un medio propio con datos de uso puede crear una pieza distinta para cada persona. La segmentación es máxima (uno a uno) y el formato vertical de historias está pensado para que el usuario se convierta en el medio de difusión, multiplicando el alcance sin pauta.",
+      clave:"Medios propios + medios ganados funcionan cuando la pieza es personal y compartible." } },
+  { id:"frontline", marca:"Frontline", titulo:"Perro gigante en el piso de un centro comercial", anio:"2009 (Yakarta)", img:"img/frontline.webp",
+    pieza:"Imagen gigante de un perro impresa en el suelo de la planta baja de un centro comercial. Vista desde los pisos superiores, las personas que caminan encima parecen pulgas.",
+    medio:"Publicidad ambiental (piso de centro comercial)", medioDesc:"Soporte no convencional en un espacio físico específico, que integra a los transeúntes en la pieza.",
+    ref:{ veredicto:"parcial", objetivos:[3,2], criterios:[2,3,5,5,5],
+      analisis:"La coherencia pieza-medio es brillante: el espacio y la gente completan la idea, y la recordación es altísima. Sin embargo, el alcance físico es muy limitado y la mayoría de visitantes no tiene perro; su impacto real dependió de que las fotos circularan en internet y en festivales publicitarios.",
+      clave:"Una idea ambiental brillante necesita un plan de amplificación para justificar el medio." } }
+];
+
+const WARM = [
+  ["Televisión abierta","Alcance masivo y simultáneo con imagen y sonido"],
+  ["Exterior / espectaculares","Presencia constante en la ruta diaria de las personas"],
+  ["Redes sociales","Conversación y facilidad para compartir"],
+  ["Empaque","Impacto en el momento exacto de la decisión de compra"],
+  ["Radio","Frecuencia a bajo costo y compañía en traslados"],
+  ["Publicidad ambiental","Sorpresa al integrar el entorno físico en la pieza"]
+];
+
+const CHEERS = {
+  obj:["¡Bien visto! Identificar el objetivo es el primer paso.","¡Buena lectura! Ya tienes una hipótesis.","¡Eso es! Pensar en el objetivo guía todo el análisis."],
+  verdict:["¡Decisión tomada! Ahora cuéntanos por qué.","¡Muy bien! Toda postura argumentada es valiosa.","¡Perfecto! Ahora justifica tu veredicto."],
+  note:["¡Excelente argumento! Se nota tu criterio.","¡Gran justificación! Así se analiza un medio.","¡Muy buena anotación! Tu docente lo valorará."],
+  warm:["¡Correcto!","¡Muy bien!","¡Así es!","¡Excelente!","¡Lo tienes!","¡Bravo!"]
+};
+
+/* =========================================================
+   ESTADO
+   ========================================================= */
+const KEY = "medio-mensaje-idc-v2";
+function freshState(){ return { student:null, startTs:null, endTs:null, endReason:null, answers:{}, warm:[], warmFails:0, current:0, times:{warm:0}, warmDoneAt:null, milestones:[] }; }
+let state = freshState();
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.answers) state = Object.assign(state, s); } catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+const $ = s => document.querySelector(s);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const VLABEL = {acertada:"Acertada", parcial:"Parcialmente acertada", no:"No acertada"};
+function fmt(s){ s=Math.max(0,Math.round(s)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m])); }
+const started = () => !!state.startTs;
+const finished = () => !!state.endTs;
+const active = () => started() && !finished();
+function elapsed(){ if(!started()) return 0; return Math.min(DURATION, ((state.endTs||Date.now()) - state.startTs)/1000); }
+function fullName(){ return state.student ? `${state.student.nombres} ${state.student.apellidos}` : ""; }
+
+let toastLock=0;
+function toast(msg, force){ const now=Date.now(); if(!force && now<toastLock) return; toastLock=now+2200;
+  const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("show"),2800); }
+function confetti(){ if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const box=document.createElement("div"); box.className="confetti"; const cols=["#0071bc","#f2a100","#2b8a3e","#4da3e8","#ffd166"];
+  for(let i=0;i<60;i++){ const p=document.createElement("i"); p.style.left=Math.random()*100+"vw"; p.style.background=pick(cols); p.style.animationDelay=Math.random()*.4+"s"; p.style.animationDuration=1.2+Math.random()*1+"s"; box.appendChild(p); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(),2800); }
+
+/* =========================================================
+   TEMA
+   ========================================================= */
+$("#themeBtn").onclick = () => {
+  const r=document.documentElement;
+  const dark = r.dataset.theme ? r.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+  renderCase(state.current, true); renderDashboard();
+};
+
+/* =========================================================
+   REGISTRO + CRONÓMETRO
+   ========================================================= */
+function renderRegister(){
+  const box=$("#registerCard");
+  if(!started()){
+    box.innerHTML=`
+      <h2>Registro del estudiante</h2>
+      <p>Escribe tus datos. Al iniciar, comenzará el cronómetro de <b>25 minutos</b>.</p>
+      <div class="field"><label for="fNom">Nombres</label><input id="fNom" autocomplete="given-name" placeholder="Ej.: Ana Lucía"></div>
+      <div class="field"><label for="fApe">Apellidos</label><input id="fApe" autocomplete="family-name" placeholder="Ej.: Torres Medina"></div>
+      <div class="big-timer"><b>25:00</b><span>Tiempo para completar el calentamiento y los 6 casos.</span></div>
+      <button class="btn primary block" id="startBtn" disabled>▶ Iniciar dinámica</button>`;
+    const n=$("#fNom"), a=$("#fApe"), b=$("#startBtn");
+    const v=()=>{ b.disabled = n.value.trim().length<2 || a.value.trim().length<2; };
+    n.oninput=v; a.oninput=v;
+    [n,a].forEach(i=>i.onkeydown=e=>{ if(e.key==="Enter" && !b.disabled) b.click(); });
+    b.onclick=()=>{
+      state.student={ nombres:cap(n.value), apellidos:cap(a.value) };
+      state.startTs=Date.now(); save();
+      renderAll();
+      toast(`¡Bienvenido/a, ${state.student.nombres}! Tu tiempo comenzó. ¡Tú puedes!`, true);
+      setTimeout(()=>document.getElementById("calentamiento").scrollIntoView({behavior:"smooth"}),600);
+    };
+  } else {
+    const ini = new Date(state.startTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"});
+    const initials = (state.student.nombres[0]||"")+(state.student.apellidos[0]||"");
+    box.innerHTML=`
+      <h2>${finished()?"Dinámica finalizada":"¡En marcha!"}</h2>
+      <div class="student-chip"><div class="avatar">${escapeHtml(initials.toUpperCase())}</div><div><b>${escapeHtml(fullName())}</b><span>Inició a las ${ini}${finished()?` · ${state.endReason==="tiempo"?"tiempo cumplido":"finalizó a tiempo"}`:""}</span></div></div>
+      <div class="big-timer"><b id="bigTimer">${fmt(DURATION-elapsed())}</b><span id="bigTimerLbl">${finished()?`Tiempo utilizado: ${fmt(elapsed())}`:"tiempo restante"}</span></div>
+      ${finished()
+        ? `<button class="btn primary block" onclick="downloadPDF()">📄 Descargar informe PDF</button><div style="height:8px"></div><button class="btn sun block" onclick="downloadMD()">⬇ Descargar informe Markdown</button>`
+        : `<a class="btn primary block" href="#casos">Ir a los casos →</a><div style="height:8px"></div><button class="btn ghost block" id="finishBtn">Finalizar y generar informe</button>`}`;
+    const fb=$("#finishBtn"); if(fb) fb.onclick=askFinish;
+  }
+}
+function cap(s){ return s.trim().replace(/\s+/g," ").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" "); }
+
+function updateTimerUI(){
+  const rem = DURATION - elapsed();
+  const t=$("#timer"); $("#timerTxt").textContent = finished()? "✔ "+fmt(elapsed()) : fmt(rem);
+  t.className = "timer" + (!started()?"" : finished()?" end" : rem<=60?" crit" : rem<=300?" low" : " run");
+  $("#timeBar").style.transform = `scaleX(${started()? rem/DURATION : 1})`;
+  const bt=$("#bigTimer"); if(bt && !finished()) bt.textContent=fmt(rem);
+  $("#kTime").textContent = fmt(elapsed());
+}
+
+const MILESTONES = [
+  {at:DURATION/2, msg:"⏱ ¡Vas a mitad de tiempo! Sigue así, lo estás haciendo muy bien."},
+  {at:600, msg:"⏱ Quedan 10 minutos. ¡Buen ritmo! Prioriza los casos pendientes."},
+  {at:300, msg:"⏱ Quedan 5 minutos. ¡Ya casi! Una anotación breve también vale."},
+  {at:60,  msg:"⏱ ¡Último minuto! Evalúa lo que tengas en pantalla."}
+];
+
+function activeSection(){
+  const el=document.elementFromPoint(innerWidth/2, innerHeight*0.45);
+  const s=el && el.closest("section"); return s ? s.id : null;
+}
+
+function tick(){
+  if(active()){
+    const sec=activeSection();
+    if(sec==="calentamiento" && state.warm.length<6) state.times.warm=(state.times.warm||0)+1;
+    else if(sec==="casos"){ const id=CASES[state.current].id; state.times[id]=(state.times[id]||0)+1; const ct=$("#caseTime"); if(ct) ct.textContent=fmt(state.times[id]); }
+    const rem=DURATION-elapsed();
+    MILESTONES.forEach(m=>{ if(rem<=m.at && !state.milestones.includes(m.at)){ state.milestones.push(m.at); toast(m.msg,true); } });
+    if(rem<=0) finish("tiempo");
+    if(Math.round(elapsed())%5===0) save();
+  }
+  updateTimerUI();
+}
+
+function askFinish(){
+  const done=evaluatedCases().length;
+  $("#endBody").innerHTML=`<div class="big">🏁</div><h3>¿Finalizar la dinámica?</h3>
+    <p>Has evaluado <b>${done} de 6</b> casos en ${fmt(elapsed())}. ${done<6?"Aún tienes tiempo para los pendientes, ¡pero tú decides!":"¡Completaste todos los casos, excelente trabajo!"}</p>
+    <div class="actions"><button class="btn ghost" id="mCancel">Seguir trabajando</button><button class="btn primary" id="mOk">Sí, finalizar</button></div>`;
+  $("#endModal").showModal();
+  $("#mCancel").onclick=()=>$("#endModal").close();
+  $("#mOk").onclick=()=>{ $("#endModal").close(); finish("manual"); };
+}
+
+function finish(reason){
+  if(finished()) return;
+  state.endTs = reason==="tiempo" ? state.startTs+DURATION*1000 : Date.now();
+  state.endReason=reason; save();
+  renderAll();
+  const res=results();
+  const avg=res.length?Math.round(res.reduce((s,x)=>s+x.r.total,0)/res.length):0;
+  $("#endBody").innerHTML=`<div class="big">${reason==="tiempo"?"⏰":"🎉"}</div>
+    <h3>${reason==="tiempo"?"¡Tiempo cumplido!":"¡Dinámica completada!"}</h3>
+    <p><b>${escapeHtml(state.student.nombres)}</b>, evaluaste <b>${res.length} de 6</b> casos${res.length?` con una concordancia promedio de <b>${avg}%</b>`:""}. ${positiveClosing(res.length)}</p>
+    <div class="actions"><button class="btn primary" onclick="downloadPDF()">📄 Informe PDF</button><button class="btn sun" onclick="downloadMD()">⬇ Markdown</button></div>
+    <div class="actions" style="margin-top:8px"><button class="btn ghost" id="mClose">Ver mis resultados</button></div>`;
+  if(!$("#endModal").open) $("#endModal").showModal();
+  $("#mClose").onclick=()=>{ $("#endModal").close(); document.getElementById("resultados").scrollIntoView({behavior:"smooth"}); };
+  confetti();
+}
+function positiveClosing(n){
+  if(n>=6) return "¡Completaste todo el recorrido! Ya tienes una base sólida para analizar medios.";
+  if(n>=4) return "¡Gran avance! Analizaste la mayoría de los casos y ya aplicas criterios profesionales.";
+  if(n>=1) return "¡Buen comienzo! Cada caso que analizaste te acerca a pensar como estratega de medios.";
+  return "Esta fue tu primera aproximación: en la próxima sesión retomaremos los casos juntos.";
+}
+
+/* =========================================================
+   CALENTAMIENTO
+   ========================================================= */
+let selLeft = null;
+function renderWarm(){
+  const L=$("#mLeft"), R=$("#mRight");
+  L.querySelectorAll("button").forEach(b=>b.remove()); R.querySelectorAll("button").forEach(b=>b.remove());
+  const order=[3,0,5,1,4,2];
+  WARM.forEach(([m],i)=>{ const b=document.createElement("button"); b.className="mbtn"+(state.warm.includes(i)?" done":""); b.textContent=(state.warm.includes(i)?"✔ ":"")+m;
+    b.onclick=()=>{ if(state.warm.includes(i)) return; L.querySelectorAll(".mbtn").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); selLeft=i; $("#matchFb").textContent="Ahora elige su fortaleza →"; }; L.appendChild(b); });
+  order.forEach(i=>{ const b=document.createElement("button"); b.className="mbtn"+(state.warm.includes(i)?" done":""); b.textContent=WARM[i][1];
+    b.onclick=()=>{
+      if(state.warm.includes(i)) return;
+      if(selLeft===null){ $("#matchFb").textContent="Primero selecciona un medio a la izquierda 😉"; return; }
+      if(selLeft===i){
+        state.warm.push(i);
+        if(state.warm.length===6){ state.warmDoneAt=Math.round(elapsed()); }
+        save();
+        $("#matchFb").innerHTML=`<span style="color:var(--ok)">${pick(CHEERS.warm)}</span> ${WARM[i][0]} → ${WARM[i][1].toLowerCase()}.`;
+        selLeft=null; renderWarm(); updateStats();
+        if(state.warm.length===6){ toast("🎉 ¡Calentamiento completo! Ya dominas las fortalezas de cada medio. ¡Vamos a los casos!",true); confetti(); }
+      } else {
+        state.warmFails=(state.warmFails||0)+1; save();
+        b.classList.add("shake"); setTimeout(()=>b.classList.remove("shake"),400);
+        $("#matchFb").innerHTML=`<span style="color:var(--warn)">¡Casi!</span> Esa fortaleza encaja mejor con otro medio. Pregúntate: ¿qué hace <b>${WARM[selLeft][0].toLowerCase()}</b> mejor que nadie?`;
+      }
+    }; R.appendChild(b); });
+}
+
+/* =========================================================
+   CASOS
+   ========================================================= */
+function blankAnswer(){ return { objetivos:[], criterios:[3,3,3,3,3], veredicto:null, nota:"", evaluado:false, evalAt:null, cheered:{} }; }
+function getAns(id){ if(!state.answers[id]) state.answers[id]=blankAnswer(); return state.answers[id]; }
+function evaluatedCases(){ return CASES.filter(c=>state.answers[c.id]&&state.answers[c.id].evaluado); }
+function results(){ return evaluatedCases().map(c=>({c, a:state.answers[c.id], r:concordance(c,state.answers[c.id])})); }
+
+function concordance(c, a){
+  const diff = a.criterios.reduce((s,v,i)=>s+Math.abs(v-c.ref.criterios[i]),0)/5;
+  const critScore = 1 - diff/4;
+  const vMap={acertada:2,parcial:1,no:0};
+  const verScore = 1 - Math.abs(vMap[a.veredicto]-vMap[c.ref.veredicto])/2;
+  const hits = a.objetivos.filter(o=>c.ref.objetivos.includes(o)).length;
+  const union = new Set([...a.objetivos, ...c.ref.objetivos]).size || 1;
+  const objScore = hits/union;
+  const near = a.criterios.filter((v,i)=>Math.abs(v-c.ref.criterios[i])<=1).length;
+  return { total: Math.round((critScore*.5 + verScore*.3 + objScore*.2)*100), critScore, verScore, objScore, hits, near };
+}
+function levelOf(t){
+  if(t>=80) return {txt:"¡Excelente lectura del medio!", col:"var(--ok)", emoji:"🌟"};
+  if(t>=60) return {txt:"¡Muy bien, vas por gran camino!", col:"var(--accent)", emoji:"👏"};
+  if(t>=40) return {txt:"¡Buen inicio, estás construyendo criterio!", col:"var(--warn)", emoji:"💪"};
+  return {txt:"¡Gracias por arriesgarte a opinar! Cada caso suma.", col:"var(--warn)", emoji:"🌱"};
+}
+function strengths(c,a,r){
+  const s=[];
+  if(a.veredicto===c.ref.veredicto) s.push(`Tu veredicto <b>coincide</b> con el análisis de referencia.`);
+  if(r.hits) s.push(`Identificaste <b>${r.hits} de ${c.ref.objetivos.length}</b> objetivos de la campaña.`);
+  if(r.near>=3) s.push(`Coincidiste (±1 punto) en <b>${r.near} de 5</b> criterios.`);
+  const best = a.criterios.map((v,k)=>({k,d:Math.abs(v-c.ref.criterios[k])})).filter(x=>x.d===0).map(x=>CRITERIA[x.k]);
+  if(best.length) s.push(`Calificación exacta en: <b>${best.join(", ")}</b>.`);
+  if(a.nota.trim().length>=60) s.push(`Tu anotación está <b>bien desarrollada</b>.`);
+  if(CRITERIA.some(cr=>a.nota.toLowerCase().includes(cr.toLowerCase().slice(0,6)))) s.push(`Usas <b>vocabulario técnico</b> de medios en tu argumento.`);
+  if(!s.length) s.push(`Completaste el análisis con <b>tu propio criterio</b>: ese es el primer paso para pensar como estratega.`);
+  return s.slice(0,4);
+}
+function growth(c,a){
+  const g=[];
+  const diffs=a.criterios.map((v,k)=>({k,d:v-c.ref.criterios[k]})).filter(x=>Math.abs(x.d)>=2).sort((x,y)=>Math.abs(y.d)-Math.abs(x.d));
+  diffs.slice(0,2).forEach(x=>g.push(`En <b>${CRITERIA[x.k].toLowerCase()}</b> la referencia da ${c.ref.criterios[x.k]} (tú ${a.criterios[x.k]}). Piensa: ¿${growthQ(x.k, x.d>0)}`));
+  const missed=c.ref.objetivos.filter(o=>!a.objetivos.includes(o));
+  if(missed.length && g.length<3) g.push(`Otro objetivo posible: <b>${OBJECTIVES[missed[0]].toLowerCase()}</b>. ¿Lo ves en la pieza?`);
+  if(!g.length) g.push(`¡Nada que corregir! Reto extra: ¿qué <b>segundo medio</b> combinarías con este para potenciar la campaña?`);
+  return g.slice(0,3);
+}
+function growthQ(k, over){
+  const q={
+    0:["el medio realmente llega a tanta gente o a un grupo más reducido?","cuántas personas pueden llegar a ver esta pieza, incluso fuera del medio original?"],
+    1:["el medio distingue a quién le habla o lo ve cualquiera?","el medio permite llegar justo a las personas indicadas?"],
+    2:["la persona puede responder, tocar o compartir dentro del medio?","la pieza invita a la gente a participar o compartir?"],
+    3:["el formato aprovecha lo que el medio hace mejor?","la pieza tendría el mismo efecto en otro medio?"],
+    4:["la pieza destaca lo suficiente para recordarse días después?","la gente hablaría de esta pieza después de verla?"]
+  };
+  return q[k][over?0:1];
+}
+
+function renderTabs(){
+  const t=$("#tabs"); t.innerHTML="";
+  CASES.forEach((c,i)=>{ const b=document.createElement("button"); const a=state.answers[c.id];
+    b.className="tab"+(i===state.current?" active":"")+(a&&a.evaluado?" done":"");
+    b.setAttribute("role","tab"); b.setAttribute("aria-selected", i===state.current);
+    b.innerHTML=`<span class="dot"></span>${i+1}. ${c.marca}`; b.onclick=()=>{ state.current=i; save(); renderCase(i); };
+    t.appendChild(b); });
+}
+
+let radarCase = null;
+function renderCase(i){
+  renderTabs();
+  const c=CASES[i], a=getAns(c.id);
+  $("#caseHost").innerHTML = `
+  <div class="case">
+    <article class="card">
+      <button class="piece-img" id="pieceImg" aria-label="Ampliar imagen de ${c.marca}">
+        <img src="${c.img}" alt="Pieza referencial de ${c.marca}">
+        <span class="badge">Caso ${i+1} de 6</span>
+        <span class="zoom">🔍 Ampliar</span>
+      </button>
+      <div class="piece-body">
+        <h3>${c.marca}</h3>
+        <div class="meta">${c.titulo} · ${c.anio}</div>
+        <div class="kv"><small>La pieza</small>${c.pieza}</div>
+        <div class="kv"><small>Medio empleado</small><span class="medio">${c.medio}</span><p style="margin:8px 0 0;color:var(--muted);font-size:.9rem">${c.medioDesc}</p></div>
+        <p class="note-small">Analiza la elección del medio, no el eslogan ni el presupuesto.</p>
+        <div class="case-time"><span>⏱ Tiempo en este caso</span><b id="caseTime">${fmt(state.times[c.id]||0)}</b></div>
+      </div>
+    </article>
+    <div class="card form" id="caseForm">
+      <div class="q"><span class="ql">1. ¿Qué percibes que se busca comunicar u obtener? <span class="hint">(elige 1 a 3)</span></span>
+        <div class="chips" id="objChips">${OBJECTIVES.map((o,k)=>`<button class="chip" data-k="${k}" aria-pressed="${a.objetivos.includes(k)}">${o}</button>`).join("")}</div>
+      </div>
+      <div class="q"><span class="ql">2. Califica el medio en cada criterio <span class="hint">(1 bajo – 5 alto)</span></span>
+        ${CRITERIA.map((cr,k)=>`<div class="slider-row"><span>${cr}</span><input type="range" min="1" max="5" step="1" value="${a.criterios[k]}" data-k="${k}" aria-label="${cr}"><output id="o${k}">${a.criterios[k]}</output></div>`).join("")}
+        <div class="live" id="live" aria-live="polite"></div>
+      </div>
+      <div class="q"><span class="ql">3. ¿La elección del medio fue acertada?</span>
+        <div class="verdicts">${["acertada","parcial","no"].map(v=>`<button class="vbtn" data-v="${v}" aria-pressed="${a.veredicto===v}">${VLABEL[v]}</button>`).join("")}</div>
+        <div class="coherence" id="coh" aria-live="polite"></div>
+      </div>
+      <div class="q"><label for="nota">4. Tu anotación <span class="hint">(justifica en 1–3 frases)</span></label>
+        <textarea id="nota" placeholder="Ej.: Considero que el medio es acertado porque su alcance…">${escapeHtml(a.nota)}</textarea>
+        <div class="meter"><div id="noteMeter"></div></div><div class="meter-label" id="noteLbl"></div>
+      </div>
+      <div class="actions">
+        <button class="btn primary" id="evalBtn">${a.evaluado?"Volver a evaluar":"Evaluar y ver retroalimentación"}</button>
+        ${i<5?`<button class="btn ghost" id="nextBtn">Siguiente caso →</button>`:`<a class="btn ghost" href="#resultados">Ver resultados →</a>`}
+      </div>
+    </div>
+  </div>
+  <div class="card feedback" id="fb"></div>`;
+
+  $("#pieceImg").onclick=()=>openLightbox(c.img, `${c.marca} — ${c.medio}`);
+  const form=$("#caseForm"); form.inert = !active();
+
+  document.querySelectorAll("#objChips .chip").forEach(ch=>ch.onclick=()=>{
+    const k=+ch.dataset.k; const idx=a.objetivos.indexOf(k);
+    if(idx>=0) a.objetivos.splice(idx,1); else { if(a.objetivos.length>=3){ toast("Máximo 3 objetivos: ¡prioriza los más claros!",true); return; } a.objetivos.push(k); }
+    ch.setAttribute("aria-pressed", a.objetivos.includes(k));
+    if(!a.cheered.obj && a.objetivos.length){ a.cheered.obj=1; toast(pick(CHEERS.obj)); }
+    save(); validate();
+  });
+  document.querySelectorAll("#caseHost input[type=range]").forEach(r=>r.oninput=()=>{
+    const k=+r.dataset.k; a.criterios[k]=+r.value; $("#o"+k).textContent=r.value; save(); liveHint(); coherence();
+  });
+  document.querySelectorAll(".vbtn").forEach(b=>b.onclick=()=>{
+    a.veredicto=b.dataset.v; document.querySelectorAll(".vbtn").forEach(x=>x.setAttribute("aria-pressed", x===b));
+    if(!a.cheered.v){ a.cheered.v=1; toast(pick(CHEERS.verdict)); }
+    save(); coherence(); validate();
+  });
+  $("#nota").oninput=e=>{ a.nota=e.target.value; if(!a.cheered.note && a.nota.trim().length>=60){ a.cheered.note=1; toast(pick(CHEERS.note)); } save(); validate(); noteMeter(); };
+  $("#evalBtn").onclick=()=>{
+    if(!a.evaluado){ a.evalAt=Math.round(elapsed()); }
+    a.evaluado=true; save(); showFeedback(c,a); renderTabs(); renderDashboard(); updateStats();
+    if(evaluatedCases().length===6){ setTimeout(()=>{ toast("🏆 ¡Evaluaste los 6 casos! Revisa tu tablero y descarga tu informe.",true); confetti(); },1200); }
+  };
+  const nb=$("#nextBtn"); if(nb) nb.onclick=()=>{ state.current=i+1; save(); renderCase(i+1); document.getElementById("casos").scrollIntoView({behavior:"smooth"}); };
+
+  function liveHint(){
+    const avg=a.criterios.reduce((s,v)=>s+v,0)/5, max=Math.max(...a.criterios), min=Math.min(...a.criterios);
+    $("#live").innerHTML = `Promedio: <b>${avg.toFixed(1)}</b>/5 · Fortaleza que ves: <b>${CRITERIA[a.criterios.indexOf(max)]}</b> · Debilidad: <b>${CRITERIA[a.criterios.indexOf(min)]}</b>` +
+      (max===min ? "<br>💡 Mueve los controles: ¿en qué destaca más este medio?" : "<br>✨ ¡Bien! Ya distingues fortalezas y debilidades del medio.");
+  }
+  function coherence(){
+    const el=$("#coh"); if(!a.veredicto){ el.textContent=""; el.className="coherence"; return; }
+    const avg=a.criterios.reduce((s,v)=>s+v,0)/5;
+    const expected = avg>=3.8?"acertada":avg>=2.6?"parcial":"no";
+    if(expected===a.veredicto){ el.className="coherence ok"; el.textContent="✔ ¡Muy bien! Tu veredicto es coherente con tus calificaciones."; }
+    else { el.className="coherence warn"; el.textContent=`💡 Tus calificaciones (promedio ${avg.toFixed(1)}) sugieren “${VLABEL[expected]}”. ¡Puedes mantener tu postura! Solo explícala en tu anotación.`; }
+  }
+  function noteMeter(){
+    const n=a.nota.trim().length, p=Math.min(100,n/120*100);
+    $("#noteMeter").style.width=p+"%"; $("#noteMeter").style.background = n>=60?"var(--ok)":"var(--sun)";
+    $("#noteLbl").textContent = n===0?"Escribe tu argumento: menciona al menos un criterio." : n<10?"¡Sigue escribiendo!" : n<60?"¡Bien! Agrega un “porque…” para enriquecerla." : "¡Excelente! Anotación bien argumentada ✔";
+  }
+  function validate(){
+    const ok = a.objetivos.length>0 && a.veredicto && a.nota.trim().length>=10;
+    $("#evalBtn").disabled=!ok;
+    $("#evalBtn").title = ok?"":"Completa: al menos 1 objetivo, el veredicto y una anotación breve";
+  }
+  liveHint(); coherence(); validate(); noteMeter();
+  if(a.evaluado) showFeedback(c,a,true);
+}
+
+function showFeedback(c,a,silent){
+  const r=concordance(c,a), fb=$("#fb"), lvl=levelOf(r.total);
+  const C=2*Math.PI*72, off=C*(1-r.total/100);
+  fb.innerHTML=`
+   <div class="fb-head"><span class="emoji">${lvl.emoji}</span><span>${lvl.txt} ${a.evalAt!=null?`· Resuelto en ${fmt(state.times[c.id]||0)}`:""}</span></div>
+   <div class="fb-grid">
+     <div>
+       <div class="score-ring">
+         <svg width="170" height="170"><circle cx="85" cy="85" r="72" stroke="var(--line)" stroke-width="14" fill="none"/>
+         <circle cx="85" cy="85" r="72" stroke="${lvl.col}" stroke-width="14" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C}" id="ring"/></svg>
+         <div class="val"><div><b>${r.total}%</b><br><span>concordancia</span></div></div>
+       </div>
+       <p style="font-size:.8rem;color:var(--muted);text-align:center;margin:10px 0 0">Criterios ${Math.round(r.critScore*100)}% · Veredicto ${Math.round(r.verScore*100)}% · Objetivos ${Math.round(r.objScore*100)}%</p>
+     </div>
+     <div class="radar-box"><canvas id="radarCase"></canvas></div>
+   </div>
+   <div class="fb-text">
+     <div class="compare">
+       <div class="you"><small>Tu veredicto</small><b>${VLABEL[a.veredicto]}</b></div>
+       <div class="ref"><small>Veredicto de referencia</small><b>${VLABEL[c.ref.veredicto]}</b></div>
+     </div>
+     <div class="fb-cols">
+       <div><h4>🌟 Lo que hiciste bien</h4><ul class="list good">${strengths(c,a,r).map(s=>`<li>${s}</li>`).join("")}</ul></div>
+       <div><h4>🌱 Para seguir creciendo</h4><ul class="list grow">${growth(c,a).map(s=>`<li>${s}</li>`).join("")}</ul></div>
+     </div>
+     <h4 style="margin:18px 0 6px;font-size:.95rem">Análisis de referencia</h4>
+     <p style="margin-top:0">${c.ref.analisis}</p>
+     <p class="keyidea"><b>Idea clave:</b> ${c.ref.clave}</p>
+   </div>`;
+  fb.classList.add("show");
+  setTimeout(()=>{ const ring=$("#ring"); if(ring){ ring.style.transition="stroke-dashoffset 1s ease"; ring.setAttribute("stroke-dashoffset",off);} },60);
+  if(radarCase) radarCase.destroy();
+  radarCase = new Chart($("#radarCase"), radarCfg(a.criterios, c.ref.criterios));
+  if(!silent){ fb.scrollIntoView({behavior:"smooth",block:"start"}); toast(`${lvl.emoji} Caso ${CASES.indexOf(c)+1}: ${lvl.txt}`,true); if(r.total>=80) confetti(); }
+}
+
+function radarCfg(you, ref, fixed){
+  const ink=fixed?"#1b1f24":css("--ink"), muted=fixed?"#5f6b78":css("--muted"), line=fixed?"#dde3ea":css("--line"), acc=fixed?"#0071bc":css("--accent"), refc=fixed?"#5f3dc4":css("--ref");
+  return { type:"radar", data:{ labels:CRITERIA, datasets:[
+      { label:"Tú", data:you, borderColor:acc, backgroundColor:acc+"33", pointBackgroundColor:acc, borderWidth:2 },
+      { label:"Referencia", data:ref, borderColor:refc, backgroundColor:refc+"22", pointBackgroundColor:refc, borderWidth:2, borderDash:[5,4] } ]},
+    options:{ responsive:!fixed, maintainAspectRatio:false, animation:fixed?false:undefined,
+      scales:{ r:{ min:0, max:5, ticks:{ stepSize:1, color:muted, backdropColor:"transparent" }, grid:{color:line}, angleLines:{color:line}, pointLabels:{ color:ink, font:{size:12,weight:"600"} } } },
+      plugins:{ legend:{ labels:{ color:ink, usePointStyle:true } } } } };
+}
+
+/* =========================================================
+   VISOR DE IMAGEN
+   ========================================================= */
+function openLightbox(src, cap){
+  $("#lbImg").src=src; $("#lbImg").alt=cap; $("#lbCap").textContent=cap; $("#lbScroll").classList.remove("zoomed"); $("#lbZoom").textContent="🔍 Zoom 2×";
+  $("#lightbox").showModal();
+}
+function toggleZoom(){ const z=$("#lbScroll").classList.toggle("zoomed"); $("#lbZoom").textContent = z?"↩ Ajustar":"🔍 Zoom 2×"; }
+$("#lbImg").onclick=toggleZoom; $("#lbZoom").onclick=toggleZoom;
+$("#lbClose").onclick=()=>$("#lightbox").close();
+$("#lightbox").addEventListener("click",e=>{ if(e.target.id==="lightbox") $("#lightbox").close(); });
+
+/* =========================================================
+   TABLERO
+   ========================================================= */
+let cBar, cTime, cRadarAll;
+function avgProfiles(res){
+  return { you: CRITERIA.map((_,k)=>res.length? +(res.reduce((s,x)=>s+x.a.criterios[k],0)/res.length).toFixed(2):0),
+           ref: CRITERIA.map((_,k)=>res.length? +(res.reduce((s,x)=>s+x.c.ref.criterios[k],0)/res.length).toFixed(2):0) };
+}
+function globalFeedback(res){
+  if(!res.length) return [];
+  const {you,ref}=avgProfiles(res), items=[];
+  const avg=Math.round(res.reduce((s,x)=>s+x.r.total,0)/res.length);
+  items.push({t:"good", h:`¡Llevas ${res.length} caso(s) analizado(s) con ${avg}% de concordancia promedio! ${avg>=70?"Tu lectura de medios ya es muy sólida.":"Estás desarrollando tu criterio paso a paso."}`});
+  const close=CRITERIA.filter((_,k)=>Math.abs(you[k]-ref[k])<0.6);
+  if(close.length) items.push({t:"good", h:`Tu mirada está muy afinada en: ${close.join(", ").toLowerCase()}.`});
+  const ver=res.filter(x=>x.a.veredicto===x.c.ref.veredicto).length;
+  if(ver) items.push({t:"good", h:`Coincidiste en el veredicto en ${ver} de ${res.length} casos.`});
+  const top=CRITERIA.map((cr,k)=>({cr,d:you[k]-ref[k]})).sort((x,y)=>Math.abs(y.d)-Math.abs(x.d))[0];
+  if(Math.abs(top.d)>=0.6) items.push({t:"grow", h:`Oportunidad: en ${top.cr.toLowerCase()} sueles calificar ${top.d>0?"un poco más alto":"un poco más bajo"} que la referencia (${top.d>0?"+":""}${top.d.toFixed(1)}).`});
+  const short=res.filter(x=>x.a.nota.trim().length<60).length;
+  if(short) items.push({t:"grow", h:`Tip: en ${short} anotación(es) puedes añadir un “porque…” mencionando un criterio.`});
+  if(res.length<6 && !finished()) items.push({t:"grow", h:`¡Te faltan ${6-res.length} caso(s)! Tienes ${fmt(DURATION-elapsed())} para completarlos.`});
+  return items;
+}
+function renderDashboard(){
+  const res=results();
+  const avg = res.length? Math.round(res.reduce((s,x)=>s+x.r.total,0)/res.length) : null;
+  $("#kAvg").textContent = avg===null?"—":avg+"%";
+  $("#kVer").textContent = res.length? `${res.filter(x=>x.a.veredicto===x.c.ref.veredicto).length}/${res.length}` : "—";
+  $("#kObj").textContent = res.length? `${res.reduce((s,x)=>s+x.r.hits,0)}/${res.reduce((s,x)=>s+x.c.ref.objetivos.length,0)}` : "—";
+  updateStats();
+
+  const ink=css("--ink"), muted=css("--muted"), line=css("--line"), ok=css("--ok"), acc=css("--accent"), sun=css("--sun");
+  Chart.defaults.font.family="Inter, system-ui, sans-serif"; Chart.defaults.color=muted;
+
+  const barData = CASES.map(c=>{ const a=state.answers[c.id]; return a&&a.evaluado?concordance(c,a).total:0; });
+  if(cBar) cBar.destroy();
+  cBar = new Chart($("#cBar"),{ type:"bar", data:{ labels:CASES.map((c,i)=>`${i+1}. ${c.marca}`), datasets:[{ label:"Concordancia", data:barData, borderRadius:6,
+      backgroundColor:barData.map(v=>v===0?line:v>=80?ok:v>=60?acc:sun) }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:x=>x.raw?x.raw+"%":"Sin evaluar"}}},
+      scales:{ y:{min:0,max:100,ticks:{callback:v=>v+"%",color:muted},grid:{color:line}}, x:{ticks:{color:ink},grid:{display:false}} } } });
+
+  const tl=["Calentam.",...CASES.map(c=>c.marca)], td=[state.times.warm||0,...CASES.map(c=>state.times[c.id]||0)].map(s=>+(s/60).toFixed(1));
+  if(cTime) cTime.destroy();
+  cTime = new Chart($("#cTime"),{ type:"bar", data:{ labels:tl, datasets:[{ label:"Minutos", data:td, borderRadius:6, backgroundColor:[sun,...CASES.map(()=>acc)] }]},
+    options:{ indexAxis:"y", responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:x=>fmt(x.raw*60)+" min"}}},
+      scales:{ x:{beginAtZero:true,ticks:{color:muted},grid:{color:line}}, y:{ticks:{color:ink},grid:{display:false}} } } });
+
+  const {you,ref}=avgProfiles(res);
+  if(cRadarAll) cRadarAll.destroy();
+  cRadarAll = new Chart($("#cRadarAll"), radarCfg(you, ref));
+
+  const g=globalFeedback(res);
+  $("#globalFb").innerHTML = g.length
+    ? `<ul class="list good">${g.filter(x=>x.t==="good").map(x=>`<li>🌟 ${x.h}</li>`).join("")}</ul><ul class="list grow">${g.filter(x=>x.t==="grow").map(x=>`<li>🌱 ${x.h}</li>`).join("")}</ul>`
+    : '<p class="empty">Evalúa al menos un caso para ver tu retroalimentación. ¡Tú puedes!</p>';
+
+  $("#summaryTable tbody").innerHTML = CASES.map((c,i)=>{ const a=state.answers[c.id]; const ev=a&&a.evaluado;
+    return `<tr><td><b>${i+1}. ${c.marca}</b><br><span style="color:var(--muted)">${c.titulo}</span></td><td>${c.medio}</td>
+      <td>${ev?`<span class="pill ${a.veredicto}">${VLABEL[a.veredicto]}</span>`:"—"}</td>
+      <td>${ev?`<span class="pill ${c.ref.veredicto}">${VLABEL[c.ref.veredicto]}</span>`:"<span style='color:var(--muted)'>Oculto</span>"}</td>
+      <td>${ev?concordance(c,a).total+"%":"—"}</td><td>${fmt(state.times[c.id]||0)}</td><td>${ev?escapeHtml(a.nota):"—"}</td></tr>`; }).join("");
+}
+
+function updateStats(){
+  const n=evaluatedCases().length, res=results();
+  $("#sDone").textContent=`${n}/6`; $("#sWarm").textContent=`${state.warm.length}/6`;
+  $("#sAvg").textContent = res.length? Math.round(res.reduce((s,x)=>s+x.r.total,0)/res.length)+"%" : "—";
+}
+
+/* =========================================================
+   INFORMES
+   ========================================================= */
+function reportData(){
+  const res=results();
+  const avg = res.length? Math.round(res.reduce((s,x)=>s+x.r.total,0)/res.length) : 0;
+  const estado = !finished() ? "En curso" : state.endReason==="tiempo" ? "Tiempo agotado (25:00)" : "Finalizado dentro del tiempo";
+  const d = new Date(state.startTs||Date.now());
+  return { res, avg, estado,
+    fecha: d.toLocaleDateString("es-PE",{day:"2-digit",month:"long",year:"numeric"}),
+    inicio: state.startTs? new Date(state.startTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}) : "—",
+    fin: state.endTs? new Date(state.endTs).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}) : "—",
+    usado: fmt(elapsed()),
+    ver: res.filter(x=>x.a.veredicto===x.c.ref.veredicto).length,
+    objHit: res.reduce((s,x)=>s+x.r.hits,0), objTot: res.reduce((s,x)=>s+x.c.ref.objetivos.length,0) };
+}
+function fileBase(){ const s=state.student; return ("informe-medios-"+(s?`${s.apellidos}-${s.nombres}`:"estudiante")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-"); }
+function requireStart(){ if(!started()){ toast("Primero registra tu nombre e inicia la dinámica 🙂",true); document.getElementById("inicio").scrollIntoView({behavior:"smooth"}); return false; } return true; }
+
+function downloadMD(){
+  if(!requireStart()) return;
+  const D=reportData(), s=state.student;
+  let md=`# Informe de la dinámica: ¿El medio fue la elección correcta?\n\n`;
+  md+=`**IDC Diseño & Comunicación – Instituto de Educación Superior Público**  \n`;
+  md+=`**Unidad didáctica:** ${UNIDAD}  \n**Docente:** ${DOCENTE}  \n**${SEMANA}**\n\n`;
+  md+=`## Datos del estudiante\n\n| Campo | Valor |\n|---|---|\n| Apellidos | ${s.apellidos} |\n| Nombres | ${s.nombres} |\n| Fecha | ${D.fecha} |\n| Hora de inicio | ${D.inicio} |\n| Hora de fin | ${D.fin} |\n| Tiempo utilizado | ${D.usado} de 25:00 |\n| Estado | ${D.estado} |\n\n`;
+  md+=`## Resumen\n\n- Casos evaluados: **${D.res.length} de 6**\n- Concordancia promedio: **${D.res.length?D.avg+"%":"—"}**\n- Veredictos coincidentes con la referencia: **${D.ver}/${D.res.length}**\n- Objetivos identificados: **${D.objHit}/${D.objTot}**\n- Calentamiento: **${state.warm.length}/6** relaciones correctas${state.warmDoneAt!=null?` (completado en el minuto ${fmt(state.warmDoneAt)})`:""}\n\n`;
+  md+=`## Tiempos por actividad\n\n| Actividad | Tiempo dedicado | Momento de entrega | Estado |\n|---|---|---|---|\n`;
+  md+=`| Calentamiento | ${fmt(state.times.warm||0)} | ${state.warmDoneAt!=null?fmt(state.warmDoneAt):"—"} | ${state.warm.length===6?"Completado":`${state.warm.length}/6`} |\n`;
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id]; md+=`| Caso ${i+1}: ${c.marca} | ${fmt(state.times[c.id]||0)} | ${a&&a.evalAt!=null?fmt(a.evalAt):"—"} | ${a&&a.evaluado?"Evaluado":"Pendiente"} |\n`; });
+  md+=`\n## Respuestas por caso\n\n`;
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id];
+    md+=`### ${i+1}. ${c.marca} — ${c.titulo}\n\n- **Medio empleado:** ${c.medio}\n`;
+    if(a&&a.evaluado){ const r=concordance(c,a);
+      md+=`- **Objetivo percibido:** ${a.objetivos.map(o=>OBJECTIVES[o]).join("; ")}\n- **Veredicto:** ${VLABEL[a.veredicto]} (referencia: ${VLABEL[c.ref.veredicto]})\n- **Concordancia:** ${r.total}% — ${levelOf(r.total).txt}\n- **Tiempo dedicado:** ${fmt(state.times[c.id]||0)}\n\n`;
+      md+=`| Criterio | Estudiante | Referencia |\n|---|---|---|\n`+CRITERIA.map((cr,k)=>`| ${cr} | ${a.criterios[k]} | ${c.ref.criterios[k]} |`).join("\n")+"\n\n";
+      md+=`**Anotación del estudiante:**\n\n> ${a.nota.trim().replace(/\n+/g," ")}\n\n`;
+      md+=`**Lo que hizo bien:**\n\n`+strengths(c,a,r).map(x=>"- "+x.replace(/<\/?b>/g,"**")).join("\n")+"\n\n";
+      md+=`**Para seguir creciendo:**\n\n`+growth(c,a).map(x=>"- "+x.replace(/<\/?b>/g,"**")).join("\n")+"\n\n";
+    } else md+=`- _Caso no evaluado._\n\n`;
+  });
+  const g=globalFeedback(D.res);
+  md+=`## Retroalimentación global\n\n`+(g.length? g.map(x=>`- ${x.t==="good"?"🌟":"🌱"} ${x.h}`).join("\n") : "- Aún no hay casos evaluados.")+"\n\n";
+  md+=`## Mensaje final\n\n${positiveClosing(D.res.length)}\n\n---\n\n${DOCENTE} · ${SEMANA} · Unidad didáctica: ${UNIDAD}\n`;
+  const blob=new Blob([md],{type:"text/markdown;charset=utf-8"}); const u=URL.createObjectURL(blob);
+  const l=document.createElement("a"); l.href=u; l.download=fileBase()+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
+  toast("✔ Informe Markdown descargado",true);
+}
+
+function chartImage(cfg, w, h){
+  const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+  cv.style.cssText=`position:fixed;left:-9999px;width:${w}px;height:${h}px`; document.body.appendChild(cv);
+  cfg.options=Object.assign({},cfg.options,{responsive:false,animation:false,devicePixelRatio:2});
+  cfg.plugins=[{id:"bg",beforeDraw:ch=>{const x=ch.ctx;x.save();x.fillStyle="#fff";x.fillRect(0,0,ch.width,ch.height);x.restore();}}];
+  const ch=new Chart(cv,cfg); const url=cv.toDataURL("image/jpeg",0.88); ch.destroy(); cv.remove(); return url;
+}
+function pdfSafe(s){ return String(s).replace(/<\/?b>/g,"").replace(/[“”]/g,'"').replace(/[^\x00-\xFF—–‘’"]/g,"").trim(); }
+
+function downloadPDF(){
+  if(!requireStart()) return;
+  if(!window.jspdf){ toast("No se pudo cargar el generador de PDF (revisa tu conexión). Usa el informe Markdown.",true); return; }
+  const { jsPDF } = window.jspdf; const doc=new jsPDF({unit:"mm",format:"a4",compress:true});
+  const D=reportData(), s=state.student, W=210, M=15; let y=M;
+  const BLUE=[0,113,188], ORANGE=[242,161,0], GRAY=[95,107,120], INK=[27,31,36];
+  const ensure=h=>{ if(y+h>282){ doc.addPage(); y=M+4; } };
+
+  // Cabecera
+  if(window.IDC_LOGO){ const lw=48, lh=lw*IDC_LOGO.h/IDC_LOGO.w; doc.addImage(IDC_LOGO.src,"JPEG",M,y,lw,lh); }
+  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...GRAY);
+  doc.text("UNIDAD DIDÁCTICA", W-M, y+5, {align:"right"});
+  doc.setFontSize(10); doc.setTextColor(...INK); doc.text(UNIDAD, W-M, y+10, {align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GRAY); doc.text(`${DOCENTE} · ${SEMANA}`, W-M, y+15, {align:"right"});
+  y+=24; doc.setDrawColor(...BLUE); doc.setLineWidth(.8); doc.line(M,y,W-M,y); y+=9;
+
+  doc.setFont("helvetica","bold"); doc.setFontSize(17); doc.setTextColor(...INK);
+  doc.text("Informe de la dinámica: ¿El medio fue la elección correcta?", M, y); y+=6;
+  doc.setFont("helvetica","normal"); doc.setFontSize(9.5); doc.setTextColor(...GRAY);
+  doc.text("Evaluación de la elección de medios en 6 casos reales de comunicación publicitaria.", M, y); y+=6;
+
+  doc.autoTable({ startY:y, margin:{left:M,right:M}, theme:"plain", styles:{fontSize:9.5,cellPadding:1.8,textColor:INK},
+    columnStyles:{0:{fontStyle:"bold",cellWidth:38,textColor:GRAY},2:{fontStyle:"bold",cellWidth:38,textColor:GRAY}},
+    body:[["Apellidos",s.apellidos,"Fecha",D.fecha],["Nombres",s.nombres,"Inicio / fin",`${D.inicio} / ${D.fin}`],["Tiempo utilizado",`${D.usado} de 25:00`,"Estado",D.estado]] });
+  y=doc.lastAutoTable.finalY+5;
+
+  // KPIs
+  const k=[["Casos evaluados",`${D.res.length}/6`],["Concordancia media",D.res.length?D.avg+"%":"—"],["Veredictos coincidentes",`${D.ver}/${D.res.length}`],["Objetivos identificados",`${D.objHit}/${D.objTot}`]];
+  const kw=(W-2*M-9)/4;
+  k.forEach((x,i)=>{ const kx=M+i*(kw+3); doc.setFillColor(238,242,246); doc.roundedRect(kx,y,kw,17,2,2,"F");
+    doc.setFontSize(7.5); doc.setTextColor(...GRAY); doc.text(x[0],kx+3,y+5.5);
+    doc.setFont("helvetica","bold"); doc.setFontSize(14); doc.setTextColor(...BLUE); doc.text(x[1],kx+3,y+13); doc.setFont("helvetica","normal"); });
+  y+=24;
+
+  // Tiempos
+  doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...INK); doc.text("Tiempos por actividad", M, y); y+=2;
+  const trows=[["Calentamiento",fmt(state.times.warm||0),state.warmDoneAt!=null?fmt(state.warmDoneAt):"—",state.warm.length===6?"Completado":`${state.warm.length}/6`]]
+    .concat(CASES.map((c,i)=>{ const a=state.answers[c.id]; return [`Caso ${i+1}: ${c.marca}`,fmt(state.times[c.id]||0),a&&a.evalAt!=null?fmt(a.evalAt):"—",a&&a.evaluado?"Evaluado":"Pendiente"]; }));
+  doc.autoTable({ startY:y+2, margin:{left:M,right:M}, head:[["Actividad","Tiempo dedicado","Minuto de entrega","Estado"]], body:trows,
+    styles:{fontSize:9,cellPadding:2}, headStyles:{fillColor:BLUE}, alternateRowStyles:{fillColor:[245,247,250]} });
+  y=doc.lastAutoTable.finalY+7;
+
+  // Respuestas resumen
+  ensure(30);
+  doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...INK); doc.text("Respuestas por caso", M, y);
+  doc.autoTable({ startY:y+2, margin:{left:M,right:M},
+    head:[["Caso","Medio","Objetivo percibido","Veredicto","Referencia","Concord."]],
+    body:CASES.map((c,i)=>{ const a=state.answers[c.id], ev=a&&a.evaluado;
+      return [`${i+1}. ${c.marca}`, c.medio, ev?a.objetivos.map(o=>OBJECTIVES[o]).join("; "):"—", ev?VLABEL[a.veredicto]:"—", ev?VLABEL[c.ref.veredicto]:"—", ev?concordance(c,a).total+"%":"—"]; }),
+    styles:{fontSize:8.3,cellPadding:2,valign:"top"}, headStyles:{fillColor:BLUE}, columnStyles:{0:{cellWidth:25,fontStyle:"bold"},5:{cellWidth:17,halign:"center"}},
+    alternateRowStyles:{fillColor:[245,247,250]} });
+  y=doc.lastAutoTable.finalY+7;
+
+  // Gráficas
+  const res=D.res;
+  if(res.length){
+    ensure(75);
+    doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.text("Gráficas", M, y); y+=3;
+    const bar=chartImage({type:"bar",data:{labels:CASES.map(c=>c.marca),datasets:[{data:CASES.map(c=>{const a=state.answers[c.id];return a&&a.evaluado?concordance(c,a).total:0;}),backgroundColor:"#0071bc",borderRadius:4}]},
+      options:{plugins:{legend:{display:false},title:{display:true,text:"Concordancia por caso (%)",color:"#1b1f24"}},scales:{y:{min:0,max:100,ticks:{color:"#5f6b78"},grid:{color:"#dde3ea"}},x:{ticks:{color:"#1b1f24"},grid:{display:false}}}}},560,380);
+    const {you,ref}=avgProfiles(res);
+    const rcfg=radarCfg(you,ref,true); rcfg.options.plugins.title={display:true,text:"Perfil promedio: estudiante vs. referencia",color:"#1b1f24"};
+    const rad=chartImage(rcfg,480,380);
+    const gw=(W-2*M-6)/2;
+    doc.addImage(bar,"JPEG",M,y,gw,gw*380/560); doc.addImage(rad,"JPEG",M+gw+6,y,gw*0.86,gw*0.86*380/480);
+    y+=gw*380/560+6;
+  }
+
+  // Detalle por caso
+  CASES.forEach((c,i)=>{ const a=state.answers[c.id]; if(!(a&&a.evaluado)) return; const r=concordance(c,a);
+    ensure(40);
+    doc.setFillColor(...BLUE); doc.rect(M,y,2,7,"F");
+    doc.setFont("helvetica","bold"); doc.setFontSize(11); doc.setTextColor(...INK); doc.text(pdfSafe(`${i+1}. ${c.marca} — ${c.titulo}`), M+5, y+5);
+    doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...GRAY);
+    doc.text(pdfSafe(`${levelOf(r.total).txt}  ·  ${r.total}%  ·  Tiempo: ${fmt(state.times[c.id]||0)}`), W-M, y+5, {align:"right"}); y+=10;
+    doc.autoTable({ startY:y, margin:{left:M,right:M}, head:[CRITERIA], body:[a.criterios.map((v,k)=>`${v}  (ref. ${c.ref.criterios[k]})`)],
+      styles:{fontSize:8.5,halign:"center",cellPadding:1.6}, headStyles:{fillColor:[238,242,246],textColor:INK} });
+    y=doc.lastAutoTable.finalY+4;
+    const block=(title,text,color)=>{ doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.setTextColor(...color); ensure(10); doc.text(title,M,y); y+=4.5;
+      doc.setFont("helvetica","normal"); doc.setTextColor(...INK); const lines=doc.splitTextToSize(text,W-2*M-3); lines.forEach(l=>{ ensure(5); doc.text(l,M+3,y); y+=4.3; }); y+=1.5; };
+    block("Anotación del estudiante:", pdfSafe(a.nota.replace(/\n+/g," ")), BLUE);
+    block("Lo que hizo bien:", strengths(c,a,r).map(x=>"• "+pdfSafe(x)).join("\n"), [43,138,62]);
+    block("Para seguir creciendo:", growth(c,a).map(x=>"• "+pdfSafe(x)).join("\n"), [199,119,0]);
+    y+=3;
+  });
+
+  // Global
+  const g=globalFeedback(res);
+  ensure(30);
+  doc.setFont("helvetica","bold"); doc.setFontSize(12); doc.setTextColor(...INK); doc.text("Retroalimentación global", M, y); y+=6;
+  doc.setFont("helvetica","normal"); doc.setFontSize(9.5);
+  (g.length?g:[{t:"good",h:"Aún no hay casos evaluados."}]).forEach(x=>{ const lines=doc.splitTextToSize((x.t==="good"?"+ ":"> ")+pdfSafe(x.h),W-2*M-3); lines.forEach(l=>{ ensure(5); doc.text(l,M+2,y); y+=4.6; }); y+=1; });
+  y+=3; ensure(20);
+  doc.setFillColor(253,241,214); const fl=doc.splitTextToSize(pdfSafe(positiveClosing(res.length)),W-2*M-10);
+  doc.roundedRect(M,y,W-2*M,fl.length*5+8,2,2,"F"); doc.setFont("helvetica","bold"); doc.setTextColor(...INK); doc.text(fl,M+5,y+6.5);
+
+  // Pie de página
+  const pages=doc.getNumberOfPages();
+  for(let p=1;p<=pages;p++){ doc.setPage(p); doc.setDrawColor(...ORANGE); doc.setLineWidth(.6); doc.line(M,287,W-M,287);
+    doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...GRAY);
+    doc.text(`${DOCENTE} · ${SEMANA} · ${UNIDAD}`, M, 292); doc.text(`${p} / ${pages}`, W-M, 292, {align:"right"}); }
+
+  doc.save(fileBase()+".pdf");
+  toast("✔ Informe PDF descargado",true);
+}
+
+$("#pdfBtn").onclick=downloadPDF;
+$("#mdBtn").onclick=downloadMD;
+$("#finishBtn2").onclick=()=>{ if(!requireStart()) return; if(finished()){ toast("La dinámica ya fue finalizada. ¡Descarga tu informe!",true); return; } askFinish(); };
+$("#resetBtn").onclick=()=>{ if(!confirm("¿Borrar todas las respuestas, el registro y el tiempo para empezar de nuevo?")) return;
+  state=freshState(); save(); renderAll(); window.scrollTo({top:0,behavior:"smooth"}); toast("Dinámica reiniciada",true); };
+
+/* =========================================================
+   INICIO
+   ========================================================= */
+function renderAll(){
+  const locked=!started();
+  $("#warmLock").classList.toggle("locked",locked); $("#caseLock").classList.toggle("locked",locked);
+  $("#warmBody").inert = !active(); $("#tabs").inert = locked;
+  renderRegister(); renderWarm(); renderCase(state.current||0); renderDashboard(); updateTimerUI();
+}
+if(active() && elapsed()>=DURATION) { state.endTs=state.startTs+DURATION*1000; state.endReason="tiempo"; save(); }
+renderAll();
+setInterval(tick,1000);
+</script>
+</body>
+</html>
