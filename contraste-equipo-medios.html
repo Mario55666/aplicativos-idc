@@ -927,8 +927,7 @@ function fileBase(){ const s=state.student; return ("informe-contraste-"+(s?`${s
 function requireStart(){ if(!started()){ toast("Primero regístrate e inicia la actividad 🙂",true); document.getElementById("inicio").scrollIntoView({behavior:"smooth"}); return false; } return true; }
 const strip=s=>String(s).replace(/<\/?b>/g,"");
 
-function downloadMD(){
-  if(!requireStart()) return;
+function buildMD(){
   const I=info(), s=state.student;
   let md=`# Informe – Actividad 2: Contraste de juicio en equipo\n\n**IDC Diseño & Comunicación – Instituto de Educación Superior Público**  \n**Unidad didáctica:** ${UNIDAD}  \n**Docente:** ${DOCENTE}  \n**${SEMANA}**\n\n`;
   md+=`> Consigna: Contrasta tu juicio inicial con el de tu equipo y anota qué información te faltaba para decidir con fundamento (a quién le habla el mensaje, cuánto cuesta el medio, cuánto tiempo toma producirlo). Ordena los 6 casos de mayor a menor certeza en tu propio juicio inicial.\n\n`;
@@ -955,6 +954,11 @@ function downloadMD(){
   md+=`## Retroalimentación global\n\n`+(g.length?g.map(x=>`- ${x.t==="good"?"🌟":"🌱"} ${x.h.replace(/<\/?b>/g,"**")}`).join("\n"):"- Aún no hay casos contrastados.")+"\n\n";
   md+=`## Secuencia del plan de trabajo con costos\n\n1. **Objetivo** — qué queremos lograr\n2. **Público** — a quién le habla el mensaje\n3. **Mensaje** — idea central y tono\n4. **Medio** — dónde está ese público\n5. **Presupuesto** — medios 60–70 %, producción 20–30 %, reserva 10 % (si excede → reajustar el medio)\n6. **Producción y difusión** — de días a meses según el medio\n7. **Medición** — costo por resultado\n\n`;
   md+=`## Mensaje final\n\n${closing()}\n\n---\n\n${DOCENTE} · ${SEMANA} · Unidad didáctica: ${UNIDAD}\n`;
+  return md;
+}
+function downloadMD(){
+  if(!requireStart()) return;
+  const md=buildMD();
   const blob=new Blob([md],{type:"text/markdown;charset=utf-8"}), u=URL.createObjectURL(blob), l=document.createElement("a");
   l.href=u; l.download=fileBase()+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
   toast("✔ Informe Markdown descargado",true);
@@ -1071,5 +1075,6 @@ if(active()&&elapsed()>=DURATION){ state.endTs=state.startTs+DURATION*1000; stat
 renderAll();
 setInterval(tick,1000);
 </script>
+<script src="envio-resultados.js" data-actividad="actividad-2"></script>
 </body>
 </html>

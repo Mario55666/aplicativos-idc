@@ -1318,9 +1318,7 @@ const strip=s=>String(s).replace(/<\/?b>/g,"");
 const AIL={si:"Sí, en todo",parcial:"Parcialmente",no:"No coincidió"};
 function cellTxt(p,c){ const v=vals(p.id)[c.id]; return v?`${v} (ref. ${p.ref[c.id]})`:"—"; }
 
-function downloadMD(){
-  if(!requireStart()) return;
-  state.reportDone=true; save(); updateStats();
+function buildMD(){
   const I=info(), s=state.student, q=promptQuality();
   let md=`# Informe – Actividad 3: Matriz de criterios, mini-caso y constructor de prompts\n\n**IDC Diseño & Comunicación – Instituto de Educación Superior Público**  \n**Unidad didáctica:** ${UNIDAD}  \n**Docente:** ${DOCENTE}  \n**${SEMANA}**\n\n`;
   md+=`## Datos del estudiante\n\n| Campo | Valor |\n|---|---|\n| Apellidos | ${s.apellidos} |\n| Nombres | ${s.nombres} |\n| Correo electrónico | ${s.email||"—"} |\n| Fecha | ${I.fecha} |\n| Inicio / fin | ${I.inicio} / ${I.fin} |\n| Tiempo utilizado | ${I.usado} de 30:00 |\n| Estado | ${I.estado} |\n\n`;
@@ -1350,6 +1348,12 @@ function downloadMD(){
   const mp=mindProgress(); md+=`## Mapa de proceso (${mp.pct}% completado)\n\n| Rama | Avance | Detalle |\n|---|---|---|\n`+mp.b.map(b=>{ const v=b.leaves.reduce((a,l)=>a+l.v,0)/b.leaves.length; return `| ${b.label} | ${Math.round(v*100)}% | ${b.leaves.map(l=>(l.v>=1?"✓ ":l.v>0?"◐ ":"○ ")+l.t).join(" · ")} |`; }).join("\n")+"\n\n";
   const g=globalFb(); md+=`## Retroalimentación global\n\n`+(g.length?g.map(x=>`- ${x.t==="good"?"🌟":"🌱"} ${x.h.replace(/<\/?b>/g,"**")}`).join("\n"):"- Aún no hay avances registrados.")+"\n\n";
   md+=`## Mensaje final\n\n${s.nombres}, ${closing()}\n\n---\n\n${DOCENTE} · ${SEMANA} · Unidad didáctica: ${UNIDAD}\n`;
+  return md;
+}
+function downloadMD(){
+  if(!requireStart()) return;
+  state.reportDone=true; save(); updateStats();
+  const md=buildMD();
   const blob=new Blob([md],{type:"text/markdown;charset=utf-8"}), u=URL.createObjectURL(blob), l=document.createElement("a");
   l.href=u; l.download=fileBase()+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000); toast("✔ Informe Markdown descargado",true);
 }
@@ -1470,5 +1474,6 @@ renderAll();
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>drawCard());
 setInterval(tick,1000);
 </script>
+<script src="envio-resultados.js" data-actividad="actividad-3"></script>
 </body>
 </html>

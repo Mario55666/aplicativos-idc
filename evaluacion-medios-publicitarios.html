@@ -982,8 +982,7 @@ function reportData(){
 function fileBase(){ const s=state.student; return ("informe-medios-"+(s?`${s.apellidos}-${s.nombres}`:"estudiante")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-"); }
 function requireStart(){ if(!started()){ toast("Primero registra tu nombre e inicia la dinámica 🙂",true); document.getElementById("inicio").scrollIntoView({behavior:"smooth"}); return false; } return true; }
 
-function downloadMD(){
-  if(!requireStart()) return;
+function buildMD(){
   const D=reportData(), s=state.student;
   let md=`# Informe de la dinámica: ¿El medio fue la elección correcta?\n\n`;
   md+=`**IDC Diseño & Comunicación – Instituto de Educación Superior Público**  \n`;
@@ -1007,6 +1006,11 @@ function downloadMD(){
   const g=globalFeedback(D.res);
   md+=`## Retroalimentación global\n\n`+(g.length? g.map(x=>`- ${x.t==="good"?"🌟":"🌱"} ${x.h}`).join("\n") : "- Aún no hay casos evaluados.")+"\n\n";
   md+=`## Mensaje final\n\n${positiveClosing(D.res.length)}\n\n---\n\n${DOCENTE} · ${SEMANA} · Unidad didáctica: ${UNIDAD}\n`;
+  return md;
+}
+function downloadMD(){
+  if(!requireStart()) return;
+  const md=buildMD();
   const blob=new Blob([md],{type:"text/markdown;charset=utf-8"}); const u=URL.createObjectURL(blob);
   const l=document.createElement("a"); l.href=u; l.download=fileBase()+".md"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),1000);
   toast("✔ Informe Markdown descargado",true);
@@ -1146,5 +1150,6 @@ if(active() && elapsed()>=DURATION) { state.endTs=state.startTs+DURATION*1000; s
 renderAll();
 setInterval(tick,1000);
 </script>
+<script src="envio-resultados.js" data-actividad="actividad-1"></script>
 </body>
 </html>
